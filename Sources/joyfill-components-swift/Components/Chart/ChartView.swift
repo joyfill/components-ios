@@ -45,6 +45,10 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
         setupUI()
     }
     
+    public override func viewWillDisappear(_ animated: Bool) {
+        addPointButtonIndexPath = 0
+    }
+    
     func setupUI() {
         // SubViews
         view.addSubview(scrollView)
