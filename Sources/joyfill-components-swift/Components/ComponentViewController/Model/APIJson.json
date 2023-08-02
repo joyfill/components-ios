@@ -1,0 +1,451 @@
+{
+    "_id": "64be287b735f7f9d96f4ce16",
+    "type": "template",
+    "stage": "draft",
+    "metadata": {},
+    "identifier": "doc_64be287b735f7f9d96f4ce16",
+    "name": "Test Doc",
+    "createdOn": 1690183883557,
+    "files": [
+        {
+            "_id": "64be287bdebd2b101263fb20",
+            "metadata": {},
+            "name": "New File",
+            "version": 1,
+            "styles": {},
+            "pages": [
+                {
+                    "_id": "64be287b4125ed9a3fb7de9b",
+                    "metadata": {},
+                    "name": "New Page",
+                    "width": 816,
+                    "height": 1056,
+                    "cols": 24,
+                    "rowHeight": 8,
+                    "layout": "grid",
+                    "presentation": "normal",
+                    "margin": 0,
+                    "padding": 0,
+                    "borderWidth": 0,
+                    "fields": [
+                        {
+                          "type": "text",
+                          "displayType": "original",
+                          "title": "Text Field Title",
+                          "identifier": "text_identifier",
+                          "_id": "62bddaae4d83f36d60cbb7c1",
+                          "field": "62bddaaea1770dd384d08b91",
+                          "value": "Text Field Value",
+                          "x": 1,
+                          "y": 1
+                        },
+                        {
+                          "type": "textarea",
+                          "displayType": "original",
+                          "title": "Textarea Title",
+                          "identifier": "textarea_identifier",
+                          "_id": "62bddaae4d83f36d60cbb7c2",
+                          "field": "62bddaaea1770dd384d08b92",
+                          "value": "Textarea Field Value Line 1 \nTextarea Field Value Line 2",
+                          "x": 1,
+                          "y": 2
+                        },
+                        {
+                          "type": "dropdown",
+                          "displayType": "original",
+                          "title": "Dropdown Title....",
+                          "identifier": "dropdown_identifier",
+                          "_id": "62bddaae4d83f36d60cbb7c3",
+                          "field": "62bddaaea1770dd384d08b93",
+                          "value": "62bddaae4d83f36d60cbb7c13",
+                          "x": 1,
+                          "y": 3,
+                          "options": [
+                            {
+                              "_id": "62bddaae4d83f36d60cbb7c11",
+                              "value": "Option 1"
+                            },
+                            {
+                              "_id": "62bddaae4d83f36d60cbb7c12",
+                              "value": "Option 2 Example value"
+                            },
+                            {
+                              "_id": "62bddaae4d83f36d60cbb7c13",
+                              "value": "Option 3 Example value with a really long value for this one yo! It will propably need to wrap."
+                            }
+                          ]
+                        },
+                        {
+                          "type": "number",
+                          "displayType": "original",
+                          "title": "Number Title",
+                          "identifier": "number_identifier",
+                          "_id": "62bddaae4d83f36d60cbb7c5",
+                          "field": "62bddaaea1770dd384d08b95",
+                          "value": 100.11,
+                          "x": 1,
+                          "y": 5
+                        },
+                        {
+                          "type": "image",
+                          "displayType": "original",
+                          "title": "Image Title",
+                          "identifier": "image_identifier",
+                          "_id": "62bddaae4d83f36d60cbb7c7",
+                          "field": "62bddaaea1770dd384d08b97",
+                          "multi": true,
+                          "value": [
+                            {
+                              "_id": "62bddaae4d83f36d60cbb711",
+                              "url": "https://images.unsplash.com/photo-1689152842048-6f0e4ef8e3f6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=987&q=80"
+                            },
+                            {
+                              "_id": "62bddaae4d83f36d60cbb722",
+                              "url": "https://images.unsplash.com/photo-1688383213635-9bc2fc25103d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2370&q=80"
+                            }
+                          ],
+                          "x": 1,
+                          "y": 7
+                        },
+                        {
+                          "type": "block",
+                          "displayType": "original",
+                          "identifier": "block_identifier",
+                          "_id": "62bddaae4d83f36d60cbb7c8",
+                          "field": "62bddaaea1770dd384d08b98",
+                          "value": "Block Field Value... ",
+                          "x": 1,
+                          "y": 8,
+                          "fontSize": 24,
+                          "fontColor": "",
+                          "fontWeight": "bold",
+                          "fontStyle": "italic",
+                          "textAlign": "center",
+                          "textDecoration": "underline",
+                          "textTransform": "uppercase"
+                        },
+                        {
+                          "type": "chart",
+                          "displayType": "original",
+                          "title": "Chart Field Title",
+                          "identifier": "chart_identifier",
+                          "_id": "62bddaae4d83f36d60cbb710",
+                          "field": "62bddaaea1770dd384d08b10",
+                          "x": 1,
+                          "y": 10,
+                          "value": [
+                            {
+                              "_id": "62bddaae4d83f36d60cbb710",
+                              "points": [
+                                {
+                                  "_id": "62bddaae4d83f36d60cbb720",
+                                  "label": "P1",
+                                  "y": 10,
+                                  "x": 55
+                                },
+                                {
+                                  "_id": "62bddaae4d83f36d60cbb721",
+                                  "label": "P2",
+                                  "y": 0.6,
+                                  "x": 10
+                                },
+                                {
+                                  "_id": "62bddaae4d83f36d60cbb722",
+                                  "label": "P3",
+                                  "y": 0,
+                                  "x": 25
+                                }
+                              ]
+                            },
+                            {
+                              "_id": "62bddaae4d83f36d60cbb711",
+                              "points": [
+                                {
+                                  "_id": "62bddaae4d83f36d60cbb723",
+                                  "label": "",
+                                  "y": 0,
+                                  "x": 0
+                                },
+                                {
+                                  "_id": "62bddaae4d83f36d60cbb724",
+                                  "label": "",
+                                  "y": 0.9,
+                                  "x": 25
+                                }
+                              ]
+                            }
+                          ],
+                          "yTitle": "PSI",
+                          "yMax": 1,
+                          "yMin": 0,
+                          "xTitle": "GPMs",
+                          "xMax": 30,
+                          "xMin": 0
+                        },
+                        {
+                          "type": "table",
+                          "displayType": "original",
+                          "identifier": "table_identifier",
+                          "_id": "62bddaae4d83f36d60cbb712",
+                          "field": "62bddaaea1770dd384d08b12",
+                          "x": 1,
+                          "y": 12,
+                          "value": [
+                            {
+                              "_id": "62bddaae4d83f36d60cbb001",
+                              "cells": {
+                                "62be03c708965de549c195aa": "Cell 002",
+                                "62be03c708965de549c195bb": "62bddaae4d83f36d60cbb7c11",
+                                "62be03c708965de549c195cc": [
+                                  {
+                                    "_id": "62bddaae4d83f36d60cbb711",
+                                    "url": "https://images.unsplash.com/photo-1689152842048-6f0e4ef8e3f6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=987&q=80"
+                                  },
+                                  {
+                                    "_id": "62bddaae4d83f36d60cbb722",
+                                    "url": "https://images.unsplash.com/photo-1688383213635-9bc2fc25103d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2370&q=80"
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "_id": "62bddaae4d83f36d60cbb002",
+                              "cells": {
+                                "62be03c708965de549c195aa": "Cell 001",
+                                "62be03c708965de549c195bb": "62bddaae4d83f36d60cbb7c12"
+                              }
+                            }
+                          ],
+                          "rowOrder": [
+                            "62bddaae4d83f36d60cbb002",
+                            "62bddaae4d83f36d60cbb001"
+                          ],
+                          "tableColumnOrder": [
+                            "62be03c708965de549c195aa",
+                            "62be03c708965de549c195ac",
+                            "62be03c708965de549c195ab"
+                          ],
+                          "tableColumns": [
+                            {
+                              "_id": "62be03c708965de549c195aa",
+                              "title": "Text Column Title",
+                              "type": "text",
+                              "identifier": "textcolumn_identifier",
+                              "value": "Default Text Cell Value"
+                            },
+                            {
+                              "_id": "62be03c708965de549c195ab",
+                              "title": "Dropdown Column Title.... with long title for descriptive column title example",
+                              "type": "dropdown",
+                              "identifier": "dropdowncolumn_identifier",
+                              "value": "62bddaae4d83f36d60cbb7c12",
+                              "options": [
+                                {
+                                  "_id": "62bddaae4d83f36d60cbb7c11",
+                                  "value": "Option 1 Column Default Value"
+                                },
+                                {
+                                  "_id": "62bddaae4d83f36d60cbb7c12",
+                                  "value": "Option 2 Column Default Value Example value with a really long value for this one yo! It will propably need to wrap."
+                                }
+                              ]
+                            },
+                            {
+                              "_id": "62be03c708965de549c195ac",
+                              "title": "Image Column Title",
+                              "type": "image",
+                              "identifier": "imagecolumn_identifier",
+                              "maxImageWidth": 50,
+                              "maxImageHeight": 100
+                            }
+                          ]
+                        },
+                      ]
+                }
+            ],
+            "views": []
+        }
+    ],
+    "fields": [
+        {
+            "file": "64be287bdebd2b101263fb20",
+            "_id": "64be7a622af1049954a33edc",
+            "field": "64be7a622af1049954a33edc",
+            "type": "block",
+            "identifier": "field_64be7a84245e49b08aa3ab28",
+            "title": "Display Text",
+            "value": "",
+            "metadata": {}
+        },
+        {
+            "file": "64be287bdebd2b101263fb20",
+            "_id": "64be7a845eac88fec208876c",
+            "field": "64be7a845eac88fec208876c",
+            "type": "text",
+            "identifier": "field_64be7a8ea9706dcbba0b0fcf",
+            "title": "Short Text",
+            "value": "Jane Doe",
+            "metadata": {}
+        },
+        {
+            "file": "64be287bdebd2b101263fb20",
+            "_id": "64be7a8e5fddf4b110631bdb",
+            "field": "64be7a8e5fddf4b110631bdb",
+            "type": "number",
+            "identifier": "field_64be7a940ee943dcf67c9e3d",
+            "title": "Number",
+            "value": "123",
+            "metadata": {}
+        },
+        {
+            "file": "64be287bdebd2b101263fb20",
+            "_id": "64be7a941b9753db964f588a",
+            "field": "64be7a941b9753db964f588a",
+            "type": "dropdown",
+            "identifier": "field_64be7a9b0cef60477c4fed7f",
+            "title": "Dropdown",
+            "options": [
+                {
+                    "value": "Yes",
+                    "deleted": false,
+                    "_id": "64ba6548e333bc9080071d97"
+                },
+                {
+                    "value": "No",
+                    "deleted": false,
+                    "_id": "64ba65486614d4b3d2aaabdf"
+                },
+                {
+                    "value": "N/A",
+                    "deleted": false,
+                    "_id": "64ba6548b99b1362e8322a8a"
+                }
+            ],
+            "metadata": {}
+        },
+        {
+            "file": "64be287bdebd2b101263fb20",
+            "_id": "64be7a9bdfe88c3fe6d0882e",
+            "field": "64be7a9bdfe88c3fe6d0882e",
+            "type": "table",
+            "identifier": "field_64be7aa04af2d9ae6a78c2de",
+            "title": "Table",
+            "value": [
+                {
+                    "_id": "64ba6548f2e10cc44568ac9f",
+                    "deleted": false,
+                    "cells": {}
+                },
+                {
+                    "_id": "64ba65487e6615e34d12dbec",
+                    "deleted": false,
+                    "cells": {}
+                },
+                {
+                    "_id": "64ba654894be4670d14c4ea1",
+                    "deleted": false,
+                    "cells": {}
+                }
+            ],
+            "tableColumns": [
+                {
+                    "title": "Text Column",
+                    "type": "text",
+                    "identifier": "field_column_64be7aa0efa22c2851aa066d",
+                    "optionOrder": [],
+                    "width": 200,
+                    "maxImageWidth": 100,
+                    "maxImageHeight": 100,
+                    "deficiencies": false,
+                    "requireDeficiencyTitle": false,
+                    "requireDeficiencyDescription": false,
+                    "requireDeficiencyPhoto": false,
+                    "blockImport": false,
+                    "deleted": false,
+                    "_id": "64ba6548d5f8e85209c1e29b",
+                    "options": []
+                },
+                {
+                    "title": "Dropdown Column",
+                    "type": "dropdown",
+                    "identifier": "field_column_64be7aa08823709830ed2f0d",
+                    "options": [
+                        {
+                            "value": "Yes",
+                            "deleted": false,
+                            "_id": "64ba654871c7beb37a202756"
+                        },
+                        {
+                            "value": "No",
+                            "deleted": false,
+                            "_id": "64ba6548a78661066c611c4d"
+                        },
+                        {
+                            "value": "N/A",
+                            "deleted": false,
+                            "_id": "64ba6548027bac75b65760a5"
+                        }
+                    ],
+                    "optionOrder": [],
+                    "width": 200,
+                    "maxImageWidth": 100,
+                    "maxImageHeight": 100,
+                    "deficiencies": false,
+                    "requireDeficiencyTitle": false,
+                    "requireDeficiencyDescription": false,
+                    "requireDeficiencyPhoto": false,
+                    "blockImport": false,
+                    "deleted": false,
+                    "_id": "64ba65484e88153a6a3588ea"
+                },
+                {
+                    "title": "Image Column",
+                    "type": "image",
+                    "identifier": "field_column_64be7aa0ff12ec09ab7c2b49",
+                    "optionOrder": [],
+                    "width": 200,
+                    "maxImageWidth": 200,
+                    "maxImageHeight": 120,
+                    "deficiencies": false,
+                    "requireDeficiencyTitle": false,
+                    "requireDeficiencyDescription": false,
+                    "requireDeficiencyPhoto": false,
+                    "blockImport": false,
+                    "deleted": false,
+                    "_id": "64ba654831dd02525734a3dc",
+                    "options": []
+                }
+            ],
+            "metadata": {}
+        },
+        {
+            "file": "64be287bdebd2b101263fb20",
+            "_id": "64be7aa01761c9648dd0bf51",
+            "field": "64be7aa01761c9648dd0bf51",
+            "type": "textarea",
+            "identifier": "field_64be7ab8d82b77c25a5dfdaf",
+            "title": "Long Text",
+            "value": "",
+            "metadata": {}
+        },
+        {
+            "file": "64be287bdebd2b101263fb20",
+            "_id": "64be7ab8fbdded09dd92d923",
+            "field": "64be7ab8fbdded09dd92d923",
+            "type": "chart",
+            "identifier": "field_64be7ac49a839194f94e49b5",
+            "title": "Chart",
+            "metadata": {}
+        },
+        {
+            "file": "64be287bdebd2b101263fb20",
+            "_id": "64be7ac56f7241abd4f66f33",
+            "field": "64be7ac56f7241abd4f66f33",
+            "type": "image",
+            "identifier": "field_64be7ac88c6549425ff2b1ef",
+            "title": "Image",
+            "metadata": {}
+        }
+    ],
+    "categories": []
+}
