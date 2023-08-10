@@ -82,7 +82,7 @@ public class MultipleChoice: UIView {
     
     //Multiple Choice Table View backgroundColor
     @IBInspectable
-    open var cellbackgroundColor: UIColor? {
+    open var cellBackgroundColor: UIColor? {
         didSet {
             layer.backgroundColor = backgroundColor?.cgColor
         }
@@ -155,30 +155,30 @@ extension MultipleChoice: UITableViewDelegate, UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MultiChoiceTableViewCell", for: indexPath as IndexPath) as! MultiChoiceTableViewCell
         if multiSelect == true {
             if selectedIndexPath.contains(indexPath.row) {
-                cell.myCheckbox.isChecked = true
-                cell.myCheckbox.checkboxFillColor = UIColor(hexString: "#3767ED") ?? .lightGray
+                cell.cellCheckbox.isChecked = true
+                cell.cellCheckbox.checkboxFillColor = UIColor(hexString: "#3767ED") ?? .lightGray
             } else {
-                cell.myCheckbox.isChecked = false
-                cell.myCheckbox.checkboxFillColor = .white
+                cell.cellCheckbox.isChecked = false
+                cell.cellCheckbox.checkboxFillColor = .white
             }
         } else {
             if selectArray == indexPath.row {
-                cell.myCheckbox.isChecked = true
-                cell.myCheckbox.checkmarkStyle = .circle
-                cell.myCheckbox.borderStyle = .circle
-                cell.myCheckbox.checkmarkSize = 0.4
-                cell.myCheckbox.checkboxFillColor = UIColor(hexString: "#256FFF") ?? .blue
-                cell.myCheckbox.checkmarkColor = .white
+                cell.cellCheckbox.isChecked = true
+                cell.cellCheckbox.checkmarkStyle = .circle
+                cell.cellCheckbox.borderStyle = .circle
+                cell.cellCheckbox.checkmarkSize = 0.4
+                cell.cellCheckbox.checkboxFillColor = UIColor(hexString: "#256FFF") ?? .blue
+                cell.cellCheckbox.checkmarkColor = .white
             } else {
-                cell.myCheckbox.isChecked = false
-                cell.myCheckbox.checkboxFillColor = .white
-                cell.myCheckbox.borderStyle = .circle
-                cell.myCheckbox.uncheckedBorderColor = UIColor(hexString: "#D1D1D6")
-                cell.myCheckbox.borderLineWidth = 5
+                cell.cellCheckbox.isChecked = false
+                cell.cellCheckbox.checkboxFillColor = .white
+                cell.cellCheckbox.borderStyle = .circle
+                cell.cellCheckbox.uncheckedBorderColor = UIColor(hexString: "#D1D1D6")
+                cell.cellCheckbox.borderLineWidth = 5
             }
         }
         cell.selectionStyle = .none
-        cell.myCheckbox.isUserInteractionEnabled = false
+        cell.cellCheckbox.isUserInteractionEnabled = false
         cell.cellLabel.text = choiceOptionsArray[indexPath.row]
         return cell
     }
