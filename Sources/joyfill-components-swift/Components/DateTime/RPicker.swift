@@ -400,7 +400,7 @@ class RPickerController: UIViewController {
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.textAlignment = .center
-        label.font = UIFont(name: "HelveticaNeue", size: 14)
+        label.font = UIFont.systemFont(ofSize: 14)
         label.numberOfLines = 2
         return label
     }()
@@ -408,7 +408,7 @@ class RPickerController: UIViewController {
     private lazy var doneButton: UIButton = {
         let button = UIButton()
         button.setTitleColor(buttonColor, for: .normal)
-        button.titleLabel?.font = UIFont(name: "HelveticaNeue-Bold", size: 16)
+        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
         button.addTarget(self, action: #selector(onDoneButton), for: .touchUpInside)
         return button
     }()
@@ -416,7 +416,7 @@ class RPickerController: UIViewController {
     private lazy var cancelButton: UIButton = {
         let button = UIButton()
         button.setTitleColor(buttonColor, for: .normal)
-        button.titleLabel?.font = UIFont(name: "HelveticaNeue-Bold", size: 16)
+        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
         button.addTarget(self, action: #selector(onCancelButton), for: .touchUpInside)
         return button
     }()

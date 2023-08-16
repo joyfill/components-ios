@@ -191,7 +191,6 @@ public class DateTime : UIView {
     
     public func datePickerUI () {
         RPicker.selectDate(title: "Select Date", cancelText: "Cancel", datePickerMode: .dateAndTime, style: .Inline, didSelectDate: {[weak self] (selectedDate) in
-            // TODO: Your implementation for date
             self?.selectedDate(date: selectedDate.dateString("MMMM d, yyyy h:mma"))
         })
     }
