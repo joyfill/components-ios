@@ -108,20 +108,10 @@ func fetchDataFromApi() {
                 componentHeaderText.append(joyFillStruct?.fields?[j].title ?? "")
                 componentTypeValue = joyFillStruct?.files?[0].pages?[i].fieldPositions?[j].type ?? ""
                 
-                // Zip and sort componentType and ComponentHeaderText with componentsYValueForMobileView
-                var componentTypePairedArray = Array(zip(componentsYValueForMobileView, componentType))
-                var componentHeaderTextPairedArray = Array(zip(componentsYValueForMobileView, componentHeaderText))
-                componentTypePairedArray.sort { $0.0 < $1.0 }
-                componentHeaderTextPairedArray.sort { $0.0 < $1.0}
-
-                // Extract the sorted values back into the original arrays
-                componentType = componentTypePairedArray.map { $0.1 }
-                componentHeaderText = componentHeaderTextPairedArray.map { $0.1 }
-                componentsYValueForMobileView = componentTypePairedArray.map { $0.0 }
-                
                 // MARK: Functions call
+                ZipAndSortComponents()
                 getInputValuesFromPrimaryView(i: i, j: j)
-                getOptionValuesFromPrimaryView(i: i, j: j)
+                getOptionValues(i: i, j: j)
             }
         }
     } else {
@@ -138,20 +128,10 @@ func fetchDataFromApi() {
                 componentType.append(joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].type ?? "")
                 componentTypeValue = joyFillStruct?.fields?[j].type ?? ""
                 
-                // Zip and sort componentType and ComponentHeaderText with componentsYValueForMobileView
-                var componentTypePairedArray = Array(zip(componentsYValueForMobileView, componentType))
-                var componentHeaderTextPairedArray = Array(zip(componentsYValueForMobileView, componentHeaderText))
-                componentTypePairedArray.sort { $0.0 < $1.0 }
-                componentHeaderTextPairedArray.sort { $0.0 < $1.0}
-
-                // Extract the sorted values back into the original arrays
-                componentType = componentTypePairedArray.map { $0.1 }
-                componentHeaderText = componentHeaderTextPairedArray.map { $0.1 }
-                componentsYValueForMobileView = componentTypePairedArray.map { $0.0 }
-                
                 // MARK: Functions call
+                ZipAndSortComponents()
                 getInputValuesFromMobileView(i: i, j: j)
-                getOptionValuesFromMobileView(i: i, j: j)
+                getOptionValues(i: i, j: j)
             }
         }
         
@@ -164,87 +144,32 @@ func fetchDataFromApi() {
     }
 }
 
+// Zip and sort componentType and ComponentHeaderText with componentsYValueForMobileView
+func ZipAndSortComponents() {
+    var componentTypePairedArray = Array(zip(componentsYValueForMobileView, componentType))
+    var componentHeaderTextPairedArray = Array(zip(componentsYValueForMobileView, componentHeaderText))
+    componentTypePairedArray.sort { $0.0 < $1.0 }
+    componentHeaderTextPairedArray.sort { $0.0 < $1.0}
+
+    // Extract the sorted values back into the original arrays
+    componentType = componentTypePairedArray.map { $0.1 }
+    componentHeaderText = componentHeaderTextPairedArray.map { $0.1 }
+    componentsYValueForMobileView = componentTypePairedArray.map { $0.0 }
+}
+
 // MARK: - Function for PrimaryView
 // Function to get input values
 func getInputValuesFromPrimaryView(i: Int, j: Int) {
     if let value = joyFillStruct?.fields?[j].value {
         switch value {
         case .string(let string):
-            if componentTypeValue == "textarea" {
-                textAreaString = string
-            }
-            if componentTypeValue == "block" {
-                blockFieldString = string
-                blockTextSize = joyFillStruct?.files?[0].pages?[i].fieldPositions?[j].fontSize ?? 18
-                blockTextStyle = joyFillStruct?.files?[0].pages?[i].fieldPositions?[j].fontStyle ?? ""
-                blockTextWeight = joyFillStruct?.files?[0].pages?[i].fieldPositions?[j].fontWeight ?? ""
-                blockTextColor = joyFillStruct?.files?[0].pages?[i].fieldPositions?[j].fontColor ?? "#000000"
-                blockTextAlignment = joyFillStruct?.files?[0].pages?[i].fieldPositions?[j].textAlign ?? "left"
-                DispatchQueue.main.async {
-                    componentTableView.reloadData()
-                }
-            }
-            if componentTypeValue == "text" {
-                textFieldString = string
-            }
+            getStringValues(string: string, i: i, j: j)
             
         case .valueElementArray(let valueElements):
-            if componentTypeValue == "chart" {
-                for k in 0..<valueElements.count {
-                    var graphLabelSubArray: [String] = []
-                    var graphXCoordinateSubArray: [CGFloat] = []
-                    var graphYCoordianteSubArray: [CGFloat] = []
-                    if let points = valueElements[k].points {
-                        for l in 0..<points.count {
-                            let label = points[l].label ?? ""
-                            graphLabelSubArray.append(label)
-                            
-                            let xCoordinate = points[l].x ?? 0
-                            graphXCoordinateSubArray.append(xCoordinate)
-                            
-                            let yCoordinate = points[l].y ?? 0
-                            graphYCoordianteSubArray.append(yCoordinate)
-                        }
-                    }
-                    graphLabelData.append(graphLabelSubArray)
-                    xCoordinates.append(graphXCoordinateSubArray)
-                    yCoordinates.append(graphYCoordianteSubArray)
-                }
-            }
-            if componentTypeValue == "image" {
-                for k in 0..<valueElements.count {
-                    if let imageURL = URL(string: valueElements[k].url ?? "") {
-                        getImageFromURL(url: imageURL) { image in
-                            if let image = image {
-                                pickedImg.append(image)
-                                DispatchQueue.main.async {
-                                    componentTableView.reloadData()
-                                }
-                            } else {
-                                print("Failed to download image.")
-                            }
-                        }
-                    }
-                }
-            }
+            getChartAndImageValue(valueElements: valueElements)
             
         case .integer(let integer):
-            if componentTypeValue == "number" {
-                numberFieldString = integer
-            }
-        }
-    }
-}
-
-// Function to get the option values
-func getOptionValuesFromPrimaryView(i: Int, j: Int) {
-    optionCount = joyFillStruct?.fields?[j].options?.count ?? 0
-    for n in 0..<optionCount {
-        if componentTypeValue == "dropdown" {
-            dropdownOptions.append(joyFillStruct?.fields?[j].options?[n].value ?? "")
-        }
-        if componentTypeValue == "multiSelect" {
-            multiSelectOptions.append(joyFillStruct?.fields?[j].options?[n].value ?? "")
+            getIntegerValue(integer: integer)
         }
     }
 }
@@ -255,82 +180,108 @@ func getInputValuesFromMobileView(i: Int, j: Int) {
     if let value = joyFillStruct?.fields?[j].value {
         switch value {
         case .string(let string):
-            if componentTypeValue == "textarea" {
-                textAreaString = string
-            }
-            if componentTypeValue == "block" {
-                blockFieldString = string
-                blockTextSize = joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].fontSize ?? 18
-                blockTextStyle = joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].fontStyle ?? ""
-                blockTextWeight = joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].fontWeight ?? ""
-                blockTextColor = joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].fontColor ?? "#000000"
-                blockTextAlignment = joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].textAlign ?? "left"
-                DispatchQueue.main.async {
-                    componentTableView.reloadData()
-                }
-            }
-            if componentTypeValue == "text" {
-                textFieldString = string
-            }
+            getStringValues(string: string, i: i, j: j, mobileView: true)
             
         case .valueElementArray(let valueElements):
-            if componentTypeValue == "chart" {
-                for k in 0..<valueElements.count {
-                    var graphLabelSubArray: [String] = []
-                    var graphXCoordinateSubArray: [CGFloat] = []
-                    var graphYCoordianteSubArray: [CGFloat] = []
-                    if let points = valueElements[k].points {
-                        for l in 0..<points.count {
-                            let label = points[l].label ?? ""
-                            graphLabelSubArray.append(label)
-                            
-                            let xCoordinate = points[l].x ?? 0
-                            graphXCoordinateSubArray.append(xCoordinate)
-                            
-                            let yCoordinate = points[l].y ?? 0
-                            graphYCoordianteSubArray.append(yCoordinate)
-                        }
-                    }
-                    graphLabelData.append(graphLabelSubArray)
-                    xCoordinates.append(graphXCoordinateSubArray)
-                    yCoordinates.append(graphYCoordianteSubArray)
-                }
-            }
-            if componentTypeValue == "image" {
-                for k in 0..<valueElements.count {
-                    if let imageURL = URL(string: valueElements[k].url ?? "") {
-                        getImageFromURL(url: imageURL) { image in
-                            if let image = image {
-                                pickedImg.append(image)
-                                DispatchQueue.main.async {
-                                    componentTableView.reloadData()
-                                }
-                            } else {
-                                print("Failed to download image.")
-                            }
-                        }
-                    }
-                }
-            }
+            getChartAndImageValue(valueElements: valueElements)
             
         case .integer(let integer):
-            if componentTypeValue == "number" {
-                numberFieldString = integer
-            }
+            getIntegerValue(integer: integer)
         }
     }
 }
 
 // Function to get the option values
-func getOptionValuesFromMobileView(i: Int, j: Int) {
+func getOptionValues(i: Int, j: Int) {
     optionCount = joyFillStruct?.fields?[j].options?.count ?? 0
     for n in 0..<optionCount {
         if componentTypeValue == "dropdown" {
             dropdownOptions.append(joyFillStruct?.fields?[j].options?[n].value ?? "")
         }
         if componentTypeValue == "multiSelect" {
+            multiSelect = joyFillStruct?.fields?[j].multi ?? true
             multiSelectOptions.append(joyFillStruct?.fields?[j].options?[n].value ?? "")
         }
+    }
+}
+
+// Function to get string values from the model
+func getStringValues(string: String, i: Int, j: Int, mobileView: Bool = false) {
+    if componentTypeValue == "textarea" {
+        textAreaString = string
+    }
+    if componentTypeValue == "block" {
+        if mobileView {
+            blockTextSize = joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].fontSize ?? 18
+            blockTextStyle = joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].fontStyle ?? ""
+            blockTextWeight = joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].fontWeight ?? ""
+            blockTextColor = joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].fontColor ?? "#000000"
+            blockTextAlignment = joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].textAlign ?? "left"
+        } else {
+            blockTextSize = joyFillStruct?.files?[0].pages?[i].fieldPositions?[j].fontSize ?? 18
+            blockTextStyle = joyFillStruct?.files?[0].pages?[i].fieldPositions?[j].fontStyle ?? ""
+            blockTextWeight = joyFillStruct?.files?[0].pages?[i].fieldPositions?[j].fontWeight ?? ""
+            blockTextColor = joyFillStruct?.files?[0].pages?[i].fieldPositions?[j].fontColor ?? "#000000"
+            blockTextAlignment = joyFillStruct?.files?[0].pages?[i].fieldPositions?[j].textAlign ?? "left"
+        }
+        
+        blockFieldString = string
+        
+        DispatchQueue.main.async {
+            componentTableView.reloadData()
+        }
+    }
+    if componentTypeValue == "text" {
+        textFieldString = string
+    }
+}
+
+// Function to get chart and image values
+func getChartAndImageValue(valueElements: [ValueElement]) {
+    if componentTypeValue == "chart" {
+        for k in 0..<valueElements.count {
+            var graphLabelSubArray: [String] = []
+            var graphXCoordinateSubArray: [CGFloat] = []
+            var graphYCoordianteSubArray: [CGFloat] = []
+            if let points = valueElements[k].points {
+                for l in 0..<points.count {
+                    let label = points[l].label ?? ""
+                    graphLabelSubArray.append(label)
+                    
+                    let xCoordinate = points[l].x ?? 0
+                    graphXCoordinateSubArray.append(xCoordinate)
+                    
+                    let yCoordinate = points[l].y ?? 0
+                    graphYCoordianteSubArray.append(yCoordinate)
+                }
+            }
+            graphLabelData.append(graphLabelSubArray)
+            xCoordinates.append(graphXCoordinateSubArray)
+            yCoordinates.append(graphYCoordianteSubArray)
+        }
+    }
+    if componentTypeValue == "image" {
+        for k in 0..<valueElements.count {
+            if let imageURL = URL(string: valueElements[k].url ?? "") {
+                getImageFromURL(url: imageURL) { image in
+                    if let image = image {
+                        pickedImg.append(image)
+                        DispatchQueue.main.async {
+                            componentTableView.reloadData()
+                        }
+                    } else {
+                        print("Failed to download image.")
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Function to get int values from model
+func getIntegerValue(integer: Int) {
+    if componentTypeValue == "number" {
+        numberFieldString = integer
     }
 }
 

@@ -104,7 +104,6 @@ extension ComponentViewController: UITableViewDelegate, UITableViewDataSource {
                 // MARK: MultiChoice Function Call From Package
                 let multipleChoice = MultipleChoice()
                 tableView.rowHeight = 190
-                multipleChoice.multiSelect = true
                 multipleChoice.titleLabel.labelText = componentHeaderText[i]
                 multipleChoice.frame = CGRect(x: 20, y: 0, width: tableView.bounds.width - 40, height: tableView.rowHeight)
                 cellView.append(multipleChoice)
@@ -167,7 +166,6 @@ extension ComponentViewController: UITableViewDelegate, UITableViewDataSource {
                 // MARK: Number Function Call From Package
                 let number = NumberField()
                 tableView.rowHeight = 100
-                number.numberFieldPlacholder = "0"
                 number.titleText = componentHeaderText[i]
                 number.currentPage = numberFieldString ?? 0
                 number.numberField.text = "\(numberFieldString ?? 0)"

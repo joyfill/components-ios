@@ -110,7 +110,6 @@ extension ComponentsViewController: UITableViewDelegate, UITableViewDataSource {
                 // MARK: MultiChoice Function Call From Package
                 let multipleChoice = MultipleChoice()
                 tableView.rowHeight = 200
-                multipleChoice.multiSelect = true
                 multipleChoice.titleLabel.labelText = componentHeaderText2[i]
                 multipleChoice.frame = CGRect(x: 20, y: 0, width: tableView.bounds.width - 40, height: tableView.rowHeight)
                 cellView.append(multipleChoice)
