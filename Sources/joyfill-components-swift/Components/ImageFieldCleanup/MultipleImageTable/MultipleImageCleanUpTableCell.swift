@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-public class MultipleImageTableCell: UITableViewCell {
+public class MultipleImageCleanUpTableCell: UITableViewCell {
     let cellImageField = ImageView()
     let checkboxButton = Checkbox()
     

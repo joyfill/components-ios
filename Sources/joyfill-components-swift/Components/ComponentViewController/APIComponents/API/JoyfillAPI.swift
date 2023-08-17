@@ -52,15 +52,6 @@ public func joyfillAPICall() {
         if error == nil && data != nil {
             do {
                 joyFillStruct = try JSONDecoder().decode(JoyFillAPI.self, from: data!)
-                // Deinitialize arrays to protect memory leakage
-                yCoordinates = []
-                xCoordinates = []
-                graphLabelData = []
-                pickedImg.removeAll()
-                componentType.removeAll()
-                dropdownOptions.removeAll()
-                multiSelectOptions.removeAll()
-                componentHeaderText.removeAll()
                 
                 // It will prevent tasks to perform on main thread
                 DispatchQueue.main.async {

@@ -4,10 +4,7 @@ import MobileCoreServices
 import AVFoundation
 import Photos
 
-public var pickedImg = [UIImage]()
-public var zoomImg = UIImage()
-public var imageDisplayMode = String()
-open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+open class ImageCleanUp: UIView, UIViewControllerTransitioningDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     public var imageFieldAndUploadView = UIView()
     public var imageField = ImageView()

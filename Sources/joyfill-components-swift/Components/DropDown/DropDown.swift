@@ -1,14 +1,15 @@
 import Foundation
 import UIKit
 
+public var dropdownOptions = [String]()
 public class Dropdown : UIView, DropDownSelectText, UITextFieldDelegate {
     
-    public var titleLbl = UILabel()
+    public var titleLbl = Label()
     public var viewTextField = UIView()
     public var textField = UITextField()
     public var button = UIButton()
     public var doneHide = ""
-    public var dropdownOptionArray: NSArray = ["Yes","No","N/A"]
+    
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -206,13 +207,11 @@ public class Dropdown : UIView, DropDownSelectText, UITextFieldDelegate {
     
     func selectText(text: String) {
         if doneHide == "singleSelect" {
-            print(text)
             textField.text = text
             viewTextField.layer.cornerRadius = 12
             viewTextField.layer.borderColor = UIColor(hexString: "#4776EE")?.cgColor
             viewTextField.layer.borderWidth = 1
         } else {
-            print(text)
             textField.text = "Select \(text)"
             viewTextField.layer.cornerRadius = 12
             viewTextField.layer.borderColor = UIColor(hexString: "#4776EE")?.cgColor
@@ -234,7 +233,6 @@ public class Dropdown : UIView, DropDownSelectText, UITextFieldDelegate {
     }
     
     @IBAction func dropdownOpen(_ sender: Any) {
-        print("Click")
         guard let viewController = self.findViewController() else {
             return
         }
@@ -242,7 +240,7 @@ public class Dropdown : UIView, DropDownSelectText, UITextFieldDelegate {
         vc.modalPresentationStyle = .overCurrentContext
         vc.delegate = self
         vc.doneHide = doneHide
-        vc.dropdownOptionArray = dropdownOptionArray
+        vc.dropdownOptionArray = dropdownOptions as NSArray
         // keep false
         // modal animation will be handled in VC itself
         viewController.present(vc, animated: false)

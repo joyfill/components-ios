@@ -391,7 +391,6 @@ open class Signature: UIView, ISignatureView {
         
         do {
             try data.write(to: fileURL)
-            print("Signature saved to: \(fileURL)")
             signedImage = "\(fileURL)"
         } catch {
             print("Error saving signature: \(error)")

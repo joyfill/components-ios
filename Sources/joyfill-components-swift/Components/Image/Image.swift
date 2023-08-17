@@ -8,13 +8,15 @@ public var pickedImg = [UIImage]()
 public var zoomImg = UIImage()
 public var imageDisplayMode = String()
 open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-
+    
     public var imageFieldAndUploadView = UIView()
     public var imageField = ImageView()
     public var uploadButton = Button()
     public var imageCountView = UIView()
     public var imageCountButton = Button()
     public var imageCountLabel = Label()
+    public var titleButton = UILabel()
+    public var titleImage = UILabel()
     
     // MARK: Initializer
     public override init(frame: CGRect) {
@@ -38,6 +40,19 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
         setImageField()
     }
     
+    public func imageDisplayModes(mode : String) {
+        imageDisplayMode = mode
+        if mode == "readonly" {
+            titleButton.isHidden = true
+            uploadButton.isHidden = true
+            setupView()
+        }else{
+            titleButton.isHidden = false
+            uploadButton.isHidden = false
+            setupView()
+        }
+    }
+    
     func setupView() {
         // SubViews
         addSubview(imageFieldAndUploadView)
@@ -46,6 +61,9 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
         imageField.addSubview(imageCountView)
         imageCountView.addSubview(imageCountButton)
         imageCountView.addSubview(imageCountLabel)
+        imageFieldAndUploadView.addSubview(titleButton)
+        imageFieldAndUploadView.addSubview(titleImage)
+        
         
         // Constraint to arrange subviews acc. to imageView
         imageFieldAndUploadView.translatesAutoresizingMaskIntoConstraints = false
@@ -54,25 +72,37 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
         imageCountView.translatesAutoresizingMaskIntoConstraints = false
         imageCountButton.translatesAutoresizingMaskIntoConstraints = false
         imageCountLabel.translatesAutoresizingMaskIntoConstraints = false
+        titleImage.translatesAutoresizingMaskIntoConstraints = false
+        titleButton.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             // ImageView Constraint
             imageFieldAndUploadView.topAnchor.constraint(equalTo: topAnchor, constant: 6),
             imageFieldAndUploadView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8),
             imageFieldAndUploadView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
-            imageFieldAndUploadView.heightAnchor.constraint(equalToConstant: 300),
+            imageFieldAndUploadView.heightAnchor.constraint(equalToConstant: 450),
             
-            // Image Constraint
-            imageField.topAnchor.constraint(equalTo: uploadButton.bottomAnchor, constant: 23),
-            imageField.leadingAnchor.constraint(equalTo: imageFieldAndUploadView.leadingAnchor),
-            imageField.trailingAnchor.constraint(equalTo: imageFieldAndUploadView.trailingAnchor),
-            imageField.heightAnchor.constraint(equalToConstant: 212),
+            // TitleButton Constraint
+            titleButton.topAnchor.constraint(equalTo: imageFieldAndUploadView.topAnchor, constant: 6),
+            titleButton.leadingAnchor.constraint(equalTo: imageFieldAndUploadView.leadingAnchor),
+            titleButton.trailingAnchor.constraint(equalTo: imageFieldAndUploadView.trailingAnchor),
             
             // UploadButton Constraint
-            uploadButton.topAnchor.constraint(equalTo: imageFieldAndUploadView.topAnchor),
+            uploadButton.topAnchor.constraint(equalTo: titleButton.bottomAnchor, constant: 13),
             uploadButton.leadingAnchor.constraint(equalTo: imageFieldAndUploadView.leadingAnchor),
             uploadButton.trailingAnchor.constraint(equalTo: imageFieldAndUploadView.trailingAnchor),
             uploadButton.heightAnchor.constraint(equalToConstant: 86),
+            
+            // TitleImage Constraint
+            titleImage.topAnchor.constraint(equalTo: uploadButton.bottomAnchor, constant: 35),
+            titleImage.leadingAnchor.constraint(equalTo: imageFieldAndUploadView.leadingAnchor),
+            titleImage.trailingAnchor.constraint(equalTo: imageFieldAndUploadView.trailingAnchor),
+            
+            // Image Constraint
+            imageField.topAnchor.constraint(equalTo: titleImage.bottomAnchor, constant: 11),
+            imageField.leadingAnchor.constraint(equalTo: imageFieldAndUploadView.leadingAnchor),
+            imageField.trailingAnchor.constraint(equalTo: imageFieldAndUploadView.trailingAnchor),
+            imageField.heightAnchor.constraint(equalToConstant: 212),
             
             // MoreView Constraint
             imageCountView.bottomAnchor.constraint(equalTo: imageField.bottomAnchor, constant: -9),
@@ -117,10 +147,18 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
         
         // Sets UploadButton action with Image.
         uploadButton.image = UIImage(named: "uploadButton")
+        uploadButton.addTarget(self, action: #selector(imageUploadButtonTapped), for: .touchUpInside)
         
         imageField.cornerRadius = 10
         imageField.layer.masksToBounds = true
         imageField.isUserInteractionEnabled = true
+        
+        titleButton.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
+        titleButton.text = "Empty Image Field"
+        
+        titleImage.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
+        titleImage.text = "Image Field With Images"
+        
     }
     
     // Fuction to set imageField according to pickedImage
@@ -149,5 +187,94 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
                 break
             }
         }
+    }
+    
+    // MARK: Functions to access and fetch image from camera and gallery.
+    @objc public func imageUploadButtonTapped() {
+        guard let viewController = self.findImageViewController() else {
+            return
+        }
+        var alertStyle = UIAlertController.Style.actionSheet
+        if (UIDevice.current.userInterfaceIdiom == .pad) {
+            alertStyle = UIAlertController.Style.alert
+        }
+        let alert = UIAlertController(title: "Choose Image", message: nil, preferredStyle: alertStyle)
+        alert.addAction(UIAlertAction(title: "Camera", style: .default, handler: { _ in
+            self.openImageCamera()
+        }))
+        alert.addAction(UIAlertAction(title: "Gallery", style: .default, handler: { _ in
+            self.openImageGallery()
+        }))
+        alert.addAction(UIAlertAction.init(title: "Cancel", style: .cancel, handler: nil))
+        
+        viewController.present(alert, animated: true, completion: nil)
+    }
+    
+    public func findImageViewController() -> UIViewController? {
+        var responder: UIResponder? = self
+        
+        while let currentResponder = responder {
+            if let viewController = currentResponder as? UIViewController {
+                return viewController
+            }
+            responder = currentResponder.next
+        }
+        return nil
+    }
+    
+    public func openImageCamera() {
+        guard let viewController = self.findImageViewController() else {
+            return
+        }
+        
+        if UIImagePickerController.isSourceTypeAvailable(UIImagePickerController.SourceType.camera){
+            let imagePicker = UIImagePickerController()
+            imagePicker.delegate = self
+            imagePicker.allowsEditing = true
+            imagePicker.sourceType = UIImagePickerController.SourceType.camera
+            viewController.present(imagePicker, animated: true, completion: nil)
+        } else {
+            let alert  = UIAlertController(title: "Warning", message: "You don't have permission to access camera.", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            viewController.present(alert, animated: true, completion: nil)
+        }
+    }
+    
+    public func openImageGallery() {
+        guard let viewController = self.findImageViewController() else {
+            return
+        }
+        
+        if UIImagePickerController.isSourceTypeAvailable(UIImagePickerController.SourceType.photoLibrary){
+            let imagePicker = UIImagePickerController()
+            imagePicker.delegate = self
+            imagePicker.allowsEditing = true
+            imagePicker.sourceType = UIImagePickerController.SourceType.photoLibrary
+            viewController.present(imagePicker, animated: true, completion: nil)
+        }  else {
+            let alert  = UIAlertController(title: "Warning", message: "You don't have permission to access gallery.", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            viewController.present(alert, animated: true, completion: nil)
+        }
+    }
+    
+    public func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        guard let viewController = self.findImageViewController() else {
+            return
+        }
+        viewController.dismiss(animated: true, completion: nil)
+        
+        if let pickedImage = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
+            pickedImg.append(pickedImage)
+            imageCountLabel.labelText = "+\(pickedImg.count)"
+            imageField.image = pickedImage
+        }
+    }
+    
+    public func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        guard let viewController = self.findImageViewController() else {
+            return
+        }
+        viewController.dismiss(animated: true, completion: nil)
     }
 }

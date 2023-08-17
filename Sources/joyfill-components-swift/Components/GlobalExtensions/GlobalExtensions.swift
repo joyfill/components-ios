@@ -1,11 +1,15 @@
 import Foundation
 import UIKit
 
+// Date Extension
 extension Date {
-    func dateString(_ format: String = "MMM-dd-YYYY, hh:mm a") -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = format
-        return dateFormatter.string(from: self)
+    func dateString(_ format: String = "MMM dd, yyyy hh:mm a") -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = format
+        formatter.timeZone = .current
+        formatter.locale = Locale(identifier: "en_US")
+        let strDate = formatter.string(from: self)
+        return strDate
     }
     
     func dateByAddingYears(_ dYears: Int) -> Date {
@@ -21,6 +25,7 @@ extension Date {
     }
 }
 
+// UIApplication Extension
 extension UIApplication {
     static var keyWindow: UIWindow? {
         if #available(iOS 13.0, *) {
@@ -31,6 +36,7 @@ extension UIApplication {
     }
 }
 
+// UIWindow Extension
 extension UIWindow {
     static var currentController: UIViewController? {
         return UIApplication.keyWindow?.currentController
@@ -65,6 +71,7 @@ extension UIWindow {
     }
 }
 
+// UIView Extension
 extension UIView {
     func pinConstraints(_ byView: UIView, left: CGFloat? = nil, right: CGFloat? = nil, top: CGFloat? = nil, bottom: CGFloat? = nil, height: CGFloat? = nil, width: CGFloat? = nil) {
         translatesAutoresizingMaskIntoConstraints = false
@@ -90,7 +97,7 @@ extension UIView {
         layer.shouldRasterize = true
         layer.rasterizationScale = scale ? UIScreen.main.scale : 1
     }
-
+    
     func viewBorder(borderColor: UIColor, borderWidth: CGFloat?) {
         layer.borderColor = borderColor.cgColor
         if let borderWidth_ = borderWidth {
@@ -99,7 +106,7 @@ extension UIView {
             layer.borderWidth = 1.0
         }
     }
-
+    
     var parentViewController: UIViewController? {
         var parentResponder: UIResponder? = self
         while parentResponder != nil {
@@ -110,8 +117,28 @@ extension UIView {
         }
         return nil
     }
+    
+    func roundCornerView(corners: UIRectCorner, radius: CGFloat) {
+        let path = UIBezierPath(roundedRect: self.bounds, byRoundingCorners: corners, cornerRadii: .init(width: radius, height: radius))
+        let mask = CAShapeLayer()
+        mask.path = path.cgPath
+        self.layer.mask = mask
+    }
+    
+    func hideKeyboardOnTapAnyView() {
+        let tap =  UITapGestureRecognizer()
+        tap.cancelsTouchesInView = false
+        tap.addTarget(self, action: #selector(tapTriggeredAnyView))
+        
+        addGestureRecognizer(tap)
+    }
+    
+    @objc private func tapTriggeredAnyView(_ gesture: UIGestureRecognizer) {
+        window?.endEditing(true)
+    }
 }
 
+// UIColor Extension
 extension UIColor {
     convenience init?(hexString: String) {
         let r, g, b, a: CGFloat
@@ -139,6 +166,7 @@ extension UIColor {
     }
 }
 
+// UIBezierPath Extension
 extension UIBezierPath {
     func addTopRightCorner(from point1: CGPoint, to point2: CGPoint, with radius: CGFloat) {
         let startAngle = -(CGFloat.pi / 2)
@@ -166,5 +194,88 @@ extension UIBezierPath {
         let endAngle = -(CGFloat.pi / 2)
         let center = CGPoint(x: point1.x + radius, y: point2.y + radius)
         addArc(withCenter: center, radius: radius, startAngle: startAngle, endAngle: endAngle, clockwise: true)
+    }
+}
+
+// Function to make some part of whole text bold
+func attributedText(withString string: String,
+                    boldString: String,
+                    font: UIFont,
+                    boldFont: UIFont) -> NSAttributedString {
+    let attributedString = NSMutableAttributedString(
+        string: string,
+        attributes: [NSAttributedString.Key.font: font]
+    )
+    let boldFontAttribute = [NSAttributedString.Key.font: boldFont]
+    let range = (string as NSString).range(of: boldString)
+    
+    attributedString.addAttributes(boldFontAttribute, range: range)
+    return attributedString
+}
+
+// UIImage Extension
+extension UIImage {
+    func rotate(radians: CGFloat) -> UIImage {
+        let rotatedSize = CGRect(origin: .zero, size: size)
+            .applying(CGAffineTransform(rotationAngle: radians))
+            .integral.size
+        UIGraphicsBeginImageContext(rotatedSize)
+        if let context = UIGraphicsGetCurrentContext() {
+            let origin = CGPoint(x: rotatedSize.width / 2, y: rotatedSize.height / 2)
+            context.translateBy(x: origin.x, y: origin.y)
+            context.rotate(by: radians)
+            draw(in: CGRect(x: -origin.y, y: -origin.x, width: size.width, height: size.height))
+            let rotatedImage = UIGraphicsGetImageFromCurrentImageContext()
+            UIGraphicsEndImageContext()
+            return rotatedImage ?? self
+        }
+        return self
+    }
+}
+
+// UITableView Extension
+extension UITableView {
+    func scrollToBottom(){
+        DispatchQueue.main.async {
+            let indexPath = IndexPath(
+                row: self.numberOfRows(inSection:  self.numberOfSections-1) - 1,
+                section: self.numberOfSections - 1)
+            if self.hasRowAtIndexPath(indexPath: indexPath) {
+                self.scrollToRow(at: indexPath, at: .bottom, animated: true)
+            }
+        }
+    }
+    
+    func scrollToTop() {
+        DispatchQueue.main.async {
+            let indexPath = IndexPath(row: 0, section: 0)
+            if self.hasRowAtIndexPath(indexPath: indexPath) {
+                self.scrollToRow(at: indexPath, at: .top, animated: false)
+            }
+        }
+    }
+    
+    func hasRowAtIndexPath(indexPath: IndexPath) -> Bool {
+        return indexPath.section < self.numberOfSections && indexPath.row < self.numberOfRows(inSection: indexPath.section)
+    }
+}
+
+// String Extension
+extension String {
+    func textAlignmentFromStringValue() -> NSTextAlignment {
+        switch self.lowercased() {
+        case "left":
+            return .left
+        case "right":
+            return .right
+        case "center":
+            return .center
+        case "justified":
+            return .justified
+        case "natural":
+            return .natural
+        default:
+            return .left // Default to left alignment if the input is not recognized
+        }
     }
 }

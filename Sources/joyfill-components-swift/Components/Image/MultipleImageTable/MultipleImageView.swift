@@ -177,6 +177,7 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         
         // Set UploadButton
         uploadButton.image = UIImage(named: "interiorUploadButton")
+        uploadButton.addTarget(self, action: #selector(interiorUploadButtonTapped), for: .touchUpInside)
     }
     
     // MARK: ImageTableView
@@ -287,5 +288,99 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
             deleteView.isHidden = false
             uploadButton.isHidden = true
         }
+    }
+    
+    // MARK: Functions to access and fetch image from camera and gallery.
+    @objc public func interiorUploadButtonTapped() {
+        guard let viewController = self.findMultipleImageViewController() else {
+            return
+        }
+        var alertStyle = UIAlertController.Style.actionSheet
+        if (UIDevice.current.userInterfaceIdiom == .pad) {
+            alertStyle = UIAlertController.Style.alert
+        }
+        let alert = UIAlertController(title: "Choose Image", message: nil, preferredStyle: alertStyle)
+        alert.addAction(UIAlertAction(title: "Camera", style: .default, handler: { _ in
+            self.openMultipleImageCamera()
+        }))
+        alert.addAction(UIAlertAction(title: "Gallery", style: .default, handler: { _ in
+            self.openMultipleImageGallery()
+        }))
+        alert.addAction(UIAlertAction.init(title: "Cancel", style: .cancel, handler: nil))
+        
+        viewController.present(alert, animated: true, completion: nil)
+    }
+    
+    private func findMultipleImageViewController() -> UIViewController? {
+        var responder: UIResponder? = self
+        
+        while let currentResponder = responder {
+            if let viewController = currentResponder as? UIViewController {
+                return viewController
+            }
+            responder = currentResponder.next
+        }
+        
+        return nil
+    }
+    
+    func openMultipleImageCamera() {
+        guard let viewController = self.findMultipleImageViewController() else {
+            return
+        }
+        
+        if UIImagePickerController.isSourceTypeAvailable(UIImagePickerController.SourceType.camera){
+            let imagePicker = UIImagePickerController()
+            imagePicker.delegate = self
+            imagePicker.allowsEditing = true
+            imagePicker.sourceType = UIImagePickerController.SourceType.camera
+            viewController.present(imagePicker, animated: true, completion: nil)
+        } else {
+            let alert  = UIAlertController(title: "Warning", message: "You don't have permission to access camera.", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            viewController.present(alert, animated: true, completion: nil)
+        }
+    }
+    
+    func openMultipleImageGallery() {
+        guard let viewController = self.findMultipleImageViewController() else {
+            return
+        }
+        
+        if UIImagePickerController.isSourceTypeAvailable(UIImagePickerController.SourceType.photoLibrary){
+            let imagePicker = UIImagePickerController()
+            imagePicker.delegate = self
+            imagePicker.allowsEditing = true
+            imagePicker.sourceType = UIImagePickerController.SourceType.photoLibrary
+            viewController.present(imagePicker, animated: true, completion: nil)
+        }  else {
+            let alert  = UIAlertController(title: "Warning", message: "You don't have permission to access gallery.", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            viewController.present(alert, animated: true, completion: nil)
+        }
+    }
+    
+    public func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        guard let viewController = self.findMultipleImageViewController() else {
+            return
+        }
+        viewController.dismiss(animated: true, completion: nil)
+        
+        if let pickedImage = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
+            pickedImg.append(pickedImage)
+            imageTableView.reloadData()
+            if pickedImg.count == 0 {
+                uploadButton.isHidden = false
+            } else {
+                uploadButton.isHidden = true
+            }
+        }
+    }
+    
+    public func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        guard let viewController = self.findMultipleImageViewController() else {
+            return
+        }
+        viewController.dismiss(animated: true, completion: nil)
     }
 }

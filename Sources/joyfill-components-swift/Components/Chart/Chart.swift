@@ -154,9 +154,11 @@ public class Chart: UIView, UIViewControllerTransitioningDelegate {
         horizontalLabel.fontSize = 12
         horizontalLabel.labelText = "Horizontal"
         
-        yCoordinates = [[0, 50]]
-        xCoordinates = [[0, 60]]
-        graphLabelData = [["", ""]]
+        if xCoordinates.isEmpty {
+            yCoordinates = [[0, 50]]
+            xCoordinates = [[0, 60]]
+            graphLabelData = [["", ""]]
+        }
         for i in 0...yCoordinates.count - 1 {
             lineGraph.addLine(yCoordinates[i], labels: graphLabelData[i])
         }

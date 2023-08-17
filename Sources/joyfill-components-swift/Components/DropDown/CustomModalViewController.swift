@@ -17,9 +17,9 @@ class CustomModalViewController: UIViewController, UITableViewDelegate, UITableV
     lazy var titleButton: UIButton = {
         let button = UIButton()
         button.setTitle("Done", for: .normal)
-        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 20)
+        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
         button.contentHorizontalAlignment = .right
-        button.setTitleColor(UIColor(hexString: "#4776EE"), for: .normal)
+        button.setTitleColor(UIColor(hexString: "#0066FF"), for: .normal)
         button.addTarget(self, action: #selector(doneClickCloseAction), for: .touchUpInside)
         return button
     }()
@@ -59,9 +59,8 @@ class CustomModalViewController: UIViewController, UITableViewDelegate, UITableV
     // Constants
     let defaultHeight: CGFloat = 300
     let dismissibleHeight: CGFloat = 200
-    let maximumContainerHeight: CGFloat = UIScreen.main.bounds.height - 64
-    // keep current new height, initial is default height
     var currentContainerHeight: CGFloat = 300
+    let maximumContainerHeight: CGFloat = UIScreen.main.bounds.height - 64
     
     // Dynamic container constraint
     var containerViewHeightConstraint: NSLayoutConstraint?
@@ -71,10 +70,10 @@ class CustomModalViewController: UIViewController, UITableViewDelegate, UITableV
         super.viewDidLoad()
         setupView()
         setupConstraints()
-        // tap gesture on dimmed view to dismiss
+        setupPanGesture()
+        
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.handleCloseAction))
         dimmedView.addGestureRecognizer(tapGesture)
-        setupPanGesture()
     }
     
     @IBAction func doneClickCloseAction(_ sender: Any) {
@@ -120,8 +119,9 @@ class CustomModalViewController: UIViewController, UITableViewDelegate, UITableV
                 dropdowntableView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 20),
                 dropdowntableView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -20),
                 dropdowntableView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 0),
-                dropdowntableView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: 0),
+                dropdowntableView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -5),
             ])
+            
         } else {
             containerView.addSubview(titleButton)
             titleButton.translatesAutoresizingMaskIntoConstraints = false
@@ -149,16 +149,9 @@ class CustomModalViewController: UIViewController, UITableViewDelegate, UITableV
                 dropdowntableView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: 0),
             ])
         }
-        
-        // Set dynamic constraints
-        // First, set container to default height
-        // after panning, the height can expand
         containerViewHeightConstraint = containerView.heightAnchor.constraint(equalToConstant: defaultHeight)
-        
-        // By setting the height to default height, the container will be hide below the bottom anchor view
-        // Later, will bring it up by set it to 0
-        // set the constant to default height to bring it down again
         containerViewBottomConstraint = containerView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: defaultHeight)
+        
         // Activate constraints
         containerViewHeightConstraint?.isActive = true
         containerViewBottomConstraint?.isActive = true
@@ -176,12 +169,9 @@ class CustomModalViewController: UIViewController, UITableViewDelegate, UITableV
     // MARK: Pan gesture handler
     @objc func handlePanGesture(gesture: UIPanGestureRecognizer) {
         let translation = gesture.translation(in: view)
-        // Drag to top will be minus value and vice versa
-        print("Pan gesture y offset: \(translation.y)")
         
         // Get drag direction
         let isDraggingDown = translation.y > 0
-        print("Dragging direction: \(isDraggingDown ? "going down" : "going up")")
         
         // New height is based on value of dragging plus current container height
         let newHeight = currentContainerHeight - translation.y
@@ -199,7 +189,6 @@ class CustomModalViewController: UIViewController, UITableViewDelegate, UITableV
         case .ended:
             // This happens when user stop drag,
             // so we will get the last height of container
-            
             // Condition 1: If new height is below min, dismiss controller
             if newHeight < dismissibleHeight {
                 self.animateDismissView()
@@ -223,12 +212,9 @@ class CustomModalViewController: UIViewController, UITableViewDelegate, UITableV
     
     func animateContainerHeight(_ height: CGFloat) {
         UIView.animate(withDuration: 0.4) {
-            // Update container height
             self.containerViewHeightConstraint?.constant = height
-            // Call this to trigger refresh constraint
             self.view.layoutIfNeeded()
         }
-        // Save current height
         currentContainerHeight = height
     }
     
@@ -237,7 +223,6 @@ class CustomModalViewController: UIViewController, UITableViewDelegate, UITableV
         // update bottom constraint in animation block
         UIView.animate(withDuration: 0.3) {
             self.containerViewBottomConstraint?.constant = 0
-            // call this to trigger refresh constraint
             self.view.layoutIfNeeded()
         }
     }
@@ -255,13 +240,10 @@ class CustomModalViewController: UIViewController, UITableViewDelegate, UITableV
         UIView.animate(withDuration: 0.4) {
             self.dimmedView.alpha = 0
         } completion: { _ in
-            // once done, dismiss without animation
             self.dismiss(animated: false)
         }
-        // hide main view by updating bottom constraint in animation block
         UIView.animate(withDuration: 0.3) {
             self.containerViewBottomConstraint?.constant = self.defaultHeight
-            // call this to trigger refresh constraint
             self.view.layoutIfNeeded()
         }
     }
@@ -275,29 +257,28 @@ class CustomModalViewController: UIViewController, UITableViewDelegate, UITableV
         let cell = tableView.dequeueReusableCell(withIdentifier: "Tablecell", for: indexPath as IndexPath) as! Tablecell
         if doneHide == "singleSelect" {
             if sltArray != nil && sltArray == indexPath.row {
-                cell.myCheckbox.isChecked = true
-                cell.myCheckbox.checkboxFillColor = UIColor(hexString: "#3767ED") ?? .lightGray
-                cell.myView.backgroundColor = UIColor(hexString: "#E3E3E3")
+                cell.cellCheckbox.isChecked = true
+                cell.cellCheckbox.checkboxFillColor = UIColor(hexString: "#3767ED") ?? .lightGray
+                cell.cellView.backgroundColor = UIColor(hexString: "#E3E3E3")
             } else {
-                cell.myCheckbox.isChecked = false
-                cell.myView.backgroundColor = .white
-                cell.myCheckbox.checkboxFillColor = .white
+                cell.cellCheckbox.isChecked = false
+                cell.cellView.backgroundColor = .white
+                cell.cellCheckbox.checkboxFillColor = .white
             }
         } else {
             if select.contains(indexPath.row) {
-                print(select)
-                cell.myCheckbox.isChecked = true
-                cell.myCheckbox.checkboxFillColor = UIColor(hexString: "#3767ED") ?? .lightGray
-                cell.myView.backgroundColor = UIColor(hexString: "#E3E3E3")
+                cell.cellCheckbox.isChecked = true
+                cell.cellCheckbox.checkboxFillColor = UIColor(hexString: "#3767ED") ?? .lightGray
+                cell.cellView.backgroundColor = UIColor(hexString: "#E3E3E3")
             } else {
-                cell.myCheckbox.isChecked = false
-                cell.myView.backgroundColor = .white
-                cell.myCheckbox.checkboxFillColor = .white
+                cell.cellCheckbox.isChecked = false
+                cell.cellView.backgroundColor = .white
+                cell.cellCheckbox.checkboxFillColor = .white
             }
         }
         
         cell.cellLabel.text = dropdownOptionArray[indexPath.row] as? String ?? ""
-        cell.myCheckbox.isUserInteractionEnabled = false
+        cell.cellCheckbox.isUserInteractionEnabled = false
         cell.selectionStyle = .none
         return cell
     }
@@ -323,38 +304,76 @@ class CustomModalViewController: UIViewController, UITableViewDelegate, UITableV
             }
         }
     }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        // Calculate the required height for the text in the cell
+        let text = dropdownOptionArray[indexPath.row]
+        let font = UIFont.systemFont(ofSize: 18) // Replace with your desired font and size
+        let width = tableView.frame.width - 10 // Adjust the left and right margins
+        let height = heightForText(text as! String, font: font, width: width)
+        return height + 35
+    }
+    
+    // Helper method to calculate the height of the text
+    func heightForText(_ text: String, font: UIFont, width: CGFloat) -> CGFloat {
+        let nsText = text as NSString
+        let options: NSStringDrawingOptions = [.usesLineFragmentOrigin, .usesFontLeading]
+        let attributes = [NSAttributedString.Key.font: font]
+        let boundingRect = nsText.boundingRect(with: CGSize(width: width, height: CGFloat.greatestFiniteMagnitude), options: options, attributes: attributes, context: nil)
+        return ceil(boundingRect.height)
+    }
 }
 
 class Tablecell: UITableViewCell {
     
-    var myCheckbox = Checkbox()
+    var cellCheckbox = Checkbox()
     var cellLabel = UILabel()
-    var myView = UIView()
+    var cellView = UIView()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+        setupCell()
+    }
+    
+    func setupCell() {
+        // SubView
+        contentView.addSubview(cellView)
+        cellView.addSubview(cellCheckbox)
+        cellView.addSubview(cellLabel)
         
-        myView.frame = CGRect(x: 0, y: 0, width: Int(UIScreen.main.bounds.width), height: Int(bounds.size.height))
-        contentView.addSubview(myView)
-        myCheckbox.frame = CGRect(x: 27, y: 0, width: 18, height: 18)
-        myCheckbox.checkmarkStyle = .tick
-        myCheckbox.borderStyle = .circle
-        myCheckbox.center.y = contentView.center.y
-        myCheckbox.borderLineWidth = 1
-        myCheckbox.checkmarkColor = .white
-        myCheckbox.borderCornerRadius = 10
-        myCheckbox.uncheckedBorderColor = .gray
-        myCheckbox.borderLineWidth = 1
-        myView.addSubview(myCheckbox)
+        cellView.translatesAutoresizingMaskIntoConstraints = false
+        cellCheckbox.translatesAutoresizingMaskIntoConstraints = false
+        cellLabel.translatesAutoresizingMaskIntoConstraints = false
         
-        cellLabel.frame = CGRect(x: myCheckbox.frame.maxX + 17, y: 0, width: 200, height: 25)
-        cellLabel.center.y = contentView.center.y
-        myView.addSubview(cellLabel)
+        NSLayoutConstraint.activate([
+            cellView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            cellView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            cellView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            cellView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            
+            cellCheckbox.topAnchor.constraint(equalTo: cellView.topAnchor, constant: 20),
+            cellCheckbox.leadingAnchor.constraint(equalTo: cellView.leadingAnchor, constant: 27),
+            cellCheckbox.widthAnchor.constraint(equalToConstant: 18),
+            cellCheckbox.heightAnchor.constraint(equalToConstant: 18),
+            
+            cellLabel.topAnchor.constraint(equalTo: cellView.topAnchor, constant: 2),
+            cellLabel.leadingAnchor.constraint(equalTo: cellCheckbox.trailingAnchor, constant: 17),
+            cellLabel.trailingAnchor.constraint(equalTo: cellView.trailingAnchor, constant: 5),
+            cellLabel.bottomAnchor.constraint(equalTo: cellView.bottomAnchor, constant: 2)
+        ])
+        
+        cellCheckbox.checkmarkStyle = .tick
+        cellCheckbox.borderStyle = .circle
+        cellCheckbox.borderLineWidth = 1
+        cellCheckbox.checkmarkColor = .white
+        cellCheckbox.borderCornerRadius = 10
+        cellCheckbox.uncheckedBorderColor = .gray
+        cellCheckbox.borderLineWidth = 1
+        cellLabel.numberOfLines = 0
+        cellLabel.font = UIFont(name: "Helvetica Neue", size: 18)
     }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    public override class func awakeFromNib() {}
 }

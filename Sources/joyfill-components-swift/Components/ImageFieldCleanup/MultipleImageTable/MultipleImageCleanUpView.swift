@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-public class MultipleImageView: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITableViewDelegate, UITableViewDataSource, UIViewControllerTransitioningDelegate {
+public class MultipleImageCleanUpView: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITableViewDelegate, UITableViewDataSource, UIViewControllerTransitioningDelegate {
     
     public var mainView = UIView()
     public var interiorImageBar = UIView()

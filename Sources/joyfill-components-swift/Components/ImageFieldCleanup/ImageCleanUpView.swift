@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-public class ImageView: UIImageView {
+public class ImageCleanUpView: UIImageView {
     
     public let visualLayer = CAShapeLayer()
     

@@ -1,8 +1,6 @@
 import Foundation
 import UIKit
 
-
-@available(iOS 13.0, *)
 open class SignatureView : UIView {
     
     public var titleLabel = Label()
@@ -135,7 +133,12 @@ open class SignatureView : UIView {
         while parentResponder != nil {
             parentResponder = parentResponder?.next
             if let viewController = parentResponder as? UIViewController {
-                let newViewController = SignatureViewController()
+                var newViewController = UIViewController()
+                if #available(iOS 13.0, *) {
+                    newViewController = SignatureViewController()
+                } else {
+                    // Fallback on earlier versions
+                }
                 newViewController.modalPresentationStyle = .fullScreen
                 newViewController.modalTransitionStyle = .crossDissolve
                 viewController.present(newViewController, animated: true, completion: nil)

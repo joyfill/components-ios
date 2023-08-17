@@ -151,6 +151,14 @@ public class Label: UILabel {
         }
     }
     
+    // Custom content insets
+    @IBInspectable
+    open var insets: UIEdgeInsets = .zero {
+        didSet {
+            setNeedsDisplay()
+        }
+    }
+    
     open func prepare() {
         borderWidth = 0
         borderColor = .gray

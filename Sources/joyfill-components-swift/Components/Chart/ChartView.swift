@@ -106,7 +106,7 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
         horizontalMinTextField.translatesAutoresizingMaskIntoConstraints = false
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         contentView.translatesAutoresizingMaskIntoConstraints = false
-        
+   
         // Constraint to arrange subviews acc. to chartView
         NSLayoutConstraint.activate([
             // ScrollView Constraint
@@ -286,9 +286,11 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
             horizontalMinTextField.textField.isUserInteractionEnabled = false
             horizontalMaxTextField.textField.isUserInteractionEnabled = false
         } else {
-            yCoordinates = [[0]]
-            xCoordinates = [[0]]
-            graphLabelData = [[""]]
+            if xCoordinates.isEmpty {
+                yCoordinates = [[0]]
+                xCoordinates = [[0]]
+                graphLabelData = [[""]]
+            }
             chartLineLabel.isHidden = false
             addGraphLineButton.isHidden = false
             PSITextField.textField.isUserInteractionEnabled = true
