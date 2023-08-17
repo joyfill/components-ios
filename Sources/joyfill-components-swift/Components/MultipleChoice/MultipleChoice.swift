@@ -2,14 +2,15 @@ import Foundation
 import UIKit
 import Photos
 
+public var multiSelect = Bool()
+public var multiSelectOptions = [String]()
+
 public class MultipleChoice: UIView {
 
     public var titleLabel = Label()
     public var tableView = UITableView()
     
     public var selectArray : Int?
-    public var multiSelect = Bool()
-    public var choiceOptionsArray = [String]()
     public var multipleChoiceDspMode = String()
     public var selectedIndexPath = NSMutableArray()
     
@@ -147,7 +148,7 @@ public class MultipleChoice: UIView {
 extension MultipleChoice: UITableViewDelegate, UITableViewDataSource {
     // MARK: TableView delegate method for number of rows in section
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return choiceOptionsArray.count
+        return multiSelectOptions.count
     }
     
     // MARK: TableView delegate method for cell for row at
@@ -179,7 +180,7 @@ extension MultipleChoice: UITableViewDelegate, UITableViewDataSource {
         }
         cell.selectionStyle = .none
         cell.cellCheckbox.isUserInteractionEnabled = false
-        cell.cellLabel.text = choiceOptionsArray[indexPath.row]
+        cell.cellLabel.text = multiSelectOptions[indexPath.row]
         return cell
     }
     
@@ -193,7 +194,7 @@ extension MultipleChoice: UITableViewDelegate, UITableViewDataSource {
     // MARK: TableView delegate method to adjust cell height
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         // Calculate the required height for the text in the cell
-        let text = choiceOptionsArray[indexPath.row]
+        let text = multiSelectOptions[indexPath.row]
         let font = UIFont.systemFont(ofSize: 16) // Replace with your desired font and size
         let width = tableView.frame.width - 10 // Adjust the left and right margins
         let height = heightForText(text , font: font, width: width)

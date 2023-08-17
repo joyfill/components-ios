@@ -1,10 +1,11 @@
 import Foundation
 import UIKit
 
-public class ComponentsViewController: UIView {
+public var componentTableView = UITableView()
+public var viewForDataSource = UIView()
+public class ComponentViewController: UIView {
     
     public var componentView = UIView()
-    public var componentTableView = UITableView()
     
     var cellView = [UIView]()
     var cellHeight = [CGFloat]()
@@ -26,13 +27,6 @@ public class ComponentsViewController: UIView {
     }
     
     func setupUI() {
-        // Deinitialize arrays to protect memory leakage
-        yCoordinates = []
-        xCoordinates = []
-        graphLabelData = []
-        pickedImg.removeAll()
-        _ = JoyfillApi.loadFromJSON()
-        
         // SubViews
         addSubview(componentView)
         componentView.addSubview(componentTableView)
@@ -64,18 +58,18 @@ public class ComponentsViewController: UIView {
         componentView.layer.shadowOffset = CGSize(width: 0.0, height: 3.0)
         
         // Set tableView Properties
-        componentTableView.dataSource = self
-        componentTableView.delegate = self
         componentTableView.bounces = false
         componentTableView.separatorStyle = .none
         componentTableView.allowsSelection = false
         componentTableView.showsVerticalScrollIndicator = false
         componentTableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
+        
+        viewForDataSource = self
     }
 }
 
 // MARK: Setup tableView
-extension ComponentsViewController: UITableViewDelegate, UITableViewDataSource {
+extension ComponentViewController: UITableViewDelegate, UITableViewDataSource {
     // MARK: TableView delegate method for number of rows in section
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return componentType.count
@@ -91,7 +85,7 @@ extension ComponentsViewController: UITableViewDelegate, UITableViewDataSource {
                 
                 // MARK: Image Function Call From Package
                 let image = Image()
-                tableView.rowHeight = 310
+                tableView.rowHeight = 410
                 image.frame = CGRect(x: 10, y: 10, width: tableView.bounds.width - 20, height: tableView.rowHeight)
                 cellView.append(image)
                 
@@ -109,8 +103,7 @@ extension ComponentsViewController: UITableViewDelegate, UITableViewDataSource {
                 
                 // MARK: MultiChoice Function Call From Package
                 let multipleChoice = MultipleChoice()
-                tableView.rowHeight = 200
-                multipleChoice.titleFontSize = 20
+                tableView.rowHeight = 190
                 multipleChoice.titleLabel.labelText = componentHeaderText[i]
                 multipleChoice.frame = CGRect(x: 20, y: 0, width: tableView.bounds.width - 40, height: tableView.rowHeight)
                 cellView.append(multipleChoice)
@@ -120,9 +113,9 @@ extension ComponentsViewController: UITableViewDelegate, UITableViewDataSource {
                 // MARK: MultiSelect DropDown Function Call From Package
                 let dropDownText = Dropdown()
                 tableView.rowHeight = 100
+                dropDownText.doneHide = "singleSelect"
                 dropDownText.titleText = componentHeaderText[i]
-                dropDownText.dropdownPlaceholder = "Option 1"
-                dropDownText.dropdownOptionArray = dropdownOptions as NSArray
+                dropDownText.dropdownPlaceholder = dropdownOptions.first ?? ""
                 dropDownText.frame = CGRect(x: 10, y: 10, width: tableView.bounds.width - 20, height: tableView.rowHeight)
                 cellView.append(dropDownText)
                 
@@ -140,23 +133,17 @@ extension ComponentsViewController: UITableViewDelegate, UITableViewDataSource {
                 
                 // MARK: DateTime Function Call From Package
                 let datetime = DateTime()
-                tableView.rowHeight = 100
+                tableView.rowHeight = 80
                 datetime.titleText = componentHeaderText[i]
-                datetime.dateTimePlacholder = "MM-dd-YYYY"
                 datetime.frame = CGRect(x: 10, y: 0, width: tableView.bounds.width - 20, height: tableView.rowHeight)
                 cellView.append(datetime)
                 
             } else if componentType[i] == "signature" {
                 
                 // MARK: Signature Function Call From Package
-                var sign = UIView()
-                if #available(iOS 13.0, *) {
-                    sign = Signature()
-                } else {
-                    // Fallback on earlier versions
-                }
+                let sign = SignatureView()
                 tableView.rowHeight = 270
-//                sign.topLabel.labelText = labelTitle[i]
+                sign.titleLabel.labelText = componentHeaderText[i]
                 sign.frame = CGRect(x: 20, y: 0, width: tableView.bounds.width - 40, height: tableView.rowHeight)
                 cellView.append(sign)
                 
@@ -179,9 +166,8 @@ extension ComponentsViewController: UITableViewDelegate, UITableViewDataSource {
                 // MARK: Number Function Call From Package
                 let number = NumberField()
                 tableView.rowHeight = 100
-                number.numberFieldPlacholder = "0"
                 number.titleText = componentHeaderText[i]
-                number.currentPage = Int(numberFieldString ?? 0)
+                number.currentPage = numberFieldString ?? 0
                 number.numberField.text = "\(numberFieldString ?? 0)"
                 number.frame = CGRect(x: 10, y: 10, width: tableView.bounds.width - 20, height: tableView.rowHeight)
                 cellView.append(number)
@@ -215,13 +201,13 @@ extension ComponentsViewController: UITableViewDelegate, UITableViewDataSource {
         cellHeight.removeAll()
         for i in 0..<componentType.count {
             if componentType[i] == "image" {
-                cellHeight.append(340)
+                cellHeight.append(430)
             }
             if componentType[i] == "text" {
                 cellHeight.append(90)
             }
             if componentType[i] == "multiSelect" {
-                cellHeight.append(200)
+                cellHeight.append(190)
             }
             if componentType[i] == "dropdown" {
                 cellHeight.append(100)

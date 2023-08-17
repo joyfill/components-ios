@@ -1,35 +1,36 @@
 import Foundation
+import UIKit
 
-public var componentType = [String]()
-public var dropdownOptions = [String]()
-public var multiSelectOptions = [String]()
-public var componentHeaderText = [String]()
+public var componentType2 = [String]()
+public var dropdownOptions2 = [String]()
+public var multiSelectOptions2 = [String]()
+public var componentHeaderText2 = [String]()
 
-public var textAreaString: String?
-public var textFieldString: String?
-public var blockFieldString: String?
-public var numberFieldString: Double?
+public var textAreaString2: String?
+public var textFieldString2: String?
+public var blockFieldString2: String?
+public var numberFieldString2: Double?
 
-public var blockTextSize = Int()
-public var blockTextColor = String()
-public var blockTextStyle = String()
-public var blockTextWeight = String()
-public var blockTextAlignment = String()
+public var blockTextSize2 = Int()
+public var blockTextColor2 = String()
+public var blockTextStyle2 = String()
+public var blockTextWeight2 = String()
+public var blockTextAlignment2 = String()
 
-var pageCount = Int()
-var fieldCount = Int()
-var optionCount = Int()
-var tableColumnsCount = Int()
-var componentTypeValue = String()
+var pageCount2 = Int()
+var fieldCount2 = Int()
+var optionCount2 = Int()
+var tableColumnsCount2 = Int()
+var componentTypeValue2 = String()
 
-// MARK: - Welcome
-struct JoyfillApi: Codable {
+// MARK: - JoyfillApi
+public struct JoyfillApi2: Codable {
     let id, type, stage: String?
-    let metadata: Metadata?
+    let metadata: Metadata2?
     let identifier, name: String?
     let createdOn: Int?
-    let files: [File]?
-    let fields: [JoyfillApiField]?
+    let files: [File2]?
+    let fields: [JoyfillApiField2]?
     let categories: [JSONAny]?
 
     enum CodingKeys: String, CodingKey {
@@ -38,14 +39,14 @@ struct JoyfillApi: Codable {
     }
 }
 
-// MARK: - WelcomeField
-struct JoyfillApiField: Codable {
+// MARK: - JoyfillApiField
+struct JoyfillApiField2: Codable {
     let file, id, field, type: String?
     let identifier, title: String?
     let value: TentacledValue?
-    let metadata: Metadata?
-    let options: [PurpleOption]?
-    let tableColumns: [PurpleTableColumn]?
+    let metadata: Metadata2?
+    let options: [PurpleOption2]?
+    let tableColumns: [PurpleTableColumn2]?
 
     enum CodingKeys: String, CodingKey {
         case file
@@ -55,11 +56,11 @@ struct JoyfillApiField: Codable {
 }
 
 // MARK: - Metadata
-struct Metadata: Codable {
+struct Metadata2: Codable {
 }
 
 // MARK: - PurpleOption
-struct PurpleOption: Codable {
+struct PurpleOption2: Codable {
     let value: String?
     let deleted: Bool?
     let id: String?
@@ -71,14 +72,14 @@ struct PurpleOption: Codable {
 }
 
 // MARK: - PurpleTableColumn
-struct PurpleTableColumn: Codable {
+struct PurpleTableColumn2: Codable {
     let title, type, identifier: String?
     let optionOrder: [JSONAny]?
     let width, maxImageWidth, maxImageHeight: Int?
     let deficiencies, requireDeficiencyTitle, requireDeficiencyDescription, requireDeficiencyPhoto: Bool?
     let blockImport, deleted: Bool?
     let id: String?
-    let options: [PurpleOption]?
+    let options: [PurpleOption2]?
 
     enum CodingKeys: String, CodingKey {
         case title, type, identifier, optionOrder, width, maxImageWidth, maxImageHeight, deficiencies, requireDeficiencyTitle, requireDeficiencyDescription, requireDeficiencyPhoto, blockImport, deleted
@@ -88,12 +89,12 @@ struct PurpleTableColumn: Codable {
 }
 
 enum TentacledValue: Codable {
-    case purpleValueArray([PurpleValue])
+    case purpleValueArray([PurpleValue2])
     case string(String)
 
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
-        if let x = try? container.decode([PurpleValue].self) {
+        if let x = try? container.decode([PurpleValue2].self) {
             self = .purpleValueArray(x)
             return
         }
@@ -116,10 +117,10 @@ enum TentacledValue: Codable {
 }
 
 // MARK: - PurpleValue
-struct PurpleValue: Codable {
+struct PurpleValue2: Codable {
     let id: String?
     let deleted: Bool?
-    let cells: Metadata?
+    let cells: Metadata2?
 
     enum CodingKeys: String, CodingKey {
         case id = "_id"
@@ -128,13 +129,13 @@ struct PurpleValue: Codable {
 }
 
 // MARK: - File
-struct File: Codable {
+struct File2: Codable {
     let id: String?
-    let metadata: Metadata?
+    let metadata: Metadata2?
     let name: String?
     let version: Int?
-    let styles: Metadata?
-    let pages: [Page]?
+    let styles: Metadata2?
+    let pages: [Page2]?
     let views: [JSONAny]?
 
     enum CodingKeys: String, CodingKey {
@@ -144,14 +145,14 @@ struct File: Codable {
 }
 
 // MARK: - Page
-struct Page: Codable {
+struct Page2: Codable {
     let id: String?
-    let metadata: Metadata?
+    let metadata: Metadata2?
     let name: String?
     let width, height, cols, rowHeight: Int?
     let layout, presentation: String?
     let margin, padding, borderWidth: Int?
-    let fields: [PageField]?
+    let fields: [PageField2]?
 
     enum CodingKeys: String, CodingKey {
         case id = "_id"
@@ -160,7 +161,7 @@ struct Page: Codable {
 }
 
 // MARK: - PageField
-struct PageField: Codable {
+struct PageField2: Codable {
     let type: String?
     let displayType: DisplayType?
     let title, identifier, id, field: String?
@@ -251,7 +252,7 @@ enum StickyValue: Codable {
 struct FluffyValue: Codable {
     let id: String?
     let url: String?
-    let points: [Point]?
+    let points: [Point2]?
     let cells: Cells?
 
     enum CodingKeys: String, CodingKey {
@@ -284,7 +285,7 @@ struct The62Be03C708965De549C195Cc: Codable {
 }
 
 // MARK: - Point
-struct Point: Codable {
+struct Point2: Codable {
     let id, label: String?
     let y: CGFloat?
     let x: CGFloat?
@@ -295,15 +296,14 @@ struct Point: Codable {
     }
 }
 
-// MARK: Extension to fetch data from model
-var pointCount = Int()
-extension JoyfillApi {
-    static func loadFromJSON() -> [JoyfillApi]? {
+// MARK: - Extension to fetch data from model
+extension JoyfillApi2 {
+    public static func loadFromJSON() -> [JoyfillApi2]? {
         // Deinitialize arrays to protect memory leakage
-        componentType.removeAll()
-        dropdownOptions.removeAll()
-        multiSelectOptions.removeAll()
-        componentHeaderText.removeAll()
+        componentType2.removeAll()
+        dropdownOptions2.removeAll()
+        multiSelectOptions2.removeAll()
+        componentHeaderText2.removeAll()
         
         guard let fileURL = Bundle.main.url(forResource: "APIJson", withExtension: "json") else {
             print("APIJson.json file not found.")
@@ -313,37 +313,37 @@ extension JoyfillApi {
         do {
             let jsonData = try Data(contentsOf: fileURL)
             let decoder = JSONDecoder()
-            let apiResponse = try decoder.decode(JoyfillApi.self, from: jsonData)
+            let apiResponse = try decoder.decode(JoyfillApi2.self, from: jsonData)
             
-            pageCount = apiResponse.files?[0].pages?.count ?? 0
-            for i in 0..<pageCount {
-                fieldCount = apiResponse.files?[0].pages?[i].fields?.count ?? 0
-                for j in 0..<fieldCount {
-                    componentType.append(apiResponse.files?[0].pages?[i].fields?[j].type ?? "")
-                    componentHeaderText.append(apiResponse.files?[0].pages?[i].fields?[j].title ?? "")
-                    componentTypeValue = apiResponse.files?[0].pages?[i].fields?[j].type ?? ""
+            pageCount2 = apiResponse.files?[0].pages?.count ?? 0
+            for i in 0..<pageCount2 {
+                fieldCount2 = apiResponse.files?[0].pages?[i].fields?.count ?? 0
+                for j in 0..<fieldCount2 {
+                    componentType2.append(apiResponse.files?[0].pages?[i].fields?[j].type ?? "")
+                    componentHeaderText2.append(apiResponse.files?[0].pages?[i].fields?[j].title ?? "")
+                    componentTypeValue2 = apiResponse.files?[0].pages?[i].fields?[j].type ?? ""
 
                     // MARK: Functions call
                     if let value = apiResponse.files?[0].pages?[i].fields?[j].value {
                         switch value {
                         case .string(let string):
-                            if componentType[j] == "textarea" {
-                                textAreaString = string
+                            if componentType2[j] == "textarea" {
+                                textAreaString2 = string
                             }
-                            if componentType[j] == "block" {
-                                blockFieldString = string
-                                blockTextSize = apiResponse.files?[0].pages?[i].fields?[j].fontSize ?? 18
-                                blockTextStyle = apiResponse.files?[0].pages?[i].fields?[j].fontStyle ?? ""
-                                blockTextWeight = apiResponse.files?[0].pages?[i].fields?[j].fontWeight ?? ""
-                                blockTextColor = apiResponse.files?[0].pages?[i].fields?[j].fontColor ?? "#000000"
-                                blockTextAlignment = apiResponse.files?[0].pages?[i].fields?[j].textAlign ?? "left"
+                            if componentType2[j] == "block" {
+                                blockFieldString2 = string
+                                blockTextSize2 = apiResponse.files?[0].pages?[i].fields?[j].fontSize ?? 18
+                                blockTextStyle2 = apiResponse.files?[0].pages?[i].fields?[j].fontStyle ?? ""
+                                blockTextWeight2 = apiResponse.files?[0].pages?[i].fields?[j].fontWeight ?? ""
+                                blockTextColor2 = apiResponse.files?[0].pages?[i].fields?[j].fontColor ?? "#000000"
+                                blockTextAlignment2 = apiResponse.files?[0].pages?[i].fields?[j].textAlign ?? "left"
                             }
-                            if componentType[j] == "text" {
-                                textFieldString = string
+                            if componentType2[j] == "text" {
+                                textFieldString2 = string
                             }
                             
                         case .fluffyValueArray(let valueElements):
-                            if componentType[j] == "chart" {
+                            if componentType2[j] == "chart" {
                                 for k in 0..<valueElements.count {
                                     var graphLabelSubArray: [String] = []
                                     var graphXCoordinateSubArray: [CGFloat] = []
@@ -366,27 +366,35 @@ extension JoyfillApi {
                                 }
                             }
                             
-                            if componentType[j] == "image" {
+                            if componentType2[j] == "image" {
                                 for k in 0..<valueElements.count {
-                                    pickedImg.append(valueElements[k].url ?? "")
+                                    if let imageURL = URL(string: valueElements[k].url ?? "") {
+                                        getImageFromURL(url: imageURL) { image in
+                                            if let image = image {
+                                                pickedImg.append(image)
+                                            } else {
+                                                print("Failed to download image.")
+                                            }
+                                        }
+                                    }
                                 }
                             }
                             
                         case .double(let double):
-                            if componentType[j] == "number" {
-                                numberFieldString = double
+                            if componentType2[j] == "number" {
+                                numberFieldString2 = double
                             }
                         }
                     }
                     
                     
-                    optionCount = apiResponse.files?[0].pages?[i].fields?[j].options?.count ?? 0
-                    for n in 0..<optionCount {
-                        if componentTypeValue == "dropdown" {
-                            dropdownOptions.append(apiResponse.files?[0].pages?[i].fields?[j].options?[n].value ?? "")
+                    optionCount2 = apiResponse.files?[0].pages?[i].fields?[j].options?.count ?? 0
+                    for n in 0..<optionCount2 {
+                        if componentTypeValue2 == "dropdown" {
+                            dropdownOptions2.append(apiResponse.files?[0].pages?[i].fields?[j].options?[n].value ?? "")
                         }
-                        if componentTypeValue == "multiSelect" {
-                            multiSelectOptions.append(apiResponse.files?[0].pages?[i].fields?[j].options?[n].value ?? "")
+                        if componentTypeValue2 == "multiSelect" {
+                            multiSelectOptions2.append(apiResponse.files?[0].pages?[i].fields?[j].options?[n].value ?? "")
                         }
                     }
                 }
