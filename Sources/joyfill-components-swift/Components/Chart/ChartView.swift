@@ -147,14 +147,15 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
             graphView.heightAnchor.constraint(equalToConstant: 272),
             
             // VerticalLabel Constraint
-            verticalLabel.topAnchor.constraint(equalTo: lineGraph.bottomAnchor, constant: -180),
+            verticalLabel.topAnchor.constraint(equalTo: lineGraph.topAnchor, constant: 10),
+            verticalLabel.bottomAnchor.constraint(equalTo: graphView.bottomAnchor, constant: -10),
             verticalLabel.leadingAnchor.constraint(equalTo: graphView.leadingAnchor, constant: -60),
             verticalLabel.widthAnchor.constraint(equalToConstant: 150),
             
             // HorizontalLabel Constraint
             horizontalLabel.bottomAnchor.constraint(equalTo: graphView.bottomAnchor, constant: -10),
-            horizontalLabel.leadingAnchor.constraint(equalTo: graphView.leadingAnchor, constant: 170),
-            horizontalLabel.widthAnchor.constraint(equalToConstant: 150),
+            horizontalLabel.leadingAnchor.constraint(equalTo: graphView.leadingAnchor, constant: 10),
+            horizontalLabel.trailingAnchor.constraint(equalTo: graphView.trailingAnchor, constant: -10),
             horizontalLabel.heightAnchor.constraint(equalToConstant: 15),
             
             // LineGraph Constraint
@@ -401,6 +402,8 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
         verticalLabel.fontSize = 12
         horizontalLabel.fontSize = 12
         verticalLabel.numberOfLines = 0
+        verticalLabel.textAlignment = .center
+        horizontalLabel.textAlignment = .center
         verticalLabel.labelText = PSITextField.textField.text
         horizontalLabel.labelText = GPMTextField.textField.text
         verticalLabel.transform = CGAffineTransformMakeRotation(-(.pi/2))
