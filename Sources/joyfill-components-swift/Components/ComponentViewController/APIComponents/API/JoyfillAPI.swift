@@ -110,19 +110,22 @@ func fetchDataFromApi() {
         pageCount = joyFillStruct?.files?[0].views?[0].pages?.count ?? 0
         for i in 0..<pageCount {
             fieldCount = joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?.count ?? 0
+            let count = joyFillStruct?.fields?.count ?? 0
+            
             for j in 0..<fieldCount {
-                
                 // Get y value of all components
                 let yFieldValue = joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].y ?? 0.0
                 componentsYValueForMobileView.append(Int(yFieldValue))
-                
                 componentType.append(joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].type ?? "")
-                componentTypeValue = joyFillStruct?.fields?[j].type ?? ""
-                
-                // MARK: Functions call
                 ZipAndSortComponents()
-                getInputValuesFromMobileView(i: i, j: j)
-                getOptionValues(i: i, j: j)
+            }
+            
+            // Get values of the components from the fields
+            for k in 0..<count {
+                componentTypeValue = joyFillStruct?.fields?[k].type ?? ""
+                // MARK: Functions call
+                getInputValuesFromMobileView(i: i, j: k)
+                getOptionValues(i: i, j: k)
             }
         }
         
