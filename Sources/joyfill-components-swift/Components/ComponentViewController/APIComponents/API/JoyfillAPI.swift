@@ -118,6 +118,14 @@ func fetchDataFromApi() {
                 componentsYValueForMobileView.append(Int(yFieldValue))
                 componentType.append(joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].type ?? "")
                 ZipAndSortComponents()
+                
+                if joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].type == "block" {
+                    blockTextSize = joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].fontSize ?? 18
+                    blockTextStyle = joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].fontStyle ?? ""
+                    blockTextWeight = joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].fontWeight ?? ""
+                    blockTextColor = joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].fontColor ?? "#000000"
+                    blockTextAlignment = joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].textAlign ?? "left"
+                }
             }
             
             // Get values of the components from the fields
@@ -205,13 +213,7 @@ func getStringValues(string: String, i: Int, j: Int, mobileView: Bool = false) {
         textAreaString = string
     }
     if componentTypeValue == "block" {
-        if mobileView {
-            blockTextSize = joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].fontSize ?? 18
-            blockTextStyle = joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].fontStyle ?? ""
-            blockTextWeight = joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].fontWeight ?? ""
-            blockTextColor = joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].fontColor ?? "#000000"
-            blockTextAlignment = joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].textAlign ?? "left"
-        } else {
+        if !mobileView {
             blockTextSize = joyFillStruct?.files?[0].pages?[i].fieldPositions?[j].fontSize ?? 18
             blockTextStyle = joyFillStruct?.files?[0].pages?[i].fieldPositions?[j].fontStyle ?? ""
             blockTextWeight = joyFillStruct?.files?[0].pages?[i].fieldPositions?[j].fontWeight ?? ""
