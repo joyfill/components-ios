@@ -9,10 +9,14 @@ public class MultipleChoice: UIView {
 
     public var titleLabel = Label()
     public var tableView = UITableView()
+    public var toolTipIconButton = UIButton()
+    public var toolTipTitle = String()
+    public var toolTipDescription = String()
     
     public var selectArray : Int?
     public var multipleChoiceDspMode = String()
     public var selectedIndexPath = NSMutableArray()
+    public var tooltipView: TooltipView?
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
@@ -104,24 +108,39 @@ public class MultipleChoice: UIView {
         }
     }
     
+    public func tooltipVisible(bool: Bool) {
+        if bool {
+            toolTipIconButton.isHidden = false
+        } else {
+            toolTipIconButton.isHidden = true
+        }
+    }
+    
     func setupUI () {
         // SubViews
         addSubview(titleLabel)
+        addSubview(toolTipIconButton)
         addSubview(tableView)
         
         tableView.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        toolTipIconButton.translatesAutoresizingMaskIntoConstraints = false
         
         // Constraint to arrange subviews acc. to ShortTextView
         NSLayoutConstraint.activate([
             // TitleLabel Constraints
             titleLabel.topAnchor.constraint(equalTo: self.topAnchor),
             titleLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 2),
-            titleLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            titleLabel.heightAnchor.constraint(equalToConstant: 50),
+            titleLabel.heightAnchor.constraint(equalToConstant: 20),
+            
+            //TooltipIconButton
+            toolTipIconButton.topAnchor.constraint(equalTo: self.topAnchor),
+            toolTipIconButton.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: 10),
+            toolTipIconButton.heightAnchor.constraint(equalToConstant: 20),
+            toolTipIconButton.widthAnchor.constraint(equalToConstant: 20),
             
             // TableView Constraints
-            tableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: -8),
+            tableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
             tableView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
@@ -141,6 +160,38 @@ public class MultipleChoice: UIView {
         titleLabel.borderWidth = 0
         titleLabel.textColor = .black
         titleLabel.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
+        
+        toolTipIconButton.setImage(UIImage(named: "Info"), for: .normal)
+        toolTipIconButton.addTarget(self, action: #selector(tooltipButtonTapped), for: .touchUpInside)
+    }
+    
+    @objc func tooltipButtonTapped(_ sender: UIButton) {
+        toolTipIconButton.isSelected = !toolTipIconButton.isSelected
+        let selected = toolTipIconButton.isSelected
+        // Create the tooltip view
+        if selected == true {
+            tooltipView = TooltipView()
+            if let keyWindow = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) {
+                keyWindow.addSubview(tooltipView!)
+                
+                tooltipView?.translatesAutoresizingMaskIntoConstraints = false
+                
+                NSLayoutConstraint.activate([
+                    tooltipView!.bottomAnchor.constraint(equalTo: toolTipIconButton.topAnchor, constant: -5),
+                    tooltipView!.centerXAnchor.constraint(equalTo: toolTipIconButton.centerXAnchor),
+                    tooltipView!.widthAnchor.constraint(equalToConstant: 150),
+                ])
+                
+                tooltipView?.alpha = 0
+                UIView.animate(withDuration: 0.3) {
+                    self.tooltipView?.alpha = 1
+                }
+                tooltipView?.titleText.text = toolTipTitle
+                tooltipView?.descriptionText.text = toolTipDescription
+            }
+        } else {
+            tooltipView?.removeFromSuperview()
+        }
     }
 }
 

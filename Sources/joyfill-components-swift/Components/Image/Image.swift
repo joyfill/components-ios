@@ -17,6 +17,10 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
     public var imageCountLabel = Label()
     public var titleButton = UILabel()
     public var titleImage = UILabel()
+    public var toolTipIconButton = UIButton()
+    public var toolTipTitle = String()
+    public var toolTipDescription = String()
+    public var tooltipView: TooltipView?
     
     // MARK: Initializer
     public override init(frame: CGRect) {
@@ -53,10 +57,19 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
         }
     }
     
+    public func tooltipVisible(bool: Bool) {
+        if bool {
+            toolTipIconButton.isHidden = false
+        } else {
+            toolTipIconButton.isHidden = true
+        }
+    }
+    
     func setupView() {
         // SubViews
         addSubview(imageFieldAndUploadView)
         imageFieldAndUploadView.addSubview(imageField)
+        imageFieldAndUploadView.addSubview(toolTipIconButton)
         imageFieldAndUploadView.addSubview(uploadButton)
         imageField.addSubview(imageCountView)
         imageCountView.addSubview(imageCountButton)
@@ -67,6 +80,7 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
         
         // Constraint to arrange subviews acc. to imageView
         imageFieldAndUploadView.translatesAutoresizingMaskIntoConstraints = false
+        toolTipIconButton.translatesAutoresizingMaskIntoConstraints = false
         imageField.translatesAutoresizingMaskIntoConstraints = false
         uploadButton.translatesAutoresizingMaskIntoConstraints = false
         imageCountView.translatesAutoresizingMaskIntoConstraints = false
@@ -85,7 +99,13 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
             // TitleButton Constraint
             titleButton.topAnchor.constraint(equalTo: imageFieldAndUploadView.topAnchor, constant: 6),
             titleButton.leadingAnchor.constraint(equalTo: imageFieldAndUploadView.leadingAnchor),
-            titleButton.trailingAnchor.constraint(equalTo: imageFieldAndUploadView.trailingAnchor),
+            titleButton.heightAnchor.constraint(equalToConstant: 20),
+          
+            //TooltipIconButton
+            toolTipIconButton.topAnchor.constraint(equalTo: imageFieldAndUploadView.topAnchor, constant: 6),
+            toolTipIconButton.leadingAnchor.constraint(equalTo: titleButton.trailingAnchor, constant: 10),
+            toolTipIconButton.heightAnchor.constraint(equalToConstant: 20),
+            toolTipIconButton.widthAnchor.constraint(equalToConstant: 20),
             
             // UploadButton Constraint
             uploadButton.topAnchor.constraint(equalTo: titleButton.bottomAnchor, constant: 13),
@@ -159,6 +179,38 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
         titleImage.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         titleImage.text = "Image Field With Images"
         
+        toolTipIconButton.setImage(UIImage(named: "Info"), for: .normal)
+        toolTipIconButton.addTarget(self, action: #selector(tooltipButtonTapped), for: .touchUpInside)
+        
+    }
+    
+    @objc func tooltipButtonTapped(_ sender: UIButton) {
+        toolTipIconButton.isSelected = !toolTipIconButton.isSelected
+        let selected = toolTipIconButton.isSelected
+        // Create the tooltip view
+        if selected == true {
+            tooltipView = TooltipView()
+            if let keyWindow = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) {
+                keyWindow.addSubview(tooltipView!)
+                
+                tooltipView?.translatesAutoresizingMaskIntoConstraints = false
+                
+                NSLayoutConstraint.activate([
+                    tooltipView!.bottomAnchor.constraint(equalTo: toolTipIconButton.topAnchor, constant: -5),
+                    tooltipView!.centerXAnchor.constraint(equalTo: toolTipIconButton.centerXAnchor),
+                    tooltipView!.widthAnchor.constraint(equalToConstant: 150),
+                ])
+                
+                tooltipView?.alpha = 0
+                UIView.animate(withDuration: 0.3) {
+                    self.tooltipView?.alpha = 1
+                }
+                tooltipView?.titleText.text = toolTipTitle
+                tooltipView?.descriptionText.text = toolTipDescription
+            }
+        } else {
+            tooltipView?.removeFromSuperview()
+        }
     }
     
     // Fuction to set imageField according to pickedImage

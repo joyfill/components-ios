@@ -8,6 +8,10 @@ open class Table: UIView, UIViewControllerTransitioningDelegate {
     public var floorsLabel = Label()
     public var viewButton = Button()
     public var collectionView = CollectionViewTable()
+    public var toolTipIconButton = UIButton()
+    public var toolTipTitle = String()
+    public var toolTipDescription = String()
+    public var tooltipView: TooltipView?
     
     // MARK: Initializer
     public override init(frame: CGRect) {
@@ -25,16 +29,26 @@ open class Table: UIView, UIViewControllerTransitioningDelegate {
         setupView()
     }
     
+    public func tooltipVisible(bool: Bool) {
+        if bool {
+            toolTipIconButton.isHidden = false
+        } else {
+            toolTipIconButton.isHidden = true
+        }
+    }
+    
     func setupView() {
         // SubViews
         addSubview(countView)
         addSubview(collectionView)
         addSubview(floorsLabel)
+        addSubview(toolTipIconButton)
         countView.addSubview(viewButton)
         countView.addSubview(countLabel)
         
         // Constraint to arrange subviews acc. to imageView
         collectionView.translatesAutoresizingMaskIntoConstraints = false
+        toolTipIconButton.translatesAutoresizingMaskIntoConstraints = false
         countView.translatesAutoresizingMaskIntoConstraints = false
         viewButton.translatesAutoresizingMaskIntoConstraints = false
         countLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -43,15 +57,20 @@ open class Table: UIView, UIViewControllerTransitioningDelegate {
         NSLayoutConstraint.activate([
             // FloorsLabel Constraint
             floorsLabel.topAnchor.constraint(equalTo: topAnchor, constant: 6),
-            floorsLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8),
-            floorsLabel.widthAnchor.constraint(equalToConstant: 60),
-            floorsLabel.heightAnchor.constraint(equalToConstant: 30),
+            floorsLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            floorsLabel.heightAnchor.constraint(equalToConstant: 20),
+            
+            //TooltipIconButton
+            toolTipIconButton.topAnchor.constraint(equalTo: self.topAnchor, constant: 6),
+            toolTipIconButton.leadingAnchor.constraint(equalTo: floorsLabel.trailingAnchor, constant: 10),
+            toolTipIconButton.heightAnchor.constraint(equalToConstant: 20),
+            toolTipIconButton.widthAnchor.constraint(equalToConstant: 20),
             
             // CountView Constraint
             countView.topAnchor.constraint(equalTo: topAnchor, constant: 6),
             countView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
             countView.widthAnchor.constraint(equalToConstant: 90),
-            countView.heightAnchor.constraint(equalToConstant: 30),
+            countView.heightAnchor.constraint(equalToConstant: 20),
             
             // ViewButton Constraint
             viewButton.topAnchor.constraint(equalTo: countView.topAnchor, constant: 0),
@@ -87,6 +106,9 @@ open class Table: UIView, UIViewControllerTransitioningDelegate {
         floorsLabel.fontSize = 14
         floorsLabel.isTextBold = true
         
+        toolTipIconButton.setImage(UIImage(named: "Info"), for: .normal)
+        toolTipIconButton.addTarget(self, action: #selector(tooltipButtonTapped), for: .touchUpInside)
+        
         numberOfColumns = 3
         numberOfRows = 4
         collectionView.cellHeight = 37.5
@@ -112,6 +134,35 @@ open class Table: UIView, UIViewControllerTransitioningDelegate {
                 viewController.present(newViewController, animated: true, completion: nil)
                 break
             }
+        }
+    }
+    
+    @objc func tooltipButtonTapped(_ sender: UIButton) {
+        toolTipIconButton.isSelected = !toolTipIconButton.isSelected
+        let selected = toolTipIconButton.isSelected
+        // Create the tooltip view
+        if selected == true {
+            tooltipView = TooltipView()
+            if let keyWindow = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) {
+                keyWindow.addSubview(tooltipView!)
+                
+                tooltipView?.translatesAutoresizingMaskIntoConstraints = false
+                
+                NSLayoutConstraint.activate([
+                    tooltipView!.bottomAnchor.constraint(equalTo: toolTipIconButton.topAnchor, constant: -5),
+                    tooltipView!.centerXAnchor.constraint(equalTo: toolTipIconButton.centerXAnchor),
+                    tooltipView!.widthAnchor.constraint(equalToConstant: 150),
+                ])
+                
+                tooltipView?.alpha = 0
+                UIView.animate(withDuration: 0.3) {
+                    self.tooltipView?.alpha = 1
+                }
+                tooltipView?.titleText.text = toolTipTitle
+                tooltipView?.descriptionText.text = toolTipDescription
+            }
+        } else {
+            tooltipView?.removeFromSuperview()
         }
     }
 }
