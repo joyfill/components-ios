@@ -1,19 +1,26 @@
 import Foundation
 import UIKit
 
+protocol MultipleImageViewDelegate: AnyObject {
+    func imagesDeleted()
+    func imagesUpdated()
+}
+
+public var imageTableView = UITableView()
+public var interiorImageUploadButton = Button()
+
 public class MultipleImageView: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITableViewDelegate, UITableViewDataSource, UIViewControllerTransitioningDelegate {
     
     public var mainView = UIView()
     public var interiorImageBar = UIView()
     public var interiorImageLabel = Label()
     public var closeButton = Button()
-    public var uploadButton = Button()
     public var deleteView = UIView()
     public var deleteLabel = Label()
     public var deleteUploadStack = UIStackView()
     public var deleteImage = ImageView()
-    public var imageTableView = UITableView()
     public var selectedIndexPath: Set<Int> = []
+    weak var delegate: MultipleImageViewDelegate?
     
     public override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,20 +42,18 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         if imageDisplayMode == "readonly" {
             if pickedImg.count != 0 {
                 deleteView.isHidden = true
-                uploadButton.isHidden = true
+                interiorImageUploadButton.isHidden = true
             } else {
                 deleteView.isHidden = true
-                uploadButton.isHidden = true
+                interiorImageUploadButton.isHidden = true
                 imageTableView.isHidden = true
             }
         } else {
             if pickedImg.count != 0 {
                 deleteView.isHidden = true
-                uploadButton.isHidden = true
                 imageTableView.isHidden = false
             } else {
                 deleteView.isHidden = true
-                uploadButton.isHidden = false
                 imageTableView.isHidden = false
             }
         }
@@ -64,11 +69,11 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         interiorImageBar.addSubview(closeButton)
         deleteView.addSubview(deleteLabel)
         deleteView.addSubview(deleteImage)
-        deleteUploadStack.addArrangedSubview(uploadButton)
+        deleteUploadStack.addArrangedSubview(interiorImageUploadButton)
         deleteUploadStack.addArrangedSubview(deleteView)
         
         mainView.translatesAutoresizingMaskIntoConstraints = false
-        uploadButton.translatesAutoresizingMaskIntoConstraints = false
+        interiorImageUploadButton.translatesAutoresizingMaskIntoConstraints = false
         deleteView.translatesAutoresizingMaskIntoConstraints = false
         deleteImage.translatesAutoresizingMaskIntoConstraints = false
         deleteLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -81,7 +86,7 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         // Constraint to arrange subviews acc. to imageView
         NSLayoutConstraint.activate([
             // Top View
-            mainView.topAnchor.constraint(equalTo: view.topAnchor, constant: 60),
+            mainView.topAnchor.constraint(equalTo: view.topAnchor, constant: 40),
             mainView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
             mainView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -8),
             mainView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -50),
@@ -110,7 +115,7 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
             deleteUploadStack.heightAnchor.constraint(equalToConstant: 35),
             
             // UploadButton Constraint
-            uploadButton.widthAnchor.constraint(equalToConstant: 93),
+            interiorImageUploadButton.widthAnchor.constraint(equalToConstant: 93),
             
             // DeleteButton Constraint
             deleteView.widthAnchor.constraint(equalToConstant: 93),
@@ -176,19 +181,28 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         deleteView.isUserInteractionEnabled = true
         
         // Set UploadButton
-        uploadButton.image = UIImage(named: "interiorUploadButton")
-        uploadButton.addTarget(self, action: #selector(interiorUploadButtonTapped), for: .touchUpInside)
+        interiorImageUploadButton.image = UIImage(named: "interiorUploadButton")
     }
     
     // MARK: ImageTableView
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return pickedImg.count
+        if imageMultiValue {
+            return pickedImg.count
+        } else {
+            return pickedSingleImg.count
+        }
     }
     
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MultipleImageTableCell", for: indexPath) as! MultipleImageTableCell
         cell.contentView.backgroundColor = .clear
-        cell.cellImageField.image = pickedImg[indexPath.row]
+        
+        if imageMultiValue {
+            cell.cellImageField.load(urlString: pickedImg[indexPath.row])
+        } else {
+            cell.cellImageField.load(urlString: pickedSingleImg[indexPath.row])
+        }
+        
         tableView.rowHeight = 280
         cell.isSelected = selectedIndexPath.contains(indexPath.row)
         
@@ -217,16 +231,7 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
             cell?.checkboxButton.backgroundColor = .clear
             cell?.checkboxButton.checkboxFillColor = .clear
         }
-        
-        if imageDisplayMode == "readonly" {
-            
-        } else {
-            if selectedIndexPath.count == 0 {
-                deleteView.isHidden = true
-            } else {
-                deleteView.isHidden = false
-            }
-        }
+        checkDisplayMode()
     }
     
     public func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
@@ -242,10 +247,12 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
             cell?.checkboxButton.backgroundColor = .clear
             cell?.checkboxButton.checkboxFillColor = .clear
         }
-        
-        if imageDisplayMode == "readonly" {
-            
-        } else {
+        checkDisplayMode()
+    }
+    
+    // Function to check displayMode is readonly or fill
+    func checkDisplayMode() {
+        if imageDisplayMode != "readonly" {
             if selectedIndexPath.count == 0 {
                 deleteView.isHidden = true
             } else {
@@ -256,14 +263,11 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
     
     // Action for close button
     @objc func clossTapped() {
-        var parentResponder: UIResponder? = self
-        while parentResponder != nil {
-            parentResponder = parentResponder?.next
-            if let viewController = parentResponder as? UIViewController {
-                viewController.dismiss(animated: true)
-                break
-            }
-        }
+        willMove(toParent: nil)
+        view.removeFromSuperview()
+        removeFromParent()
+        delegate?.imagesUpdated()
+        componentTableView.reloadData()
     }
     
     // Action for delete button
@@ -272,9 +276,15 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         
         // Delete the selected cells from the data array
         for index in sortedIndices {
-            pickedImg.remove(at: index)
+            if imageMultiValue {
+                pickedImg.remove(at: index)
+            } else {
+                pickedImg.removeAll()
+                pickedSingleImg.removeAll()
+            }
         }
         selectedIndexPath.removeAll()
+        delegate?.imagesDeleted()
         
         // Update the table view
         imageTableView.beginUpdates()
@@ -283,104 +293,8 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         
         if pickedImg.count == 0 {
             deleteView.isHidden = true
-            uploadButton.isHidden = false
         } else {
             deleteView.isHidden = false
-            uploadButton.isHidden = true
         }
-    }
-    
-    // MARK: Functions to access and fetch image from camera and gallery.
-    @objc public func interiorUploadButtonTapped() {
-        guard let viewController = self.findMultipleImageViewController() else {
-            return
-        }
-        var alertStyle = UIAlertController.Style.actionSheet
-        if (UIDevice.current.userInterfaceIdiom == .pad) {
-            alertStyle = UIAlertController.Style.alert
-        }
-        let alert = UIAlertController(title: "Choose Image", message: nil, preferredStyle: alertStyle)
-        alert.addAction(UIAlertAction(title: "Camera", style: .default, handler: { _ in
-            self.openMultipleImageCamera()
-        }))
-        alert.addAction(UIAlertAction(title: "Gallery", style: .default, handler: { _ in
-            self.openMultipleImageGallery()
-        }))
-        alert.addAction(UIAlertAction.init(title: "Cancel", style: .cancel, handler: nil))
-        
-        viewController.present(alert, animated: true, completion: nil)
-    }
-    
-    private func findMultipleImageViewController() -> UIViewController? {
-        var responder: UIResponder? = self
-        
-        while let currentResponder = responder {
-            if let viewController = currentResponder as? UIViewController {
-                return viewController
-            }
-            responder = currentResponder.next
-        }
-        
-        return nil
-    }
-    
-    func openMultipleImageCamera() {
-        guard let viewController = self.findMultipleImageViewController() else {
-            return
-        }
-        
-        if UIImagePickerController.isSourceTypeAvailable(UIImagePickerController.SourceType.camera){
-            let imagePicker = UIImagePickerController()
-            imagePicker.delegate = self
-            imagePicker.allowsEditing = true
-            imagePicker.sourceType = UIImagePickerController.SourceType.camera
-            viewController.present(imagePicker, animated: true, completion: nil)
-        } else {
-            let alert  = UIAlertController(title: "Warning", message: "You don't have permission to access camera.", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-            viewController.present(alert, animated: true, completion: nil)
-        }
-    }
-    
-    func openMultipleImageGallery() {
-        guard let viewController = self.findMultipleImageViewController() else {
-            return
-        }
-        
-        if UIImagePickerController.isSourceTypeAvailable(UIImagePickerController.SourceType.photoLibrary){
-            let imagePicker = UIImagePickerController()
-            imagePicker.delegate = self
-            imagePicker.allowsEditing = true
-            imagePicker.sourceType = UIImagePickerController.SourceType.photoLibrary
-            viewController.present(imagePicker, animated: true, completion: nil)
-        }  else {
-            let alert  = UIAlertController(title: "Warning", message: "You don't have permission to access gallery.", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-            viewController.present(alert, animated: true, completion: nil)
-        }
-    }
-    
-    public func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        guard let viewController = self.findMultipleImageViewController() else {
-            return
-        }
-        viewController.dismiss(animated: true, completion: nil)
-        
-        if let pickedImage = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
-            pickedImg.append(pickedImage)
-            imageTableView.reloadData()
-            if pickedImg.count == 0 {
-                uploadButton.isHidden = false
-            } else {
-                uploadButton.isHidden = true
-            }
-        }
-    }
-    
-    public func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        guard let viewController = self.findMultipleImageViewController() else {
-            return
-        }
-        viewController.dismiss(animated: true, completion: nil)
     }
 }
