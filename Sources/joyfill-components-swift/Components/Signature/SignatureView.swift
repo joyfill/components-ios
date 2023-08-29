@@ -27,7 +27,10 @@ open class SignatureView : UIView {
     open override func didMoveToWindow() {
         super.didMoveToWindow()
         if signatureDisplayModes != "readonly" {
-            imageSignature.load(urlString: signedImage)
+            if signedImage != "" {
+                imageView.layer.borderWidth = 0
+                imageSignature.load(urlString: signedImage)
+            }
         }
     }
     
@@ -57,7 +60,6 @@ open class SignatureView : UIView {
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 21),
             titleLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 6),
-            titleLabel.trailingAnchor.constraint(equalTo: lookView.leadingAnchor, constant: 10),
             titleLabel.heightAnchor.constraint(equalToConstant: 30),
             
             lookView.topAnchor.constraint(equalTo: self.topAnchor, constant: 21),
@@ -79,10 +81,10 @@ open class SignatureView : UIView {
             imageView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 6),
             imageView.heightAnchor.constraint(equalToConstant: 143),
             
-            imageSignature.topAnchor.constraint(equalTo: imageView.topAnchor, constant: 5),
-            imageSignature.leadingAnchor.constraint(equalTo: imageView.leadingAnchor, constant: 5),
-            imageSignature.trailingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: -5),
-            imageSignature.bottomAnchor.constraint(equalTo: imageView.bottomAnchor, constant: -5),
+            imageSignature.topAnchor.constraint(equalTo: imageView.topAnchor, constant: 0),
+            imageSignature.leadingAnchor.constraint(equalTo: imageView.leadingAnchor, constant: 0),
+            imageSignature.trailingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: 0),
+            imageSignature.bottomAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 0),
             
             signViewBt.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 10),
             signViewBt.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 6),
