@@ -13,7 +13,6 @@ public class NumberField: UIView, UITextFieldDelegate {
     public var toolTipIconButton = UIButton()
     public var toolTipTitle = String()
     public var toolTipDescription = String()
-    public var tooltipView: TooltipView?
     
     // MARK: - Initializer
     override init(frame: CGRect) {
@@ -191,13 +190,13 @@ public class NumberField: UIView, UITextFieldDelegate {
             // Title
             titleLbl.topAnchor.constraint(equalTo: self.topAnchor),
             titleLbl.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
-            titleLbl.heightAnchor.constraint(equalToConstant: 20),
+            titleLbl.heightAnchor.constraint(equalToConstant: 15),
             
             //TooltipIconButton
             toolTipIconButton.topAnchor.constraint(equalTo: self.topAnchor),
-            toolTipIconButton.leadingAnchor.constraint(equalTo: titleLbl.trailingAnchor, constant: 10),
-            toolTipIconButton.heightAnchor.constraint(equalToConstant: 20),
-            toolTipIconButton.widthAnchor.constraint(equalToConstant: 20),
+            toolTipIconButton.leadingAnchor.constraint(equalTo: titleLbl.trailingAnchor, constant: 5),
+            toolTipIconButton.heightAnchor.constraint(equalToConstant: 15),
+            toolTipIconButton.widthAnchor.constraint(equalToConstant: 15),
             
             // view
             view.topAnchor.constraint(equalTo: titleLbl.bottomAnchor, constant: 13),
@@ -235,7 +234,7 @@ public class NumberField: UIView, UITextFieldDelegate {
         self.titleText = "Number"
         self.titleTextColor = .black
         
-        toolTipIconButton.setImage(UIImage(named: "Info"), for: .normal)
+        toolTipIconButton.setImage(UIImage(named: "information"), for: .normal)
         toolTipIconButton.addTarget(self, action: #selector(tooltipButtonTapped), for: .touchUpInside)
         
         // View UI
@@ -277,32 +276,7 @@ public class NumberField: UIView, UITextFieldDelegate {
     }
     
     @objc func tooltipButtonTapped(_ sender: UIButton) {
-        toolTipIconButton.isSelected = !toolTipIconButton.isSelected
-        let selected = toolTipIconButton.isSelected
-        // Create the tooltip view
-        if selected == true {
-            tooltipView = TooltipView()
-            if let keyWindow = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) {
-                keyWindow.addSubview(tooltipView!)
-                
-                tooltipView?.translatesAutoresizingMaskIntoConstraints = false
-                
-                NSLayoutConstraint.activate([
-                    tooltipView!.bottomAnchor.constraint(equalTo: toolTipIconButton.topAnchor, constant: -5),
-                    tooltipView!.centerXAnchor.constraint(equalTo: toolTipIconButton.centerXAnchor),
-                    tooltipView!.widthAnchor.constraint(equalToConstant: 150),
-                ])
-                
-                tooltipView?.alpha = 0
-                UIView.animate(withDuration: 0.3) {
-                    self.tooltipView?.alpha = 1
-                }
-                tooltipView?.titleText.text = toolTipTitle
-                tooltipView?.descriptionText.text = toolTipDescription
-            }
-        } else {
-            tooltipView?.removeFromSuperview()
-        }
+        toolTipAlertShow(for: self, title: toolTipTitle, message: toolTipDescription)
     }
     
     @IBAction func refresh(_ sender: Any) {

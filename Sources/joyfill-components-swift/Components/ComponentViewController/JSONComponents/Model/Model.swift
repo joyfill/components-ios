@@ -368,14 +368,9 @@ extension JoyfillApi2 {
                             
                             if componentType2[j] == "image" {
                                 for k in 0..<valueElements.count {
-                                    if let imageURL = URL(string: valueElements[k].url ?? "") {
-                                        getImageFromURL(url: imageURL) { image in
-                                            if let image = image {
-                                                pickedImg.append(image)
-                                            } else {
-                                                print("Failed to download image.")
-                                            }
-                                        }
+                                    pickedImg.append(valueElements[k].url ?? "")
+                                    DispatchQueue.main.async {
+                                        componentTableView.reloadData()
                                     }
                                 }
                             }

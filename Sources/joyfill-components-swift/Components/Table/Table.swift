@@ -11,7 +11,6 @@ open class Table: UIView, UIViewControllerTransitioningDelegate {
     public var toolTipIconButton = UIButton()
     public var toolTipTitle = String()
     public var toolTipDescription = String()
-    public var tooltipView: TooltipView?
     
     // MARK: Initializer
     public override init(frame: CGRect) {
@@ -58,13 +57,13 @@ open class Table: UIView, UIViewControllerTransitioningDelegate {
             // FloorsLabel Constraint
             floorsLabel.topAnchor.constraint(equalTo: topAnchor, constant: 6),
             floorsLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            floorsLabel.heightAnchor.constraint(equalToConstant: 20),
+            floorsLabel.heightAnchor.constraint(equalToConstant: 15),
             
             //TooltipIconButton
             toolTipIconButton.topAnchor.constraint(equalTo: self.topAnchor, constant: 6),
-            toolTipIconButton.leadingAnchor.constraint(equalTo: floorsLabel.trailingAnchor, constant: 10),
-            toolTipIconButton.heightAnchor.constraint(equalToConstant: 20),
-            toolTipIconButton.widthAnchor.constraint(equalToConstant: 20),
+            toolTipIconButton.leadingAnchor.constraint(equalTo: floorsLabel.trailingAnchor, constant: 5),
+            toolTipIconButton.heightAnchor.constraint(equalToConstant: 15),
+            toolTipIconButton.widthAnchor.constraint(equalToConstant: 15),
             
             // CountView Constraint
             countView.topAnchor.constraint(equalTo: topAnchor, constant: 6),
@@ -106,7 +105,7 @@ open class Table: UIView, UIViewControllerTransitioningDelegate {
         floorsLabel.fontSize = 14
         floorsLabel.isTextBold = true
         
-        toolTipIconButton.setImage(UIImage(named: "Info"), for: .normal)
+        toolTipIconButton.setImage(UIImage(named: "information"), for: .normal)
         toolTipIconButton.addTarget(self, action: #selector(tooltipButtonTapped), for: .touchUpInside)
         
         numberOfColumns = 3
@@ -138,31 +137,6 @@ open class Table: UIView, UIViewControllerTransitioningDelegate {
     }
     
     @objc func tooltipButtonTapped(_ sender: UIButton) {
-        toolTipIconButton.isSelected = !toolTipIconButton.isSelected
-        let selected = toolTipIconButton.isSelected
-        // Create the tooltip view
-        if selected == true {
-            tooltipView = TooltipView()
-            if let keyWindow = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) {
-                keyWindow.addSubview(tooltipView!)
-                
-                tooltipView?.translatesAutoresizingMaskIntoConstraints = false
-                
-                NSLayoutConstraint.activate([
-                    tooltipView!.bottomAnchor.constraint(equalTo: toolTipIconButton.topAnchor, constant: -5),
-                    tooltipView!.centerXAnchor.constraint(equalTo: toolTipIconButton.centerXAnchor),
-                    tooltipView!.widthAnchor.constraint(equalToConstant: 150),
-                ])
-                
-                tooltipView?.alpha = 0
-                UIView.animate(withDuration: 0.3) {
-                    self.tooltipView?.alpha = 1
-                }
-                tooltipView?.titleText.text = toolTipTitle
-                tooltipView?.descriptionText.text = toolTipDescription
-            }
-        } else {
-            tooltipView?.removeFromSuperview()
-        }
+        toolTipAlertShow(for: self, title: toolTipTitle, message: toolTipDescription)
     }
 }

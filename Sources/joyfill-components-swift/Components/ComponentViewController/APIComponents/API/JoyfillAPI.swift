@@ -168,7 +168,7 @@ func getInputValuesFromPrimaryView(i: Int, j: Int) {
             getStringValues(string: string, i: i, j: j)
             
         case .valueElementArray(let valueElements):
-            getChartAndImageValue(valueElements: valueElements)
+            getChartAndImageValue(valueElements: valueElements, j: j)
             
         case .integer(let integer):
             getIntegerValue(integer: integer)
@@ -185,7 +185,7 @@ func getInputValuesFromMobileView(i: Int, j: Int) {
             getStringValues(string: string, i: i, j: j, mobileView: true)
             
         case .valueElementArray(let valueElements):
-            getChartAndImageValue(valueElements: valueElements)
+            getChartAndImageValue(valueElements: valueElements, j: j)
             
         case .integer(let integer):
             getIntegerValue(integer: integer)
@@ -233,7 +233,7 @@ func getStringValues(string: String, i: Int, j: Int, mobileView: Bool = false) {
 }
 
 // Function to get chart and image values
-func getChartAndImageValue(valueElements: [ValueElement]) {
+func getChartAndImageValue(valueElements: [ValueElement], j: Int) {
     if componentTypeValue == "chart" {
         for k in 0..<valueElements.count {
             var graphLabelSubArray: [String] = []
@@ -257,18 +257,12 @@ func getChartAndImageValue(valueElements: [ValueElement]) {
         }
     }
     if componentTypeValue == "image" {
+        imageMultiValue = joyFillStruct?.fields?[j].multi ?? false
         for k in 0..<valueElements.count {
-            if let imageURL = URL(string: valueElements[k].url ?? "") {
-                getImageFromURL(url: imageURL) { image in
-                    if let image = image {
-                        pickedImg.append(image)
-                        DispatchQueue.main.async {
-                            componentTableView.reloadData()
-                        }
-                    } else {
-                        print("Failed to download image.")
-                    }
-                }
+            pickedSingleImg = [valueElements[k].url ?? ""]
+            pickedImg.append(valueElements[k].url ?? "")
+            DispatchQueue.main.async {
+                componentTableView.reloadData()
             }
         }
     }
@@ -279,27 +273,4 @@ func getIntegerValue(integer: Int) {
     if componentTypeValue == "number" {
         numberFieldString = integer
     }
-}
-
-// MARK: - Function to convert image url to UIImage
-public func getImageFromURL(url: URL, completion: @escaping (UIImage?) -> Void) {
-    // Create a URLSession
-    let session = URLSession.shared
-    
-    // Create a data task to download the image data
-    let task = session.dataTask(with: url) { data, response, error in
-        if let error = error {
-            print("Error downloading image: \(error)")
-            completion(nil)
-            return
-        }
-        
-        // Check if data is available and create UIImage
-        if let data = data, let image = UIImage(data: data) {
-            completion(image)
-        } else {
-            completion(nil)
-        }
-    }
-    task.resume()
 }

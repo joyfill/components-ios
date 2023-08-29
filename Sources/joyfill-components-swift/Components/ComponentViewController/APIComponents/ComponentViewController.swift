@@ -6,7 +6,7 @@ public var viewForDataSource = UIView()
 public class ComponentViewController: UIView {
     
     public var componentView = UIView()
-    
+    public var image = Image()
     var cellView = [UIView]()
     var cellHeight = [CGFloat]()
     
@@ -24,6 +24,10 @@ public class ComponentViewController: UIView {
     public init() {
         super.init(frame: .zero)
         setupUI()
+    }
+    
+    override public func didMoveToSuperview() {
+        
     }
     
     func setupUI() {
@@ -61,6 +65,7 @@ public class ComponentViewController: UIView {
         componentTableView.bounces = false
         componentTableView.separatorStyle = .none
         componentTableView.allowsSelection = false
+        componentTableView.tintColor = .white
         componentTableView.showsVerticalScrollIndicator = false
         componentTableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
         
@@ -78,14 +83,19 @@ extension ComponentViewController: UITableViewDelegate, UITableViewDataSource {
     // MARK: TableView delegate method for cell for row at
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
-        
+        componentTableView.separatorStyle = .none
         // Configure the cell
         for i in 0..<componentType.count {
             if componentType[i] == "image" {
-                
                 // MARK: Image Function Call From Package
-                let image = Image()
-                tableView.rowHeight = 410
+                if pickedImg.count == 0 {
+                    tableView.rowHeight = 150
+                } else {
+                    tableView.rowHeight = 260
+                }
+                image.toolTipTitle = "Testing Image"
+                image.titleButton.text = componentHeaderText[i]
+                image.allowMultipleImages(value: imageMultiValue)
                 image.frame = CGRect(x: 10, y: 10, width: tableView.bounds.width - 20, height: tableView.rowHeight)
                 cellView.append(image)
                 
@@ -94,6 +104,8 @@ extension ComponentViewController: UITableViewDelegate, UITableViewDataSource {
                 // MARK: TextField Function Call From Package
                 let shortText = ShortText()
                 tableView.rowHeight = 80
+                shortText.toolTipTitle = "Testing Text"
+                shortText.toolTipDescription = "Should be same person that signs signature field. Don’t forget to capture."
                 shortText.topLabel.labelText = componentHeaderText[i]
                 shortText.textField.fieldText = textFieldString ?? ""
                 shortText.frame = CGRect(x: 20, y: 10, width: tableView.bounds.width - 40, height: tableView.rowHeight)
@@ -104,8 +116,10 @@ extension ComponentViewController: UITableViewDelegate, UITableViewDataSource {
                 // MARK: MultiChoice Function Call From Package
                 let multipleChoice = MultipleChoice()
                 tableView.rowHeight = 190
+                multipleChoice.toolTipTitle = "Testing MultiSelect"
+                multipleChoice.toolTipDescription = "Should be same person that signs signature field. Don’t forget to capture."
                 multipleChoice.titleLabel.labelText = componentHeaderText[i]
-                multipleChoice.frame = CGRect(x: 20, y: 0, width: tableView.bounds.width - 40, height: tableView.rowHeight)
+                multipleChoice.frame = CGRect(x: 20, y: 10, width: tableView.bounds.width - 40, height: tableView.rowHeight)
                 cellView.append(multipleChoice)
                 
             } else if componentType[i] == "dropdown" {
@@ -114,6 +128,8 @@ extension ComponentViewController: UITableViewDelegate, UITableViewDataSource {
                 let dropDownText = Dropdown()
                 tableView.rowHeight = 100
                 dropDownText.doneHide = "singleSelect"
+                dropDownText.toolTipTitle = "Testing DropDown"
+                dropDownText.toolTipDescription = "Should be same person that signs signature field. Don’t forget to capture."
                 dropDownText.titleText = componentHeaderText[i]
                 dropDownText.dropdownPlaceholder = dropdownOptions.first ?? ""
                 dropDownText.frame = CGRect(x: 10, y: 10, width: tableView.bounds.width - 20, height: tableView.rowHeight)
@@ -124,6 +140,8 @@ extension ComponentViewController: UITableViewDelegate, UITableViewDataSource {
                 // MARK: TextField Function Call From Package
                 let longText = LongText()
                 tableView.rowHeight = 200
+                longText.toolTipTitle = "Testing LongText"
+                longText.toolTipDescription = "Should be same person that signs signature field. Don’t forget to capture."
                 longText.topLabel.labelText = componentHeaderText[i]
                 longText.textField.text = (textAreaString ?? "") + "\n \n \n \n \n"
                 longText.frame = CGRect(x: 20, y: 15, width: tableView.bounds.width - 40, height: tableView.rowHeight)
@@ -135,6 +153,8 @@ extension ComponentViewController: UITableViewDelegate, UITableViewDataSource {
                 let datetime = DateTime()
                 tableView.rowHeight = 80
                 datetime.titleText = componentHeaderText[i]
+                datetime.toolTipTitle = "Testing DateTime"
+                datetime.toolTipDescription = "Should be same person that signs signature field. Don’t forget to capture."
                 datetime.frame = CGRect(x: 10, y: 0, width: tableView.bounds.width - 20, height: tableView.rowHeight)
                 cellView.append(datetime)
                 
@@ -143,6 +163,7 @@ extension ComponentViewController: UITableViewDelegate, UITableViewDataSource {
                 // MARK: Signature Function Call From Package
                 let sign = SignatureView()
                 tableView.rowHeight = 270
+                sign.toolTipTitle = "Testing Signature"
                 sign.titleLabel.labelText = componentHeaderText[i]
                 sign.frame = CGRect(x: 20, y: 0, width: tableView.bounds.width - 40, height: tableView.rowHeight)
                 cellView.append(sign)
@@ -169,6 +190,8 @@ extension ComponentViewController: UITableViewDelegate, UITableViewDataSource {
                 number.titleText = componentHeaderText[i]
                 number.currentPage = numberFieldString ?? 0
                 number.numberField.text = "\(numberFieldString ?? 0)"
+                number.toolTipTitle = "Testing Number"
+                number.toolTipDescription = "Should be same person that signs signature field. Don’t forget to capture."
                 number.frame = CGRect(x: 10, y: 10, width: tableView.bounds.width - 20, height: tableView.rowHeight)
                 cellView.append(number)
                 
@@ -178,6 +201,8 @@ extension ComponentViewController: UITableViewDelegate, UITableViewDataSource {
                 let chart = Chart()
                 tableView.rowHeight = 380
                 chart.performanceGraphLabel.labelText = componentHeaderText[i]
+                chart.toolTipTitle = "Testing Chart"
+                chart.toolTipDescription = "Should be same person that signs signature field. Don’t forget to capture."
                 chart.frame = CGRect(x: 10, y: 0, width: tableView.bounds.width - 20, height: tableView.rowHeight)
                 cellView.append(chart)
                 
@@ -201,7 +226,11 @@ extension ComponentViewController: UITableViewDelegate, UITableViewDataSource {
         cellHeight.removeAll()
         for i in 0..<componentType.count {
             if componentType[i] == "image" {
-                cellHeight.append(430)
+                if pickedImg.count == 0 {
+                    cellHeight.append(160)
+                } else {
+                    cellHeight.append(270)
+                }
             }
             if componentType[i] == "text" {
                 cellHeight.append(90)

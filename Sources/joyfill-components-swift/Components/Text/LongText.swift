@@ -9,7 +9,6 @@ open class LongText: UIView, UITextViewDelegate {
     public var toolTipIconButton = UIButton()
     public var toolTipTitle = String()
     public var toolTipDescription = String()
-    public var tooltipView: TooltipView?
     
     // MARK: Initializer
     public override init(frame: CGRect) {
@@ -61,52 +60,26 @@ open class LongText: UIView, UITextViewDelegate {
             
             topLabel.topAnchor.constraint(equalTo: view.topAnchor),
             topLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 2),
-            topLabel.heightAnchor.constraint(equalToConstant: 20),
+            topLabel.heightAnchor.constraint(equalToConstant: 15),
             
             toolTipIconButton.topAnchor.constraint(equalTo: view.topAnchor),
-            toolTipIconButton.leadingAnchor.constraint(equalTo: topLabel.trailingAnchor, constant: 10),
-            toolTipIconButton.heightAnchor.constraint(equalToConstant: 20),
-            toolTipIconButton.widthAnchor.constraint(equalToConstant: 20),
+            toolTipIconButton.leadingAnchor.constraint(equalTo: topLabel.trailingAnchor, constant: 5),
+            toolTipIconButton.heightAnchor.constraint(equalToConstant: 15),
+            toolTipIconButton.widthAnchor.constraint(equalToConstant: 15),
             
             textField.topAnchor.constraint(equalTo: topLabel.bottomAnchor, constant: 13),
             textField.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             textField.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
         
-        toolTipIconButton.setImage(UIImage(named: "Info"), for: .normal)
+        toolTipIconButton.setImage(UIImage(named: "information"), for: .normal)
         toolTipIconButton.addTarget(self, action: #selector(tooltipButtonTapped), for: .touchUpInside)
         
         textField.delegate = self
         textField.isScrollEnabled = false
     }
     
-    
     @objc func tooltipButtonTapped(_ sender: UIButton) {
-        toolTipIconButton.isSelected = !toolTipIconButton.isSelected
-        let selected = toolTipIconButton.isSelected
-        // Create the tooltip view
-        if selected == true {
-            tooltipView = TooltipView()
-            if let keyWindow = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) {
-                keyWindow.addSubview(tooltipView!)
-                
-                tooltipView?.translatesAutoresizingMaskIntoConstraints = false
-                
-                NSLayoutConstraint.activate([
-                    tooltipView!.bottomAnchor.constraint(equalTo: toolTipIconButton.topAnchor, constant: -5),
-                    tooltipView!.centerXAnchor.constraint(equalTo: toolTipIconButton.centerXAnchor),
-                    tooltipView!.widthAnchor.constraint(equalToConstant: 150),
-                ])
-                
-                tooltipView?.alpha = 0
-                UIView.animate(withDuration: 0.3) {
-                    self.tooltipView?.alpha = 1
-                }
-                tooltipView?.titleText.text = toolTipTitle
-                tooltipView?.descriptionText.text = toolTipDescription
-            }
-        } else {
-            tooltipView?.removeFromSuperview()
-        }
+        toolTipAlertShow(for: self, title: toolTipTitle, message: toolTipDescription)
     }
 }

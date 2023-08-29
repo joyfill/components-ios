@@ -1,8 +1,7 @@
 import Foundation
 import UIKit
 
-public var Tableview = UIView()
-public class DateTime : UIView {
+public class DateTime: UIView {
     
     public var dateLabel = String()
     public var titleLabel = UILabel()
@@ -13,7 +12,6 @@ public class DateTime : UIView {
     public var toolTipTitle = String()
     public var toolTipDescription = String()
     weak var textViewDelegate: TextViewCellDelegate?
-    public var tooltipView: TooltipView?
     
     // Set cornerRadius
     @IBInspectable
@@ -165,12 +163,13 @@ public class DateTime : UIView {
             //Title
             titleLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 20),
             titleLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
+            titleLabel.heightAnchor.constraint(equalToConstant: 20),
             
             //TooltipIconButton
-            toolTipIconButton.topAnchor.constraint(equalTo: self.topAnchor, constant: 18),
-            toolTipIconButton.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: 10),
-            toolTipIconButton.heightAnchor.constraint(equalToConstant: 20),
-            toolTipIconButton.widthAnchor.constraint(equalToConstant: 20),
+            toolTipIconButton.topAnchor.constraint(equalTo: self.topAnchor, constant: 23),
+            toolTipIconButton.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: 5),
+            toolTipIconButton.heightAnchor.constraint(equalToConstant: 15),
+            toolTipIconButton.widthAnchor.constraint(equalToConstant: 15),
             
             //view
             dateTimeView.topAnchor.constraint(equalTo: titleLabel.topAnchor, constant: 30),
@@ -195,7 +194,7 @@ public class DateTime : UIView {
         titleTextColor = .black
         titleLabel.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         
-        toolTipIconButton.setImage(UIImage(named: "Info"), for: .normal)
+        toolTipIconButton.setImage(UIImage(named: "information"), for: .normal)
         toolTipIconButton.addTarget(self, action: #selector(tooltipButtonTapped), for: .touchUpInside)
         
         dateTimeBorderWidth = 1
@@ -205,37 +204,12 @@ public class DateTime : UIView {
         dateTimeBorderColor = UIColor(hexString: "#D1D1D6") ?? .lightGray
         
         dateTimeFieldIconColor = .black
-        dateTimePlacholder = "MMMM d, yyyy h:mma"
+        dateTimePlacholder = "MMMM d, yyyy h:mm a"
         datePickerButton.setImage(UIImage(named: "Date_today"), for: .normal)
     }
     
     @objc func tooltipButtonTapped(_ sender: UIButton) {
-        toolTipIconButton.isSelected = !toolTipIconButton.isSelected
-        let selected = toolTipIconButton.isSelected
-        // Create the tooltip view
-        if selected == true {
-            tooltipView = TooltipView()
-            if let keyWindow = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) {
-                keyWindow.addSubview(tooltipView!)
-                
-                tooltipView?.translatesAutoresizingMaskIntoConstraints = false
-                
-                NSLayoutConstraint.activate([
-                    tooltipView!.bottomAnchor.constraint(equalTo: toolTipIconButton.topAnchor, constant: -5),
-                    tooltipView!.centerXAnchor.constraint(equalTo: toolTipIconButton.centerXAnchor),
-                    tooltipView!.widthAnchor.constraint(equalToConstant: 150),
-                ])
-                
-                tooltipView?.alpha = 0
-                UIView.animate(withDuration: 0.3) {
-                    self.tooltipView?.alpha = 1
-                }
-                tooltipView?.titleText.text = toolTipTitle
-                tooltipView?.descriptionText.text = toolTipDescription
-            }
-        } else {
-            tooltipView?.removeFromSuperview()
-        }
+        toolTipAlertShow(for: self, title: toolTipTitle, message: toolTipDescription)
     }
     
     // Function to open datePicker
@@ -245,7 +219,7 @@ public class DateTime : UIView {
     
     public func datePickerUI () {
         RPicker.selectDate(title: "Select Date", cancelText: "Cancel", datePickerMode: .dateAndTime, style: .Inline, didSelectDate: {[weak self] (selectedDate) in
-            self?.selectedDate(date: selectedDate.dateString("MMMM d, yyyy h:mma"))
+            self?.selectedDate(date: selectedDate.dateString("MMMM d, yyyy h:mm a"))
         })
     }
     
