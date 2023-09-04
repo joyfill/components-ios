@@ -84,7 +84,7 @@ public class Dropdown : UIView, DropDownSelectText, UITextFieldDelegate {
         self.titleText = "Drop Down"
         self.titleTextColor = .black
         
-        toolTipIconButton.setImage(UIImage(named: "information"), for: .normal)
+        toolTipIconButton.setImage(UIImage(named: "tooltipIcon"), for: .normal)
         toolTipIconButton.addTarget(self, action: #selector(tooltipButtonTapped), for: .touchUpInside)
         
         self.dropdownCornerRadius = 12

@@ -234,7 +234,7 @@ public class NumberField: UIView, UITextFieldDelegate {
         self.titleText = "Number"
         self.titleTextColor = .black
         
-        toolTipIconButton.setImage(UIImage(named: "information"), for: .normal)
+        toolTipIconButton.setImage(UIImage(named: "tooltipIcon"), for: .normal)
         toolTipIconButton.addTarget(self, action: #selector(tooltipButtonTapped), for: .touchUpInside)
         
         // View UI

@@ -105,7 +105,7 @@ open class Table: UIView, UIViewControllerTransitioningDelegate {
         floorsLabel.fontSize = 14
         floorsLabel.isTextBold = true
         
-        toolTipIconButton.setImage(UIImage(named: "information"), for: .normal)
+        toolTipIconButton.setImage(UIImage(named: "tooltipIcon"), for: .normal)
         toolTipIconButton.addTarget(self, action: #selector(tooltipButtonTapped), for: .touchUpInside)
         
         numberOfColumns = 3

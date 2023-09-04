@@ -160,7 +160,7 @@ public class MultipleChoice: UIView {
         titleLabel.textColor = .black
         titleLabel.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         
-        toolTipIconButton.setImage(UIImage(named: "information"), for: .normal)
+        toolTipIconButton.setImage(UIImage(named: "tooltipIcon"), for: .normal)
         toolTipIconButton.addTarget(self, action: #selector(tooltipButtonTapped), for: .touchUpInside)
     }
     

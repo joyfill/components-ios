@@ -72,7 +72,7 @@ open class LongText: UIView, UITextViewDelegate {
             textField.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
         
-        toolTipIconButton.setImage(UIImage(named: "information"), for: .normal)
+        toolTipIconButton.setImage(UIImage(named: "tooltipIcon"), for: .normal)
         toolTipIconButton.addTarget(self, action: #selector(tooltipButtonTapped), for: .touchUpInside)
         
         textField.delegate = self
