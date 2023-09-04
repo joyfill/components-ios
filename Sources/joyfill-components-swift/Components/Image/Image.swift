@@ -66,7 +66,7 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
             toolTipIconButton.isHidden = true
         }
     }
-    
+
     func setupView() {
         // SubViews
         addSubview(imageFieldAndUploadView)
@@ -165,7 +165,7 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
         imageField.layer.masksToBounds = true
         imageField.isUserInteractionEnabled = true
         titleButton.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
-        
+
         toolTipIconButton.setImage(UIImage(named: "tooltipIcon"), for: .normal)
         toolTipIconButton.addTarget(self, action: #selector(tooltipButtonTapped), for: .touchUpInside)
     }
