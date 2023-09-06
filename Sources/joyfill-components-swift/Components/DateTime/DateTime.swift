@@ -1,13 +1,17 @@
 import Foundation
 import UIKit
 
-public class DateTime : UIView {
+public class DateTime: UIView {
     
     public var dateLabel = String()
     public var titleLabel = UILabel()
     public var dateTimeView = UIView()
     public var dateTimeField = UITextField()
     public var datePickerButton = UIButton()
+    public var toolTipIconButton = UIButton()
+    public var toolTipTitle = String()
+    public var toolTipDescription = String()
+    weak var textViewDelegate: TextViewCellDelegate?
     
     // Set cornerRadius
     @IBInspectable
@@ -134,13 +138,23 @@ public class DateTime : UIView {
         }
     }
     
+    public func tooltipVisible(bool: Bool) {
+        if bool {
+            toolTipIconButton.isHidden = false
+        } else {
+            toolTipIconButton.isHidden = true
+        }
+    }
+    
     func setupUI() {
         addSubview(titleLabel)
+        addSubview(toolTipIconButton)
         addSubview(dateTimeView)
         dateTimeView.addSubview(dateTimeField)
         dateTimeView.addSubview(datePickerButton)
         
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        toolTipIconButton.translatesAutoresizingMaskIntoConstraints = false
         dateTimeView.translatesAutoresizingMaskIntoConstraints = false
         dateTimeField.translatesAutoresizingMaskIntoConstraints = false
         datePickerButton.translatesAutoresizingMaskIntoConstraints = false
@@ -149,7 +163,13 @@ public class DateTime : UIView {
             //Title
             titleLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 20),
             titleLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
-            titleLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -10),
+            titleLabel.heightAnchor.constraint(equalToConstant: 20),
+            
+            //TooltipIconButton
+            toolTipIconButton.topAnchor.constraint(equalTo: self.topAnchor, constant: 23),
+            toolTipIconButton.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: 5),
+            toolTipIconButton.heightAnchor.constraint(equalToConstant: 15),
+            toolTipIconButton.widthAnchor.constraint(equalToConstant: 15),
             
             //view
             dateTimeView.topAnchor.constraint(equalTo: titleLabel.topAnchor, constant: 30),
@@ -174,14 +194,22 @@ public class DateTime : UIView {
         titleTextColor = .black
         titleLabel.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         
+        toolTipIconButton.setImage(UIImage(named: "tooltipIcon"), for: .normal)
+        toolTipIconButton.addTarget(self, action: #selector(tooltipButtonTapped), for: .touchUpInside)
+        
         dateTimeBorderWidth = 1
+        
         dateTimeCornerRadius = 12
         dateTimeFieldTextFontSize = 12
         dateTimeBorderColor = UIColor(hexString: "#D1D1D6") ?? .lightGray
         
         dateTimeFieldIconColor = .black
-        dateTimePlacholder = "MMMM d, yyyy h:mma"
+        dateTimePlacholder = "MMMM d, yyyy h:mm a"
         datePickerButton.setImage(UIImage(named: "Date_today"), for: .normal)
+    }
+    
+    @objc func tooltipButtonTapped(_ sender: UIButton) {
+        toolTipAlertShow(for: self, title: toolTipTitle, message: toolTipDescription)
     }
     
     // Function to open datePicker
@@ -191,7 +219,7 @@ public class DateTime : UIView {
     
     public func datePickerUI () {
         RPicker.selectDate(title: "Select Date", cancelText: "Cancel", datePickerMode: .dateAndTime, style: .Inline, didSelectDate: {[weak self] (selectedDate) in
-            self?.selectedDate(date: selectedDate.dateString("MMMM d, yyyy h:mma"))
+            self?.selectedDate(date: selectedDate.dateString("MMMM d, yyyy h:mm a"))
         })
     }
     

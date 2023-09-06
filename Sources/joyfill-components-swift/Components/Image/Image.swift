@@ -16,6 +16,9 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
     public var imageCountView = UIView()
     public var imageCountButton = Button()
     public var titleButton = UILabel()
+    public var toolTipIconButton = UIButton()
+    public var toolTipTitle = String()
+    public var toolTipDescription = String()
     public var imageField = ImageView()
     public var imageCountLabel = Label()
     weak var delegate: MultipleImageViewDelegate?
@@ -56,6 +59,14 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
         imageMultiValue = value
     }
     
+    public func tooltipVisible(bool: Bool) {
+        if bool {
+            toolTipIconButton.isHidden = false
+        } else {
+            toolTipIconButton.isHidden = true
+        }
+    }
+
     func setupView() {
         // SubViews
         addSubview(imageFieldAndUploadView)
@@ -87,7 +98,13 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
             // TitleButton Constraint
             titleButton.topAnchor.constraint(equalTo: imageFieldAndUploadView.topAnchor, constant: 12),
             titleButton.leadingAnchor.constraint(equalTo: imageFieldAndUploadView.leadingAnchor),
-            titleButton.heightAnchor.constraint(equalToConstant: 20),
+            titleButton.heightAnchor.constraint(equalToConstant: 15),
+            
+            //TooltipIconButton
+            toolTipIconButton.leadingAnchor.constraint(equalTo: titleButton.trailingAnchor, constant: 5),
+            toolTipIconButton.topAnchor.constraint(equalTo: imageFieldAndUploadView.topAnchor, constant: 13),
+            toolTipIconButton.heightAnchor.constraint(equalToConstant: 15),
+            toolTipIconButton.widthAnchor.constraint(equalToConstant: 15),
             
             // UploadButton Constraint
             uploadButton.topAnchor.constraint(equalTo: titleButton.bottomAnchor, constant: 13),
@@ -148,6 +165,13 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
         imageField.layer.masksToBounds = true
         imageField.isUserInteractionEnabled = true
         titleButton.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
+
+        toolTipIconButton.setImage(UIImage(named: "tooltipIcon"), for: .normal)
+        toolTipIconButton.addTarget(self, action: #selector(tooltipButtonTapped), for: .touchUpInside)
+    }
+    
+    @objc func tooltipButtonTapped(_ sender: UIButton) {
+        toolTipAlertShow(for: self, title: toolTipTitle, message: toolTipDescription)
     }
     
     // Fuction to set imageField according to pickedImage

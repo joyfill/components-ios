@@ -9,7 +9,9 @@ public class Dropdown : UIView, DropDownSelectText, UITextFieldDelegate {
     public var textField = UITextField()
     public var button = UIButton()
     public var doneHide = ""
-    
+    public var toolTipIconButton = UIButton()
+    public var toolTipTitle = String()
+    public var toolTipDescription = String()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -26,14 +28,23 @@ public class Dropdown : UIView, DropDownSelectText, UITextFieldDelegate {
         self.setupUI()
     }
     
+    public func tooltipVisible(bool: Bool) {
+        if bool {
+            toolTipIconButton.isHidden = false
+        } else {
+            toolTipIconButton.isHidden = true
+        }
+    }
+    
     func setupUI () {
-        
         addSubview(titleLbl)
+        addSubview(toolTipIconButton)
         addSubview(viewTextField)
         viewTextField.addSubview(textField)
         viewTextField.addSubview(button)
         
         titleLbl.translatesAutoresizingMaskIntoConstraints = false
+        toolTipIconButton.translatesAutoresizingMaskIntoConstraints = false
         viewTextField.translatesAutoresizingMaskIntoConstraints = false
         textField.translatesAutoresizingMaskIntoConstraints = false
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -42,8 +53,13 @@ public class Dropdown : UIView, DropDownSelectText, UITextFieldDelegate {
             //Title
             titleLbl.topAnchor.constraint(equalTo: self.topAnchor),
             titleLbl.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
-            titleLbl.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -10),
-            titleLbl.heightAnchor.constraint(equalToConstant: 17),
+            titleLbl.heightAnchor.constraint(equalToConstant: 15),
+            
+            //TooltipIconButton
+            toolTipIconButton.topAnchor.constraint(equalTo: self.topAnchor),
+            toolTipIconButton.leadingAnchor.constraint(equalTo: titleLbl.trailingAnchor, constant: 5),
+            toolTipIconButton.heightAnchor.constraint(equalToConstant: 15),
+            toolTipIconButton.widthAnchor.constraint(equalToConstant: 15),
             
             //view
             viewTextField.topAnchor.constraint(equalTo: titleLbl.bottomAnchor, constant: 13),
@@ -67,6 +83,9 @@ public class Dropdown : UIView, DropDownSelectText, UITextFieldDelegate {
         self.titleLbl.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         self.titleText = "Drop Down"
         self.titleTextColor = .black
+        
+        toolTipIconButton.setImage(UIImage(named: "tooltipIcon"), for: .normal)
+        toolTipIconButton.addTarget(self, action: #selector(tooltipButtonTapped), for: .touchUpInside)
         
         self.dropdownCornerRadius = 12
         self.dropdownBorderWidth = 1.0
@@ -203,6 +222,10 @@ public class Dropdown : UIView, DropDownSelectText, UITextFieldDelegate {
         didSet {
             textField.font = UIFont(name: dropdownFieldFontName, size: dropdownFieldFontBold)
         }
+    }
+    
+    @objc func tooltipButtonTapped(_ sender: UIButton) {
+        toolTipAlertShow(for: self, title: toolTipTitle, message: toolTipDescription)
     }
     
     func selectText(text: String) {

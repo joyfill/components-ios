@@ -231,6 +231,14 @@ extension UIImage {
         }
         return self
     }
+    
+    convenience init(view: UIView) {
+        UIGraphicsBeginImageContext(view.bounds.size)
+        view.layer.render(in: UIGraphicsGetCurrentContext()!)
+        let image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        self.init(cgImage: (image?.cgImage)!)
+    }
 }
 
 // UITableView Extension

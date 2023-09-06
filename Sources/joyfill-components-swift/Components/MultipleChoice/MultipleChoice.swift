@@ -9,6 +9,9 @@ public class MultipleChoice: UIView {
 
     public var titleLabel = Label()
     public var tableView = UITableView()
+    public var toolTipIconButton = UIButton()
+    public var toolTipTitle = String()
+    public var toolTipDescription = String()
     
     public var selectArray : Int?
     public var multipleChoiceDspMode = String()
@@ -104,24 +107,39 @@ public class MultipleChoice: UIView {
         }
     }
     
+    public func tooltipVisible(bool: Bool) {
+        if bool {
+            toolTipIconButton.isHidden = false
+        } else {
+            toolTipIconButton.isHidden = true
+        }
+    }
+    
     func setupUI () {
         // SubViews
         addSubview(titleLabel)
+        addSubview(toolTipIconButton)
         addSubview(tableView)
         
         tableView.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        toolTipIconButton.translatesAutoresizingMaskIntoConstraints = false
         
         // Constraint to arrange subviews acc. to ShortTextView
         NSLayoutConstraint.activate([
             // TitleLabel Constraints
             titleLabel.topAnchor.constraint(equalTo: self.topAnchor),
             titleLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 2),
-            titleLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            titleLabel.heightAnchor.constraint(equalToConstant: 50),
+            titleLabel.heightAnchor.constraint(equalToConstant: 15),
+            
+            //TooltipIconButton
+            toolTipIconButton.topAnchor.constraint(equalTo: self.topAnchor),
+            toolTipIconButton.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: 5),
+            toolTipIconButton.heightAnchor.constraint(equalToConstant: 15),
+            toolTipIconButton.widthAnchor.constraint(equalToConstant: 15),
             
             // TableView Constraints
-            tableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: -8),
+            tableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
             tableView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
@@ -141,6 +159,13 @@ public class MultipleChoice: UIView {
         titleLabel.borderWidth = 0
         titleLabel.textColor = .black
         titleLabel.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
+        
+        toolTipIconButton.setImage(UIImage(named: "tooltipIcon"), for: .normal)
+        toolTipIconButton.addTarget(self, action: #selector(tooltipButtonTapped), for: .touchUpInside)
+    }
+    
+    @objc func tooltipButtonTapped(_ sender: UIButton) {
+        toolTipAlertShow(for: self, title: toolTipTitle, message: toolTipDescription)
     }
 }
 

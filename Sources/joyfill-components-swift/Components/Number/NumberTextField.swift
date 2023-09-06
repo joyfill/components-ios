@@ -4,12 +4,15 @@ import UIKit
 public class NumberField: UIView, UITextFieldDelegate {
     
     public var view = UIView()
-    public var titleLbl = UILabel()
+    public var titleLbl = Label()
     public var numberField = UITextField()
     public var currentPage : Int = 0
     public let button = UIButton(type: .custom)
     public let button1 = UIButton(type: .custom)
     public let stackView = UIStackView()
+    public var toolTipIconButton = UIButton()
+    public var toolTipTitle = String()
+    public var toolTipDescription = String()
     
     // MARK: - Initializer
     override init(frame: CGRect) {
@@ -158,8 +161,17 @@ public class NumberField: UIView, UITextFieldDelegate {
         }
     }
     
+    public func tooltipVisible(bool: Bool) {
+        if bool {
+            toolTipIconButton.isHidden = false
+        } else {
+            toolTipIconButton.isHidden = true
+        }
+    }
+    
     func setupUI () {
         addSubview(titleLbl)
+        addSubview(toolTipIconButton)
         addSubview(view)
         view.addSubview(numberField)
         view.addSubview(stackView)
@@ -167,6 +179,7 @@ public class NumberField: UIView, UITextFieldDelegate {
         stackView.addSubview(button1)
         
         titleLbl.translatesAutoresizingMaskIntoConstraints = false
+        toolTipIconButton.translatesAutoresizingMaskIntoConstraints = false
         view.translatesAutoresizingMaskIntoConstraints = false
         numberField.translatesAutoresizingMaskIntoConstraints = false
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -177,8 +190,13 @@ public class NumberField: UIView, UITextFieldDelegate {
             // Title
             titleLbl.topAnchor.constraint(equalTo: self.topAnchor),
             titleLbl.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
-            titleLbl.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: 10),
-            titleLbl.heightAnchor.constraint(equalToConstant: 17),
+            titleLbl.heightAnchor.constraint(equalToConstant: 15),
+            
+            //TooltipIconButton
+            toolTipIconButton.topAnchor.constraint(equalTo: self.topAnchor),
+            toolTipIconButton.leadingAnchor.constraint(equalTo: titleLbl.trailingAnchor, constant: 5),
+            toolTipIconButton.heightAnchor.constraint(equalToConstant: 15),
+            toolTipIconButton.widthAnchor.constraint(equalToConstant: 15),
             
             // view
             view.topAnchor.constraint(equalTo: titleLbl.bottomAnchor, constant: 13),
@@ -216,6 +234,9 @@ public class NumberField: UIView, UITextFieldDelegate {
         self.titleText = "Number"
         self.titleTextColor = .black
         
+        toolTipIconButton.setImage(UIImage(named: "tooltipIcon"), for: .normal)
+        toolTipIconButton.addTarget(self, action: #selector(tooltipButtonTapped), for: .touchUpInside)
+        
         // View UI
         self.numberViewBorderColor = UIColor(hexString: "#D1D1D6") ?? .lightGray
         self.numberViewBorderWidth = 1.0
@@ -252,6 +273,10 @@ public class NumberField: UIView, UITextFieldDelegate {
     
     public func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
         return false
+    }
+    
+    @objc func tooltipButtonTapped(_ sender: UIButton) {
+        toolTipAlertShow(for: self, title: toolTipTitle, message: toolTipDescription)
     }
     
     @IBAction func refresh(_ sender: Any) {

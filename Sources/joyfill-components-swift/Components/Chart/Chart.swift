@@ -24,6 +24,9 @@ public class Chart: UIView, UIViewControllerTransitioningDelegate {
     public var viewMoreArrow = ImageView()
     public var performanceGraphBar = UIView()
     public var performanceGraphLabel = Label()
+    public var toolTipIconButton = UIButton()
+    public var toolTipTitle = String()
+    public var toolTipDescription = String()
     
     // MARK: Initializer
     public override init(frame: CGRect) {
@@ -41,19 +44,29 @@ public class Chart: UIView, UIViewControllerTransitioningDelegate {
         setupUI()
     }
     
+    public func tooltipVisible(bool: Bool) {
+        if bool {
+            toolTipIconButton.isHidden = false
+        } else {
+            toolTipIconButton.isHidden = true
+        }
+    }
+    
     func setupUI() {
         // SubViews
         addSubview(viewMore)
         addSubview(graphView)
         addSubview(performanceGraphBar)
+        addSubview(toolTipIconButton)
         graphView.addSubview(lineGraph)
         viewMore.addSubview(viewMoreLabel)
         viewMore.addSubview(viewMoreArrow)
         graphView.addSubview(verticalLabel)
         graphView.addSubview(horizontalLabel)
         performanceGraphBar.addSubview(performanceGraphLabel)
-
+        
         viewMore.translatesAutoresizingMaskIntoConstraints = false
+        toolTipIconButton.translatesAutoresizingMaskIntoConstraints = false
         graphView.translatesAutoresizingMaskIntoConstraints = false
         lineGraph.translatesAutoresizingMaskIntoConstraints = false
         verticalLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -74,8 +87,13 @@ public class Chart: UIView, UIViewControllerTransitioningDelegate {
             // PageLabel Constraint
             performanceGraphLabel.topAnchor.constraint(equalTo: performanceGraphBar.topAnchor, constant: 4),
             performanceGraphLabel.leadingAnchor.constraint(equalTo: performanceGraphBar.leadingAnchor, constant: 0),
-            performanceGraphLabel.widthAnchor.constraint(equalToConstant: 135),
-            performanceGraphLabel.heightAnchor.constraint(equalToConstant: 16),
+            performanceGraphLabel.heightAnchor.constraint(equalToConstant: 15),
+            
+            //TooltipIconButton
+            toolTipIconButton.topAnchor.constraint(equalTo: performanceGraphBar.topAnchor, constant: 4),
+            toolTipIconButton.leadingAnchor.constraint(equalTo: performanceGraphLabel.trailingAnchor, constant: 5),
+            toolTipIconButton.heightAnchor.constraint(equalToConstant: 15),
+            toolTipIconButton.widthAnchor.constraint(equalToConstant: 15),
             
             // GraphView Constraint
             graphView.topAnchor.constraint(equalTo: performanceGraphBar.bottomAnchor, constant: 0),
@@ -170,6 +188,9 @@ public class Chart: UIView, UIViewControllerTransitioningDelegate {
         lineGraph.yMax = 100
         lineGraph.xMin = 0
         lineGraph.xMax = 100
+        
+        toolTipIconButton.setImage(UIImage(named: "tooltipIcon"), for: .normal)
+        toolTipIconButton.addTarget(self, action: #selector(tooltipButtonTapped), for: .touchUpInside)
     }
     
     // Action function for viewMore
@@ -185,5 +206,8 @@ public class Chart: UIView, UIViewControllerTransitioningDelegate {
             }
         }
     }
+    
+    @objc func tooltipButtonTapped(_ sender: UIButton) {
+        toolTipAlertShow(for: self, title: toolTipTitle, message: toolTipDescription)
+    }
 }
-

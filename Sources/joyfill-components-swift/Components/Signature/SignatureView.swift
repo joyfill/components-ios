@@ -12,6 +12,9 @@ open class SignatureView : UIView {
     public var signViewBt = UIView()
     public var signLbBt = Label()
     public var signIconBt = ImageView()
+    public var toolTipIconButton = UIButton()
+    public var toolTipTitle = String()
+    public var toolTipDescription = String()
     
     // MARK: - Initializer
     required public init?(coder aDecoder: NSCoder) {
@@ -34,9 +37,18 @@ open class SignatureView : UIView {
         }
     }
     
+    public func tooltipVisible(bool: Bool) {
+        if bool {
+            toolTipIconButton.isHidden = false
+        } else {
+            toolTipIconButton.isHidden = true
+        }
+    }
+    
     func setupUI() {
         // SubViews
         self.addSubview(titleLabel)
+        self.addSubview(toolTipIconButton)
         self.addSubview(lookView)
         self.addSubview(imageView)
         self.addSubview(signViewBt)
@@ -47,6 +59,7 @@ open class SignatureView : UIView {
         signViewBt.addSubview(signIconBt)
         
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        toolTipIconButton.translatesAutoresizingMaskIntoConstraints = false
         lookView.translatesAutoresizingMaskIntoConstraints = false
         imageView.translatesAutoresizingMaskIntoConstraints = false
         signViewBt.translatesAutoresizingMaskIntoConstraints = false
@@ -61,6 +74,12 @@ open class SignatureView : UIView {
             titleLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 21),
             titleLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 6),
             titleLabel.heightAnchor.constraint(equalToConstant: 30),
+            
+            //TooltipIconButton
+            toolTipIconButton.topAnchor.constraint(equalTo: self.topAnchor, constant: 30),
+            toolTipIconButton.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: 5),
+            toolTipIconButton.heightAnchor.constraint(equalToConstant: 15),
+            toolTipIconButton.widthAnchor.constraint(equalToConstant: 15),
             
             lookView.topAnchor.constraint(equalTo: self.topAnchor, constant: 21),
             lookView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -9),
@@ -106,6 +125,9 @@ open class SignatureView : UIView {
         titleLabel.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         titleLabel.textColor = .black
         
+        toolTipIconButton.setImage(UIImage(named: "tooltipIcon"), for: .normal)
+        toolTipIconButton.addTarget(self, action: #selector(tooltipButtonTapped), for: .touchUpInside)
+        
         lookTitle.text = "Sign to add timestamp"
         lookTitle.textColor = UIColor(hexString: "#C0C1CC")
         lookTitle.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
@@ -127,6 +149,10 @@ open class SignatureView : UIView {
         signLbBt.isTextBold = true
         signLbBt.labelText = "Sign"
         signLbBt.textAlignment = .center
+    }
+    
+    @objc func tooltipButtonTapped(_ sender: UIButton) {
+        toolTipAlertShow(for: self, title: toolTipTitle, message: toolTipDescription)
     }
     
     // Action function for SignButton
