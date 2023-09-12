@@ -66,10 +66,11 @@ struct FieldTableColumn: Codable {
     let width: Int?
     let identifier: String?
     let options: [Option]?
+    let value: String?
 
     enum CodingKeys: String, CodingKey {
         case id = "_id"
-        case type, title, width, identifier, options
+        case type, title, width, identifier, options, value
     }
 }
 
@@ -116,7 +117,7 @@ struct ValueElement: Codable {
     let deleted: Bool?
     let title, description: String?
     let points: [Point]?
-    let cells: Metadata?
+    var cells: [String: String]?
 
     enum CodingKeys: String, CodingKey {
         case id = "_id"

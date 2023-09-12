@@ -36,6 +36,11 @@ open class Table: UIView, UIViewControllerTransitioningDelegate {
         }
     }
     
+    open override func didMoveToWindow() {
+        super.didMoveToWindow()
+        countLabel.labelText = "+\(numberOfRows)"
+    }
+    
     func setupView() {
         // SubViews
         addSubview(countView)
@@ -54,14 +59,13 @@ open class Table: UIView, UIViewControllerTransitioningDelegate {
         floorsLabel.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            // FloorsLabel Constraint
             floorsLabel.topAnchor.constraint(equalTo: topAnchor, constant: 6),
             floorsLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            floorsLabel.heightAnchor.constraint(equalToConstant: 15),
+            floorsLabel.trailingAnchor.constraint(equalTo: toolTipIconButton.leadingAnchor, constant: -5),
             
             //TooltipIconButton
-            toolTipIconButton.topAnchor.constraint(equalTo: self.topAnchor, constant: 6),
-            toolTipIconButton.leadingAnchor.constraint(equalTo: floorsLabel.trailingAnchor, constant: 5),
+            toolTipIconButton.topAnchor.constraint(equalTo: self.topAnchor, constant: 8),
+            toolTipIconButton.trailingAnchor.constraint(lessThanOrEqualTo: countView.leadingAnchor, constant: -10),
             toolTipIconButton.heightAnchor.constraint(equalToConstant: 15),
             toolTipIconButton.widthAnchor.constraint(equalToConstant: 15),
             
@@ -87,7 +91,7 @@ open class Table: UIView, UIViewControllerTransitioningDelegate {
             collectionView.topAnchor.constraint(equalTo: floorsLabel.bottomAnchor, constant: 7),
             collectionView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8),
             collectionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
-            collectionView.heightAnchor.constraint(equalToConstant: 150),
+            collectionView.heightAnchor.constraint(equalToConstant: 200),
         ])
 
         viewButton.titleLabel?.textColor = UIColor(hexString: "#1464FF")
@@ -101,23 +105,19 @@ open class Table: UIView, UIViewControllerTransitioningDelegate {
         viewButton.setAttributedTitle(moreButtonAttributedString, for: .normal)
         viewButton.addTarget(self, action: #selector(viewButtonTapped), for: .touchUpInside)
         
-        floorsLabel.labelText = "Floors"
         floorsLabel.fontSize = 14
         floorsLabel.isTextBold = true
+        floorsLabel.numberOfLines = 0
         
         toolTipIconButton.setImage(UIImage(named: "tooltipIcon"), for: .normal)
         toolTipIconButton.addTarget(self, action: #selector(tooltipButtonTapped), for: .touchUpInside)
         
-        numberOfColumns = 3
-        numberOfRows = 4
-        collectionView.cellHeight = 37.5
-        collectionView.cellWidth = 133.0
-        tableHeading = ["First Floor", "Second Floor", "Third Floor"]
         collectionView.collectionView.layer.borderWidth = 1
         collectionView.collectionView.layer.cornerRadius = 14
         collectionView.collectionView.layer.borderColor = UIColor(hexString: "#C0C1C6")?.cgColor
+        numberOfRows = tableRowOrder.count
         
-        countLabel.labelText = "+\(numberOfRows - 1)"
+        countLabel.labelText = "+\(numberOfRows)"
         countLabel.textAlignment = .center
         countLabel.fontSize = 12
     }
@@ -125,11 +125,26 @@ open class Table: UIView, UIViewControllerTransitioningDelegate {
     // Action function for viewButton
     @objc func viewButtonTapped() {
         var parentResponder: UIResponder? = self
+        tableColumnTitle.insert("", at: 0)
+        tableColumnTitle.insert("#", at: 1)
+        tableColumnType.insert("", at: 0)
+        tableColumnType.insert("#", at: 1)
+        
+        if tableRowOrder.count == 1 {
+            valueData.removeLast(2)
+        } else if tableRowOrder.count == 2 {
+            valueData.removeLast(1)
+        } else {}
+        
+        viewType = "modal"
         while parentResponder != nil {
             parentResponder = parentResponder?.next
             if let viewController = parentResponder as? UIViewController {
+                viewController.modalPresentationStyle = .fullScreen
                 let newViewController = ViewTable()
                 newViewController.transitioningDelegate = self
+                newViewController.modalPresentationStyle = .fullScreen
+                newViewController.updateTitle(text: floorsLabel.text ?? "")
                 viewController.present(newViewController, animated: true, completion: nil)
                 break
             }

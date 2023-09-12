@@ -7,11 +7,24 @@ public var numberOfColumns = Int()
 public var selectedIndexPath : Int?
 public var tableHeading = [String]()
 public var numberingData = [String]()
-public var cellSelectedIndexPath: IndexPath?
 public var tableDisplayMode = String()
+public var cellSelectedIndexPath: IndexPath?
 public var selectedTextFieldIndexPath = IndexPath()
 
-public class ViewTable: UIViewController, TextFieldCellDelegate, TextViewCellDelegate, DropDownSelectText, UITextViewDelegate {
+// Empty values to append or insert when insertRow and insertBelow is tapped
+var emptyValueElement = ValueElement(
+    id: "",
+    url: nil,
+    fileName: nil,
+    filePath: nil,
+    deleted: false,
+    title: nil,
+    description: nil,
+    points: nil,
+    cells: [:]
+)
+
+public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectText, UITextViewDelegate {
     
     public var mainView = UIView()
     public var moreButton = Button()
@@ -19,6 +32,7 @@ public class ViewTable: UIViewController, TextFieldCellDelegate, TextViewCellDel
     public var deleteButton = Label()
     public var addRowButton = Button()
     public var dropdownView = UIView()
+    public var closeButton = UIButton()
     public var moveDownButton = Label()
     public var tableFloorsBar = UIView()
     public var duplicateButton = Label()
@@ -30,11 +44,15 @@ public class ViewTable: UIViewController, TextFieldCellDelegate, TextViewCellDel
     public var navigationLeftMoveButton = Button()
     public var navigationRightMoveButton = Button()
     
-    let layout = TwoWayScrollingCollectionViewLayout()
+    var cellWidth = Double()
+    var indexPathRow = Int()
+    var indexPathItem = Int()
+    var indexPathSection = Int()
+    var dropDownSelect = String()
     let topAndBottomSubviewborderWidth: CGFloat = 1.0
+    let layout = TwoWayScrollingCollectionViewLayout()
     let topAndBottomSubviewborderColor: UIColor = UIColor(hexString: "#1F6BFF") ?? .blue
-    var textViewTextArray: [String] = ["Text 1 at 1", "Text 1 at 1", "Text 1 at 1", "Lorem ipsum dolor sit amet, consectetur adipiscing. lit. Pellentesque vel rutrum nibh,", "Lorem dolor sit amet, consectetur adipiscing.", "Text 1 at 1", "Text 1 at 1", "Text 1 at 1", "Text 1 at 1", "Text 1 at 1", "Text 1 at 1", "Text 1 at 1", "Text 1 at 1", "Text 1 at 1", "Text 1 at 1", "Text 1 at 1", "Text 1 at 1", "Text 1 at 1", "Text 1 at 1", "Text 1 at 1", "Text 1 at 1"]
-
+    
     public override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -65,12 +83,16 @@ public class ViewTable: UIViewController, TextFieldCellDelegate, TextViewCellDel
         selectedIndexPath = nil
     }
     
+    public func updateTitle(text: String) {
+        tableFloorsLabel.labelText = text
+    }
+    
     // Keyboard appear function
     @objc func keyboardWillShow(_ notification: Notification) {
         guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
             return
         }
-
+        
         let buttonWidth = 50.0
         let buttonSpacing: CGFloat = 6.0
         let buttonHeight: CGFloat = 40.0
@@ -84,7 +106,7 @@ public class ViewTable: UIViewController, TextFieldCellDelegate, TextViewCellDel
         view.addSubview(navigationRightMoveButton)
         
         [navigationUpMoveButton, navigationLeftMoveButton, navigationDownMoveButton, navigationRightMoveButton].forEach { Button in
-            Button.isHidden = false
+            Button.isHidden = true
             Button.translatesAutoresizingMaskIntoConstraints = false
             Button.widthAnchor.constraint(equalToConstant: buttonWidth).isActive = true
             Button.heightAnchor.constraint(equalToConstant: buttonHeight).isActive = true
@@ -104,14 +126,14 @@ public class ViewTable: UIViewController, TextFieldCellDelegate, TextViewCellDel
             navigationLeftMoveButton.bottomAnchor.constraint(equalTo: mainView.bottomAnchor, constant: -constant)
         ])
     }
-
+    
     // Keyboard dismiss function
     @objc func keyboardWillHide(_ notification: Notification) {
         [navigationUpMoveButton, navigationLeftMoveButton, navigationDownMoveButton, navigationRightMoveButton].forEach { Button in
             Button.isHidden = true
         }
         if let cell = collectionView.cellForItem(at: selectedTextFieldIndexPath) as? CollectionViewCell {
-            cell.textView.layer.borderWidth = 0
+            cell.cellTextView.layer.borderWidth = 0
         }
     }
     
@@ -127,6 +149,7 @@ public class ViewTable: UIViewController, TextFieldCellDelegate, TextViewCellDel
         view.addSubview(moreButton)
         view.addSubview(dropdownView)
         view.addSubview(addRowButton)
+        view.addSubview(closeButton)
         mainView.addSubview(tableFloorsBar)
         dropdownView.addSubview(deleteButton)
         dropdownView.addSubview(moveUpButton)
@@ -137,6 +160,7 @@ public class ViewTable: UIViewController, TextFieldCellDelegate, TextViewCellDel
         
         mainView.translatesAutoresizingMaskIntoConstraints = false
         moreButton.translatesAutoresizingMaskIntoConstraints = false
+        closeButton.translatesAutoresizingMaskIntoConstraints = false
         addRowButton.translatesAutoresizingMaskIntoConstraints = false
         deleteButton.translatesAutoresizingMaskIntoConstraints = false
         moveUpButton.translatesAutoresizingMaskIntoConstraints = false
@@ -151,7 +175,7 @@ public class ViewTable: UIViewController, TextFieldCellDelegate, TextViewCellDel
         // Constraint to arrange subviews acc. to imageView
         NSLayoutConstraint.activate([
             // Top View
-            mainView.topAnchor.constraint(equalTo: view.topAnchor, constant: 20),
+            mainView.topAnchor.constraint(equalTo: view.topAnchor, constant: 60),
             mainView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
             mainView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -8),
             mainView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -50),
@@ -176,9 +200,15 @@ public class ViewTable: UIViewController, TextFieldCellDelegate, TextViewCellDel
             
             // DeleteRowButton Constraint
             addRowButton.topAnchor.constraint(equalTo: tableFloorsBar.topAnchor, constant: 0),
-            addRowButton.trailingAnchor.constraint(equalTo: tableFloorsBar.trailingAnchor, constant: -6),
+            addRowButton.trailingAnchor.constraint(equalTo: closeButton.leadingAnchor, constant: -6),
             addRowButton.widthAnchor.constraint(equalToConstant: 94),
             addRowButton.heightAnchor.constraint(equalToConstant: 27),
+            
+            // Close Button
+            closeButton.topAnchor.constraint(equalTo: tableFloorsBar.topAnchor, constant: 0),
+            closeButton.trailingAnchor.constraint(equalTo: tableFloorsBar.trailingAnchor, constant: -6),
+            closeButton.widthAnchor.constraint(equalToConstant: 30),
+            closeButton.heightAnchor.constraint(equalToConstant: 27),
             
             // MoreButton Constraint
             moreButton.topAnchor.constraint(equalTo: tableFloorsBar.topAnchor, constant: 0),
@@ -232,13 +262,11 @@ public class ViewTable: UIViewController, TextFieldCellDelegate, TextViewCellDel
         dropdownView.layer.shadowColor = UIColor.black.cgColor
         dropdownView.layer.shadowOffset = CGSize(width: 0.0, height: 3.0)
         
-        tableFloorsLabel.labelText = "Interior Table"
         tableFloorsLabel.font = UIFont.boldSystemFont(ofSize: 14)
         
         // TableView Properties
-        numberOfColumns = 6
-        numberOfRows = 20
-        tableHeading = ["", "#", "First Floor", "Second Floor", "Third Floor", "Dropdown Cell"]
+        numberOfColumns = tableColumnType.count
+        tableHeading = tableColumnTitle
         collectionView.layer.borderWidth = 1
         collectionView.layer.cornerRadius = 12
         collectionView.layer.borderColor = UIColor(hexString: "#C0C1C6")?.cgColor
@@ -276,7 +304,7 @@ public class ViewTable: UIViewController, TextFieldCellDelegate, TextViewCellDel
             border.frame = CGRect(x: -15, y: border.frame.height - 1, width: 230, height: 1)
             label.layer.addSublayer(border)
         }
-
+        
         insertBelowButton.labelText = "Insert Below"
         let insertTapGesture = UITapGestureRecognizer(target: self, action: #selector(insertBelowTapped))
         insertBelowButton.addGestureRecognizer(insertTapGesture)
@@ -332,6 +360,17 @@ public class ViewTable: UIViewController, TextFieldCellDelegate, TextViewCellDel
         
         let tap = UITapGestureRecognizer(target: self, action: #selector(mainViewTap))
         mainView.addGestureRecognizer(tap)
+        
+        // Sets table and action to pageButton
+        if #available(iOS 13.0, *) {
+            let boldConfig = UIImage.SymbolConfiguration(weight: .bold)
+            let boldSearch = UIImage(systemName: "xmark.circle", withConfiguration: boldConfig)
+            closeButton.setImage(boldSearch, for: .normal)
+        } else {
+            // Fallback on earlier versions
+        }
+        closeButton.tintColor = .black
+        closeButton.addTarget(self, action: #selector(clossTapped), for: .touchUpInside)
     }
     
     // Hide dropdown menu on view click
@@ -350,6 +389,18 @@ public class ViewTable: UIViewController, TextFieldCellDelegate, TextViewCellDel
     
     // Action for close button
     @objc func clossTapped() {
+        tableColumnTitle.removeFirst(2)
+        tableColumnType.removeFirst(2)
+        viewType = "field"
+        
+        if tableRowOrder.count == 1 {
+            valueData.append(emptyValueElement)
+            valueData.append(emptyValueElement)
+        } else if tableRowOrder.count == 2 {
+            valueData.append(emptyValueElement)
+        } else {}
+        emptyValueElement.cells?.removeAll()
+        
         var parentResponder: UIResponder? = self
         while parentResponder != nil {
             parentResponder = parentResponder?.next
@@ -398,28 +449,73 @@ public class ViewTable: UIViewController, TextFieldCellDelegate, TextViewCellDel
         }
     }
     
+    // Empty cell data to append or insert when insertRow and insertBelow is tapped
+    var data = [String]()
+    func emptyCellsData() {
+        for k in 0..<valueData.count {
+            if valueData[k].cells != nil {
+                let values = ""
+                data.append(values)
+            }
+        }
+    }
+    
+    // Function to show default value when row is added or inserted
+    func addDefaultValue(indexpath: IndexPath) {
+        emptyValueElement.cells?.removeAll()
+        var cellValue = [String:String]()
+        for i in 0..<tableColumnOrderId.count {
+            if let _ = optionsData.first(where: { $0.id == tableColumnOrderId[indexpath.row-2] }) {
+                cellValue[optionsData[i].id ?? ""] = optionsData[i].value
+            }
+        }
+        emptyValueElement = ValueElement(
+            id: "",
+            url: nil,
+            fileName: nil,
+            filePath: nil,
+            deleted: false,
+            title: nil,
+            description: nil,
+            points: nil,
+            cells: cellValue
+        )
+    }
+    
     // MARK: AddRow Tapped
     @objc func insertRowTapped() {
         dropdownView.isHidden = true
-        updateRowNumber()
         numberOfRows += 1
+        emptyCellsData()
+        updateRowNumber()
         let lastSection = collectionView.numberOfSections - 1
         let lastItem = collectionView.numberOfItems(inSection: lastSection) - 1
         let lastIndexPath = IndexPath(item: lastItem, section: lastSection)
+        addDefaultValue(indexpath: lastIndexPath)
+        valueData.append(emptyValueElement)
+        tableCellsData.append(data)
         collectionView.scrollToItem(at: lastIndexPath, at: .bottom, animated: true)
         collectionView.insertSections(IndexSet(integer: lastSection))
-        let newItem = "Text 1 at 1"
-        textViewTextArray.append(newItem)
         reloadCollectionRowNumber()
+        let itemCount = collectionView.numberOfItems(inSection: lastSection)
+        for itemIndex in 0..<itemCount {
+            let indexPath = IndexPath(item: itemIndex, section: lastSection + 1)
+            collectionView.reloadItems(at: [indexPath])
+        }
     }
     
     // MARK: InsertBelow Tapped
     @objc func insertBelowTapped() {
-        updateRowNumber()
         numberOfRows += 1
-        collectionView.insertSections(IndexSet(integer: (cellSelectedIndexPath?.section ?? 0) + 1))
-        let newItem = "Text 1 at 1"
-        textViewTextArray.insert(newItem, at: (cellSelectedIndexPath?.section ?? 0) + 1)
+        emptyCellsData()
+        updateRowNumber()
+        let lastSection = collectionView.numberOfSections - 1
+        let lastItem = collectionView.numberOfItems(inSection: lastSection) - 1
+        let lastIndexPath = IndexPath(item: lastItem, section: lastSection)
+        addDefaultValue(indexpath: lastIndexPath)
+        valueData.insert(emptyValueElement, at: cellSelectedIndexPath?.section ?? 0)
+        tableCellsData.insert(data, at: cellSelectedIndexPath?.section ?? 0)
+        collectionView.insertSections(IndexSet(integer: cellSelectedIndexPath?.section ?? 0))
         selectedIndexPath = nil
         updateCellSubviewBorder(at: 0)
         updateSelectionButton()
@@ -427,17 +523,19 @@ public class ViewTable: UIViewController, TextFieldCellDelegate, TextViewCellDel
         for itemIndex in 0..<itemCount {
             let indexPath = IndexPath(item: itemIndex, section: (cellSelectedIndexPath?.section ?? 0) + 1)
             collectionView.reloadItems(at: [indexPath])
+            collectionView.reloadItems(at: [IndexPath(item: itemIndex, section: cellSelectedIndexPath?.section ?? 0)])
         }
     }
     
     // MARK: Duplicate Tapped
     @objc func duplicateTapped() {
-        updateRowNumber()
         numberOfRows += 1
-        collectionView.insertSections(IndexSet(integer: (cellSelectedIndexPath?.section ?? 0)))
-        let itemToDuplicate = textViewTextArray[cellSelectedIndexPath?.section ?? 0]
-        let duplicatedItem = itemToDuplicate
-        textViewTextArray.insert(duplicatedItem, at: (cellSelectedIndexPath?.section ?? 0) + 1)
+        updateRowNumber()
+        let itemToDuplicate = valueData[(cellSelectedIndexPath?.section ?? 0) - 1]
+        let cellItemToDuplicate = tableCellsData[(cellSelectedIndexPath?.section ?? 0) - 1]
+        valueData.insert(itemToDuplicate, at: cellSelectedIndexPath?.section ?? 0)
+        tableCellsData.insert(cellItemToDuplicate, at: cellSelectedIndexPath?.section ?? 0)
+        collectionView.insertSections(IndexSet(integer: cellSelectedIndexPath?.section ?? 0))
         selectedIndexPath = nil
         updateCellSubviewBorder(at: 0)
         updateCellSubviewBorder(at: 1)
@@ -457,41 +555,46 @@ public class ViewTable: UIViewController, TextFieldCellDelegate, TextViewCellDel
     @objc func moveUpTapped() {
         updateRowNumber()
         if cellSelectedIndexPath?.section == 1 {
-            
+            updateSelectionButton()
+            selectedIndexPath = nil
+            updateCellSubviewBorder(at: 0)
         } else {
             updateSelectionButton()
             collectionView.moveSection(cellSelectedIndexPath?.section ?? 0, toSection: (cellSelectedIndexPath?.section ?? 0) - 1)
-            textViewTextArray.swapAt(cellSelectedIndexPath?.section ?? 0, (cellSelectedIndexPath?.section ?? 0) - 1)
+            valueData.swapAt((cellSelectedIndexPath?.section ?? 0) - 1, (cellSelectedIndexPath?.section ?? 0) - 2)
+            tableCellsData.swapAt((cellSelectedIndexPath?.section ?? 0) - 1, (cellSelectedIndexPath?.section ?? 0) - 2)
+            selectedIndexPath = nil
+            updateCellSubviewBorder(at: -1)
         }
-        selectedIndexPath = nil
-        updateCellSubviewBorder(at: -1)
     }
     
     // MARK: MoveDown Tapped
     @objc func moveDownTapped() {
         updateRowNumber()
-        if cellSelectedIndexPath?.section == 0 || cellSelectedIndexPath?.section == numberOfRows - 1 {
-            
+        if cellSelectedIndexPath?.section == 0 || cellSelectedIndexPath?.section == numberOfRows {
+            updateSelectionButton()
+            selectedIndexPath = nil
+            updateCellSubviewBorder(at: 0)
         } else {
             updateSelectionButton()
             collectionView.moveSection(cellSelectedIndexPath?.section ?? 0, toSection: (cellSelectedIndexPath?.section ?? 0) + 1)
-            textViewTextArray.swapAt(cellSelectedIndexPath?.section ?? 0, (cellSelectedIndexPath?.section ?? 0) + 1)
+            valueData.swapAt((cellSelectedIndexPath?.section ?? 0) - 1, cellSelectedIndexPath?.section ?? 0)
+            tableCellsData.swapAt((cellSelectedIndexPath?.section ?? 0) - 1, cellSelectedIndexPath?.section ?? 0)
+            selectedIndexPath = nil
+            updateCellSubviewBorder(at: 1)
         }
-        selectedIndexPath = nil
-        updateCellSubviewBorder(at: 1)
     }
     
     // MARK: DeleteRow Tapped
     @objc func deleteTapped() {
         moreButton.isHidden = true
         dropdownView.isHidden = true
-        if numberOfRows == 1 {
-            
-        } else {
-            updateRowNumber()
+        if numberOfRows != 1 {
             numberOfRows -= 1
+            updateRowNumber()
+            valueData.remove(at: (cellSelectedIndexPath?.section ?? 0) - 1)
+            tableCellsData.remove(at: (cellSelectedIndexPath?.section ?? 0) - 1)
             collectionView.deleteSections(IndexSet(integer: cellSelectedIndexPath?.section ?? 0))
-            textViewTextArray.remove(at: cellSelectedIndexPath?.section ?? 0)
         }
         selectedIndexPath = nil
         reloadCollectionRowNumber()
@@ -508,35 +611,29 @@ public class ViewTable: UIViewController, TextFieldCellDelegate, TextViewCellDel
     
     // Function to update textField and textView on left, up and down navigation button tapped
     func updateTextFieldandViewOnNavigationTapped(cell: CollectionViewCell, newIndexPath: IndexPath) {
-        cell.cellTextField.selectedBorderColor = UIColor(hexString: "#1F6BFF") ?? .systemBlue
-        cell.textView.layer.borderWidth = 1.0
-        cell.textView.layer.cornerRadius = 1.0
-        cell.textView.layer.borderColor = UIColor(hexString: "#1F6BFF")?.cgColor
-        cell.cellTextField.becomeFirstResponder()
-        cell.textView.becomeFirstResponder()
+        cell.cellTextView.layer.borderWidth = 1.0
+        cell.cellTextView.layer.cornerRadius = 1.0
+        cell.cellTextView.layer.borderColor = UIColor(hexString: "#1F6BFF")?.cgColor
+        cell.cellTextView.becomeFirstResponder()
         selectedTextFieldIndexPath = newIndexPath
     }
     
     // MARK: NavigationLeftMoveButton Tapped
     @objc func navigationLeftMoveTapped() {
         if let cell = collectionView.cellForItem(at: selectedTextFieldIndexPath) as? CollectionViewCell {
-            cell.cellTextField.deselectedBorderColor = .clear
+            cell.cellTextView.layer.borderWidth = 0
         }
-        let newIndexPath = IndexPath(row: selectedTextFieldIndexPath.row - 2, section: selectedTextFieldIndexPath.section)
+        let newIndexPath = IndexPath(row: selectedTextFieldIndexPath.row - 1, section: selectedTextFieldIndexPath.section)
         if let cell = collectionView.cellForItem(at: newIndexPath) as? CollectionViewCell {
-            collectionView.scrollToItem(at: newIndexPath, at: .right, animated: true)
             updateTextFieldandViewOnNavigationTapped(cell: cell, newIndexPath: newIndexPath)
         }
     }
     
     // MARK: NavigationUpMoveButton Tapped
     @objc func navigationUpMoveTapped() {
-        if selectedTextFieldIndexPath.section == 1 {
-            
-        } else {
+        if selectedTextFieldIndexPath.section != 1 {
             if let cell = collectionView.cellForItem(at: selectedTextFieldIndexPath) as? CollectionViewCell {
-                cell.cellTextField.deselectedBorderColor = .clear
-                cell.textView.layer.borderWidth = 0
+                cell.cellTextView.layer.borderWidth = 0
             }
             let newIndexPath = IndexPath(row: selectedTextFieldIndexPath.row, section: selectedTextFieldIndexPath.section - 1)
             if let cell = collectionView.cellForItem(at: newIndexPath) as? CollectionViewCell {
@@ -548,8 +645,7 @@ public class ViewTable: UIViewController, TextFieldCellDelegate, TextViewCellDel
     // MARK: NavigationDownMoveButton Tapped
     @objc func navigationDownMoveTapped() {
         if let cell = collectionView.cellForItem(at: selectedTextFieldIndexPath) as? CollectionViewCell {
-            cell.cellTextField.deselectedBorderColor = .clear
-            cell.textView.layer.borderWidth = 0
+            cell.cellTextView.layer.borderWidth = 0
         }
         let newIndexPath = IndexPath(row: selectedTextFieldIndexPath.row, section: selectedTextFieldIndexPath.section + 1)
         if let cell = collectionView.cellForItem(at: newIndexPath) as? CollectionViewCell {
@@ -560,16 +656,11 @@ public class ViewTable: UIViewController, TextFieldCellDelegate, TextViewCellDel
     // MARK: NavigationRightMoveButton Tapped
     @objc func navigationRightMoveTapped() {
         if let cell = collectionView.cellForItem(at: selectedTextFieldIndexPath) as? CollectionViewCell {
-            cell.cellTextField.deselectedBorderColor = .clear
-            cell.textView.layer.borderWidth = 0
+            cell.cellTextView.layer.borderWidth = 0
         }
-        let newIndexPath = IndexPath(row: selectedTextFieldIndexPath.row + 2, section: selectedTextFieldIndexPath.section)
+        let newIndexPath = IndexPath(row: selectedTextFieldIndexPath.row + 1, section: selectedTextFieldIndexPath.section)
         if let cell = collectionView.cellForItem(at: newIndexPath) as? CollectionViewCell {
-            collectionView.scrollToItem(at: newIndexPath, at: .left, animated: true)
-            cell.cellTextField.selectedBorderColor = UIColor(hexString: "#1F6BFF") ?? .systemBlue
-            cell.cellTextField.becomeFirstResponder()
-            cell.textView.becomeFirstResponder()
-            selectedTextFieldIndexPath = newIndexPath
+            updateTextFieldandViewOnNavigationTapped(cell: cell, newIndexPath: newIndexPath)
         }
     }
 }
@@ -578,7 +669,7 @@ public class ViewTable: UIViewController, TextFieldCellDelegate, TextViewCellDel
 extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     // MARK: CollectionView delegate method for number of sections
     public func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return numberOfRows
+        return numberOfRows + 1
     }
     
     // MARK: CollectionView delegate method for number of items in section
@@ -586,15 +677,12 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
         return numberOfColumns
     }
     
-    
     // MARK: CollectionView delegate method for cell for item at
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! CollectionViewCell
         cell.contentView.backgroundColor = .clear
-        cell.textFieldDelegate = self
         cell.textViewDelegate = self
         
-        viewTableSetUpCellTextField(at: cell)
         viewTableDispalyMode(at: cell)
         viewTablePopUpModal(cell: cell, indexPath: indexPath)
         viewTableCollectionViewHeader(cell: cell, indexPath: indexPath)
@@ -612,24 +700,34 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
     
     // MARK: CollectionView delegate method for cell selection at indexPath
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if tableDisplayMode == "readonly" {
-            
-        } else {
+        if tableDisplayMode != "readonly" {
             if indexPath.item == 0 {
                 if indexPath.section == selectedIndexPath {
                     let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell
-                    cell?.selectionButton.setImage(UIImage(named: "selectButton"), for: .normal)
+                    cell?.selectionButton.setImage(UIImage(named: "unSelectButton"), for: .normal)
                     selectedIndexPath = nil
+                    moreButton.isHidden = true
+                    collectionView.reloadData()
                 } else {
                     let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell
                     cell?.selectionButton.setImage(UIImage(named: "selectButton"), for: .normal)
+                    selectedIndexPath = indexPath.section
+                    cellSelectedIndexPath = indexPath
+                    moreButton.isHidden = false
                     collectionView.reloadData()
                 }
-                selectedIndexPath = indexPath.section
-                cellSelectedIndexPath = indexPath
-                moreButton.isHidden = false
-            } else {
-
+            }
+            if tableColumnType[indexPath.row] == "dropdown" {
+                let dropdownOptionArray: NSArray = ["Yes","No","N/A"]
+                let vc = CustomModalViewController()
+                vc.modalPresentationStyle = .overCurrentContext
+                vc.doneHide = "singleSelect"
+                vc.delegate = self
+                vc.dropdownOptionArray = dropdownOptionArray
+                self.present(vc, animated: false)
+                indexPathRow = indexPath.row
+                indexPathItem = indexPath.item
+                indexPathSection = indexPath.section
             }
         }
     }
@@ -637,26 +735,47 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
     // MARK: CollectionView delegate method to adjust cell height and width
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
-        // Set cell height and width at 1st row
+        setCellWidth()
+        let maxTextHeight = calculateMaxTextHeight(forTextArray: tableColumnTitle, font: UIFont.boldSystemFont(ofSize: 12), width: CGFloat(cellWidth))
+        let cellHeight = maxTextHeight + 20
+        
         if indexPath.section == 0 {
             if indexPath.item == 0 {
-                return CGSize(width: 50, height: 37.5)
+                return CGSize(width: 50, height: cellHeight)
             } else if indexPath.item == 1 {
-                return CGSize(width: 50, height: 37.5)
+                return CGSize(width: 50, height: cellHeight)
             } else {
-                return CGSize(width: 133, height: 37.5)
+                return CGSize(width: cellWidth, height: cellHeight)
             }
         }
         
-        let width = 133.0
-        let textHeight = heightForText(textViewTextArray[indexPath.section], font: UIFont.systemFont(ofSize: 17), width: width) + 20
+        var textHeight = calculateMaxTextHeight(forTextArray: tableCellsData[indexPath.section-1], font: UIFont.boldSystemFont(ofSize: 17), width: CGFloat(cellWidth))
         
-        if indexPath.item == 0 {
+        if textHeight < 20 {
+            textHeight += 40
+        } else if textHeight < 37 {
+            textHeight += 20
+        } else {
+            textHeight += 5
+        }
+        
+        if indexPath.item == 0  {
             return CGSize(width: 50, height: textHeight)
         } else if indexPath.item == 1 {
             return CGSize(width: 50, height: textHeight)
         } else {
-            return CGSize(width: 133, height: textHeight)
+            return CGSize(width: cellWidth, height: textHeight)
+        }
+    }
+    
+    func setCellWidth() {
+        if tableColumnOrderId.count == 1 {
+            cellWidth = self.collectionView.frame.width - 100
+        } else if tableColumnOrderId.count == 2 {
+            let collectionViewWidth = self.collectionView.frame.width
+            cellWidth = (collectionViewWidth - 100) / 2
+        } else {
+            cellWidth = 133.0
         }
     }
     
@@ -669,31 +788,19 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
             cell.contentView.layer.borderColor = UIColor.clear.cgColor
         }
     }
-   
-    // MARK: TextField delegate method for textField selection
-    func textFieldCellDidSelect(_ cell: UICollectionViewCell) {
-        if let previousCell = collectionView.cellForItem(at: selectedTextFieldIndexPath) as? CollectionViewCell {
-            previousCell.textView.borderWidth = 0
-        }
-        guard let indexPath = collectionView.indexPath(for: cell) else {
-            return
-        }
-
-        selectedTextFieldIndexPath = indexPath
-    }
     
     // MARK: TextView delegate method for textView selection
     func textViewCellDidSelect(_ cell: UICollectionViewCell) {
-        
         if let previousCell = collectionView.cellForItem(at: selectedTextFieldIndexPath) as? CollectionViewCell {
-            previousCell.textView.borderWidth = 0
+            previousCell.cellTextView.borderWidth = 0
         }
         let indexPath = collectionView.indexPath(for: cell)
         if let cell = collectionView.cellForItem(at: indexPath ?? IndexPath(row: 0, section: 0)) as? CollectionViewCell {
-            cell.textView.layer.borderWidth = 1.0
-            cell.textView.layer.cornerRadius = 1.0
-            cell.textView.layer.borderColor = UIColor(hexString: "#1F6BFF")?.cgColor
-            cell.textView.becomeFirstResponder()
+            cell.cellTextView.layer.borderWidth = 1.0
+            cell.cellTextView.layer.cornerRadius = 1.0
+            cell.cellTextView.layer.borderColor = UIColor(hexString: "#1F6BFF")?.cgColor
+            cell.cellTextView.selectedRange = NSRange(location: cell.cellTextView.text.count, length: 0)
+            cell.cellTextView.becomeFirstResponder()
         }
         
         selectedTextFieldIndexPath = indexPath ?? IndexPath(row: 0, section: 0)
@@ -720,22 +827,6 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
         cell.contentView.addSubview(cell.bottomBorder)
     }
     
-    // Function to set properties of textField
-    func viewTableSetUpCellTextField(at cell: CollectionViewCell) {
-        cell.cellTextField.borderWidth = 0
-        cell.cellTextField.containerRadius = 0
-        cell.cellTextField.textAlignment = .center
-        cell.cellTextField.selectedBorderWidth = 1
-        cell.cellTextField.selectedCornerRadius = 1
-        cell.cellTextField.deselectedBorderWidth = 0
-        cell.cellTextField.deselectedCornerRadius = 0
-        cell.cellTextField.deselectedBorderColor = .clear
-        cell.cellTextField.font = UIFont.systemFont(ofSize: 12)
-        cell.cellTextField.setOutlineLineWidth(0, for: .normal)
-        cell.cellTextField.setOutlineLineWidth(0, for: .editing)
-        cell.cellTextField.selectedBorderColor = UIColor(hexString: "#1F6BFF") ?? .systemBlue
-    }
-    
     // Function to handle table popup modal
     func viewTablePopUpModal(cell: CollectionViewCell, indexPath: IndexPath) {
         if indexPath.row == 0 && indexPath.item == 0 {
@@ -748,36 +839,50 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
             cell.contentView.subviews.forEach { $0.removeFromSuperview() }
             cell.setupSeparator()
             cell.setupNumberLabel()
-        } else if indexPath.row == 2 && indexPath.item == 2 {
-            cell.textView.text = textViewTextArray[indexPath.section]
-            cell.contentView.subviews.forEach { $0.removeFromSuperview() }
-            cell.setupSeparator()
-            cell.setupTextView()
-        } else if indexPath.row == 3 && indexPath.item == 3 {
-            cell.contentView.subviews.forEach { $0.removeFromSuperview()}
-            cell.setupSeparator()
-            cell.setupImageView()
-            setImageOpacity(cell: cell, indexPath: indexPath)
-        } else if indexPath.row == 5 && indexPath.item == 5 {
-            cell.contentView.subviews.forEach { $0.removeFromSuperview() }
-            cell.setupSeparator()
-            cell.setupDropdown()
         } else {
-            cell.cellTextField.text = "Column = \(indexPath.section)"
-            cell.contentView.subviews.forEach { $0.removeFromSuperview() }
-            cell.setupSeparator()
-            cell.setupTextField()
+            if tableColumnType[indexPath.row] == "dropdown" {
+                if indexPath.section > 0 {
+                    setCellDropdownValue(cell: cell, indexPath: indexPath)
+                }
+                if indexPath.section == indexPathSection && indexPath.item == indexPathItem  {
+                    cell.dropdownTextField.text = dropDownSelect
+                }
+                cell.contentView.subviews.forEach { $0.removeFromSuperview() }
+                cell.setupSeparator()
+                cell.setupDropdown()
+            } else {
+                if indexPath.section > 0 {
+                    setCellTextValue(cell: cell, indexPath: indexPath)
+                }
+                cell.contentView.subviews.forEach { $0.removeFromSuperview() }
+                cell.setupSeparator()
+                cell.setupTextView()
+            }
         }
     }
     
-    // Function to set image opacity
-    func setImageOpacity(cell: CollectionViewCell, indexPath: IndexPath) {
-        if indexPath.section == 1 || indexPath.section == 2 {
-            cell.image.layer.opacity = 1.0
-            cell.countLabel.isHidden = false
+    // Function to set dropdown value after matching column id
+    func setCellDropdownValue(cell: CollectionViewCell, indexPath: IndexPath) {
+        let cellData = valueData[indexPath.section-1].cells ?? [:]
+        if let matchData = cellData.first(where: {$0.key == tableColumnOrderId[indexPath.row-2]}) {
+            for i in 0..<(optionsData.count) {
+                let tableColumnsData = optionsData[i].options
+                if let dropDownId = tableColumnsData?.first(where: {$0.id == matchData.value}) {
+                    cell.dropdownTextField.text = dropDownId.value
+                }
+            }
         } else {
-            cell.image.layer.opacity = 0.5
-            cell.countLabel.isHidden = true
+            cell.dropdownTextField.text = ""
+        }
+    }
+    
+    // Function to set text value after matching column id
+    func setCellTextValue(cell: CollectionViewCell, indexPath: IndexPath) {
+        let cellData = valueData[indexPath.section-1].cells ?? [:]
+        if let matchData = cellData.first(where: {$0.key == tableColumnOrderId[indexPath.row-2]}) {
+            cell.cellTextView.text = matchData.value
+        } else {
+            cell.cellTextView.text = ""
         }
     }
     
@@ -785,13 +890,9 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
     func viewTableDispalyMode(at cell: CollectionViewCell) {
         switch tableDisplayMode {
         case "readonly":
-            cell.textView.isUserInteractionEnabled = false
-            cell.cellTextField.isUserInteractionEnabled = false
+            cell.cellTextView.isUserInteractionEnabled = false
         default:
-            cell.textView.isUserInteractionEnabled = true
-            cell.cellTextField.isUserInteractionEnabled = true
-            let tap = UITapGestureRecognizer(target: self, action: #selector(dropdownOpen))
-            cell.dropdownView.addGestureRecognizer(tap)
+            cell.cellTextView.isUserInteractionEnabled = true
         }
     }
     
@@ -803,7 +904,8 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
             cellLabel.borderWidth = 1
             cellLabel.borderCornerRadius = 0
             cellLabel.textAlignment = .center
-            cellLabel.labelText = tableHeading[indexPath.row]
+            cellLabel.numberOfLines = 0
+            cellLabel.labelText = tableColumnTitle[indexPath.row]
             cellLabel.backgroundColor = UIColor(hexString: "#F3F4F8")
             cellLabel.borderColor = UIColor(hexString: "#E6E7EA") ?? .lightGray
             viewTableHandlePopupModalForHeader(cellLabel: cellLabel, indexPath: indexPath)
@@ -815,8 +917,9 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
     
     // Function to handle popup modal for collectionView header
     func viewTableHandlePopupModalForHeader(cellLabel: Label, indexPath: IndexPath) {
-        let cellWidth = 133.0
-        let cellHeight = 37.5
+        setCellWidth()
+        let maxTextHeight = calculateMaxTextHeight(forTextArray: tableColumnTitle, font: UIFont.boldSystemFont(ofSize: 12), width: CGFloat(cellWidth))
+        let cellHeight = maxTextHeight + 20
         
         if indexPath.section == 0 && indexPath.item == 0 {
             cellLabel.frame = CGRect(x: 0, y: 0, width: 50, height: cellHeight)
@@ -830,15 +933,20 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
         }
     }
     
-    // Function to open dropdown
-    @objc func dropdownOpen(_ sender: Any) {
-        let dropdownOptionArray: NSArray = ["Yes","No"]
-        let vc = CustomModalViewController()
-        vc.modalPresentationStyle = .overCurrentContext
-        vc.delegate = self
-        vc.dropdownOptionArray = dropdownOptionArray
-        self.present(vc, animated: false)
+    // Function to calculate max text height
+    func calculateMaxTextHeight(forTextArray textArray: [String], font: UIFont, width: CGFloat) -> CGFloat {
+        var maxHeight: CGFloat = 0.0
+        for text in textArray {
+            let textHeight = heightForText(text, font: font, width: width)
+            maxHeight = max(maxHeight, textHeight)
+        }
+        
+        return maxHeight
     }
     
-    func selectText(text: String) {}
+    func selectText(text: String) {
+        dropDownSelect = text
+        let cell = collectionView.cellForItem(at: IndexPath(row: indexPathRow, section: indexPathSection)) as? CollectionViewCell
+        cell?.dropdownTextField.text = text
+    }
 }
