@@ -287,3 +287,10 @@ extension String {
         }
     }
 }
+
+// Font Extension
+extension UIFont {
+    var isBold: Bool {
+        return fontDescriptor.symbolicTraits.contains(.traitBold)
+    }
+}
