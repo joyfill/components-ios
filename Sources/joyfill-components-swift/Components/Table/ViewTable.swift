@@ -361,7 +361,6 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
         let tap = UITapGestureRecognizer(target: self, action: #selector(mainViewTap))
         mainView.addGestureRecognizer(tap)
         
-        // Sets table and action to pageButton
         if #available(iOS 13.0, *) {
             let boldConfig = UIImage.SymbolConfiguration(weight: .bold)
             let boldSearch = UIImage(systemName: "xmark.circle", withConfiguration: boldConfig)
