@@ -228,7 +228,7 @@ public class Dropdown : UIView, DropDownSelectText, UITextFieldDelegate {
         toolTipAlertShow(for: self, title: toolTipTitle, message: toolTipDescription)
     }
     
-    func selectText(text: String) {
+    func setDropdownSelectedValue(text: String) {
         if doneHide == "singleSelect" {
             textField.text = text
             viewTextField.layer.cornerRadius = 12

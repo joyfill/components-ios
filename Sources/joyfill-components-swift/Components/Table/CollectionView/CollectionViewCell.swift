@@ -63,8 +63,8 @@ class CollectionViewCell: UICollectionViewCell, UITextFieldDelegate, UITextViewD
         selectionButton.setImage(UIImage(named: "unSelectButton"), for: .normal)
     }
     
-    // Function to add selectionButton in contentView
-    func setupSelectionButton() {
+    // Function to add selectionButton in table
+    func setSelectionButtonInTableColumn() {
         contentView.addSubview(selectionButton)
         selectionButton.translatesAutoresizingMaskIntoConstraints = false
         
@@ -76,8 +76,8 @@ class CollectionViewCell: UICollectionViewCell, UITextFieldDelegate, UITextViewD
         ])
     }
     
-    // Function to add numberLabel in contentView
-    func setupNumberLabel() {
+    // Function to add numberLabel in table
+    func setNumberLabelInTableColumn() {
         contentView.addSubview(numberLabel)
         numberLabel.translatesAutoresizingMaskIntoConstraints = false
         
@@ -91,8 +91,8 @@ class CollectionViewCell: UICollectionViewCell, UITextFieldDelegate, UITextViewD
         numberLabel.fontSize = 12
     }
     
-    // Function to add textView in contentView
-    func setupTextView() {
+    // Function to add textView in table
+    func setTextViewInTableColumn() {
         contentView.addSubview(cellTextView)
         cellTextView.translatesAutoresizingMaskIntoConstraints = false
         
@@ -108,8 +108,8 @@ class CollectionViewCell: UICollectionViewCell, UITextFieldDelegate, UITextViewD
         cellTextView.textContainerInset = UIEdgeInsets(top: 12, left: 8, bottom: 5, right: 8)
     }
     
-    // Function to add dropdown in contentView
-    func setupDropdown() {
+    // Function to add dropdown in table
+    func setDropdownInTableColumn() {
         contentView.addSubview(dropdownView)
         dropdownView.addSubview(dropdownImage)
         dropdownView.addSubview(dropdownTextField)

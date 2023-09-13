@@ -6,7 +6,7 @@ public class CollectionViewTable: UIView, UIImagePickerControllerDelegate, TextV
     var indexPathRow = Int()
     var indexPathItem = Int()
     var indexPathSection = Int()
-    var dropDownSelect = String()
+    var dropDownSelectedValue = String()
     
     let layout = TwoWayScrollingCollectionViewLayout()
     public lazy var collectionView: UICollectionView = {
@@ -192,7 +192,7 @@ extension CollectionViewTable: UICollectionViewDelegate, UICollectionViewDataSou
             }
             cell.contentView.subviews.forEach { $0.removeFromSuperview() }
             cell.setupSeparator()
-            cell.setupDropdown()
+            cell.setDropdownInTableColumn()
         } else {
             if indexPath.section > 0 {
                 setCellTextValue(cell: cell, indexPath: indexPath)
@@ -200,7 +200,7 @@ extension CollectionViewTable: UICollectionViewDelegate, UICollectionViewDataSou
             cell.cellTextView.textContainer.maximumNumberOfLines = 2
             cell.contentView.subviews.forEach { $0.removeFromSuperview() }
             cell.setupSeparator()
-            cell.setupTextView()
+            cell.setTextViewInTableColumn()
         }
     }
     
@@ -267,8 +267,8 @@ extension CollectionViewTable: UICollectionViewDelegate, UICollectionViewDataSou
         }
     }
     
-    func selectText(text: String) {
-        dropDownSelect = text
+    func setDropdownSelectedValue(text: String) {
+        dropDownSelectedValue = text
         let cell = collectionView.cellForItem(at: IndexPath(row: indexPathRow, section: indexPathSection)) as? CollectionViewCell
         cell?.dropdownTextField.text = text
     }

@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 
 protocol DropDownSelectText {
-    func selectText(text:String)
+    func setDropdownSelectedValue(text:String)
 }
 
 class CustomModalViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
@@ -287,19 +287,19 @@ class CustomModalViewController: UIViewController, UITableViewDelegate, UITableV
         if doneHide == "singleSelect" {
             sltArray = indexPath.row
             let text = dropdownOptionArray[indexPath.row] as? String ?? ""
-            self.delegate?.selectText(text: text)
+            self.delegate?.setDropdownSelectedValue(text: text)
             animateDismissView()
             dropdowntableView.reloadData()
         } else {
             if select.contains(indexPath.row) {
                 select.remove(indexPath.row)
                 let selectCount = select.count
-                self.delegate?.selectText(text: String(selectCount))
+                self.delegate?.setDropdownSelectedValue(text: String(selectCount))
                 dropdowntableView.reloadData()
             } else {
                 select.add(indexPath.row)
                 let selectCount = select.count
-                self.delegate?.selectText(text: String(selectCount))
+                self.delegate?.setDropdownSelectedValue(text: String(selectCount))
                 dropdowntableView.reloadData()
             }
         }

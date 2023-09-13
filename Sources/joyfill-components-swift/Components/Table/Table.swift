@@ -5,7 +5,7 @@ open class Table: UIView, UIViewControllerTransitioningDelegate {
     
     public var countLabel = Label()
     public var countView = UIView()
-    public var floorsLabel = Label()
+    public var titleLabel = Label()
     public var viewButton = Button()
     public var collectionView = CollectionViewTable()
     public var toolTipIconButton = UIButton()
@@ -45,7 +45,7 @@ open class Table: UIView, UIViewControllerTransitioningDelegate {
         // SubViews
         addSubview(countView)
         addSubview(collectionView)
-        addSubview(floorsLabel)
+        addSubview(titleLabel)
         addSubview(toolTipIconButton)
         countView.addSubview(viewButton)
         countView.addSubview(countLabel)
@@ -56,12 +56,12 @@ open class Table: UIView, UIViewControllerTransitioningDelegate {
         countView.translatesAutoresizingMaskIntoConstraints = false
         viewButton.translatesAutoresizingMaskIntoConstraints = false
         countLabel.translatesAutoresizingMaskIntoConstraints = false
-        floorsLabel.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            floorsLabel.topAnchor.constraint(equalTo: topAnchor, constant: 6),
-            floorsLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            floorsLabel.trailingAnchor.constraint(equalTo: toolTipIconButton.leadingAnchor, constant: -5),
+            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 6),
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            titleLabel.trailingAnchor.constraint(equalTo: toolTipIconButton.leadingAnchor, constant: -5),
             
             //TooltipIconButton
             toolTipIconButton.topAnchor.constraint(equalTo: self.topAnchor, constant: 8),
@@ -88,7 +88,7 @@ open class Table: UIView, UIViewControllerTransitioningDelegate {
             countLabel.bottomAnchor.constraint(equalTo: countView.bottomAnchor, constant: 0),
             
             // TableView Constraint
-            collectionView.topAnchor.constraint(equalTo: floorsLabel.bottomAnchor, constant: 7),
+            collectionView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 7),
             collectionView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8),
             collectionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
             collectionView.heightAnchor.constraint(equalToConstant: 200),
@@ -105,9 +105,9 @@ open class Table: UIView, UIViewControllerTransitioningDelegate {
         viewButton.setAttributedTitle(moreButtonAttributedString, for: .normal)
         viewButton.addTarget(self, action: #selector(viewButtonTapped), for: .touchUpInside)
         
-        floorsLabel.fontSize = 14
-        floorsLabel.isTextBold = true
-        floorsLabel.numberOfLines = 0
+        titleLabel.fontSize = 14
+        titleLabel.isTextBold = true
+        titleLabel.numberOfLines = 0
         
         toolTipIconButton.setImage(UIImage(named: "tooltipIcon"), for: .normal)
         toolTipIconButton.addTarget(self, action: #selector(tooltipButtonTapped), for: .touchUpInside)
@@ -144,7 +144,7 @@ open class Table: UIView, UIViewControllerTransitioningDelegate {
                 let newViewController = ViewTable()
                 newViewController.transitioningDelegate = self
                 newViewController.modalPresentationStyle = .fullScreen
-                newViewController.updateTitle(text: floorsLabel.text ?? "")
+                newViewController.updateTitle(text: titleLabel.text ?? "")
                 viewController.present(newViewController, animated: true, completion: nil)
                 break
             }

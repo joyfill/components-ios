@@ -304,23 +304,28 @@ func getArrayValue(valueElements: [ValueElement], j: Int) {
         }
     }
     
-    optionsData = joyFillStruct?.fields?[j].tableColumns ?? []
-    for item in valueElements {
-        if (item.deleted ?? false) == false {
-            valueData.append(item)
-        }
-    }
-    for rows in 0..<(joyFillStruct?.fields?[0].rowOrder?.count ?? 0) {
-        tableRowOrder.append(joyFillStruct?.fields?[0].rowOrder?[rows] ?? "")
-    }
-    for columns in 0..<(joyFillStruct?.fields?[0].tableColumnOrder?.count ?? 0) {
-        tableColumnOrderId.append(joyFillStruct?.fields?[0].tableColumnOrder?[columns] ?? "")
-        if let fieldTableColumn = joyFillStruct?.fields?[j].tableColumns?.first(where: { $0.id == joyFillStruct?.fields?[0].tableColumnOrder?[columns]}) {
-            tableColumnType.append(fieldTableColumn.type ?? "")
-            tableColumnTitle.append(fieldTableColumn.title ?? "")
-        }
-    }
     if componentTypeValue == "table" {
+        optionsData = joyFillStruct?.fields?[j].tableColumns ?? []
+        for item in valueElements {
+            if (item.deleted ?? false) == false {
+                valueData.append(item)
+            }
+        }
+        
+        // Fetch table row order from joyDoc
+        for rows in 0..<(joyFillStruct?.fields?[0].rowOrder?.count ?? 0) {
+            tableRowOrder.append(joyFillStruct?.fields?[0].rowOrder?[rows] ?? "")
+        }
+        
+        // Fetch table column type and title after sorting column based on their columnId
+        for columns in 0..<(joyFillStruct?.fields?[0].tableColumnOrder?.count ?? 0) {
+            tableColumnOrderId.append(joyFillStruct?.fields?[0].tableColumnOrder?[columns] ?? "")
+            if let fieldTableColumn = joyFillStruct?.fields?[j].tableColumns?.first(where: { $0.id == joyFillStruct?.fields?[0].tableColumnOrder?[columns]}) {
+                tableColumnType.append(fieldTableColumn.type ?? "")
+                tableColumnTitle.append(fieldTableColumn.title ?? "")
+            }
+        }
+        
         for k in 0..<valueData.count {
             if let cells = valueData[k].cells {
                 let valuesArray = Array(cells.values)

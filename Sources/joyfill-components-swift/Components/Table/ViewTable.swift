@@ -34,9 +34,9 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
     public var dropdownView = UIView()
     public var closeButton = UIButton()
     public var moveDownButton = Label()
-    public var tableFloorsBar = UIView()
+    public var titleBackgroundView = UIView()
     public var duplicateButton = Label()
-    public var tableFloorsLabel = Label()
+    public var titleLabel = Label()
     public var insertBelowButton = Label()
     public var collectionView: UICollectionView!
     public var navigationUpMoveButton = Button()
@@ -48,7 +48,7 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
     var indexPathRow = Int()
     var indexPathItem = Int()
     var indexPathSection = Int()
-    var dropDownSelect = String()
+    var dropDownSelectedValue = String()
     let topAndBottomSubviewborderWidth: CGFloat = 1.0
     let layout = TwoWayScrollingCollectionViewLayout()
     let topAndBottomSubviewborderColor: UIColor = UIColor(hexString: "#1F6BFF") ?? .blue
@@ -84,7 +84,7 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
     }
     
     public func updateTitle(text: String) {
-        tableFloorsLabel.labelText = text
+        titleLabel.labelText = text
     }
     
     // Keyboard appear function
@@ -150,13 +150,13 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
         view.addSubview(dropdownView)
         view.addSubview(addRowButton)
         view.addSubview(closeButton)
-        mainView.addSubview(tableFloorsBar)
+        mainView.addSubview(titleBackgroundView)
         dropdownView.addSubview(deleteButton)
         dropdownView.addSubview(moveUpButton)
         dropdownView.addSubview(moveDownButton)
         dropdownView.addSubview(duplicateButton)
         dropdownView.addSubview(insertBelowButton)
-        tableFloorsBar.addSubview(tableFloorsLabel)
+        titleBackgroundView.addSubview(titleLabel)
         
         mainView.translatesAutoresizingMaskIntoConstraints = false
         moreButton.translatesAutoresizingMaskIntoConstraints = false
@@ -166,10 +166,10 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
         moveUpButton.translatesAutoresizingMaskIntoConstraints = false
         dropdownView.translatesAutoresizingMaskIntoConstraints = false
         moveDownButton.translatesAutoresizingMaskIntoConstraints = false
-        tableFloorsBar.translatesAutoresizingMaskIntoConstraints = false
+        titleBackgroundView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         duplicateButton.translatesAutoresizingMaskIntoConstraints = false
-        tableFloorsLabel.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
         insertBelowButton.translatesAutoresizingMaskIntoConstraints = false
         
         // Constraint to arrange subviews acc. to imageView
@@ -181,37 +181,37 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
             mainView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -50),
             
             // PageView Constraint
-            tableFloorsBar.topAnchor.constraint(equalTo: mainView.topAnchor),
-            tableFloorsBar.leadingAnchor.constraint(equalTo: mainView.leadingAnchor),
-            tableFloorsBar.trailingAnchor.constraint(equalTo: mainView.trailingAnchor),
-            tableFloorsBar.heightAnchor.constraint(equalToConstant: 39),
+            titleBackgroundView.topAnchor.constraint(equalTo: mainView.topAnchor),
+            titleBackgroundView.leadingAnchor.constraint(equalTo: mainView.leadingAnchor),
+            titleBackgroundView.trailingAnchor.constraint(equalTo: mainView.trailingAnchor),
+            titleBackgroundView.heightAnchor.constraint(equalToConstant: 39),
             
             // PageLabel Constraint
-            tableFloorsLabel.topAnchor.constraint(equalTo: tableFloorsBar.topAnchor, constant: 4),
-            tableFloorsLabel.leadingAnchor.constraint(equalTo: tableFloorsBar.leadingAnchor, constant: 0),
-            tableFloorsLabel.widthAnchor.constraint(equalToConstant: 135),
-            tableFloorsLabel.heightAnchor.constraint(equalToConstant: 16),
+            titleLabel.topAnchor.constraint(equalTo: titleBackgroundView.topAnchor, constant: 4),
+            titleLabel.leadingAnchor.constraint(equalTo: titleBackgroundView.leadingAnchor, constant: 0),
+            titleLabel.widthAnchor.constraint(equalToConstant: 135),
+            titleLabel.heightAnchor.constraint(equalToConstant: 16),
             
             // TableView Constraint
-            collectionView.topAnchor.constraint(equalTo: tableFloorsBar.bottomAnchor, constant: 0),
+            collectionView.topAnchor.constraint(equalTo: titleBackgroundView.bottomAnchor, constant: 0),
             collectionView.leadingAnchor.constraint(equalTo: mainView.leadingAnchor, constant: 0),
             collectionView.trailingAnchor.constraint(equalTo: mainView.trailingAnchor, constant: 170),
             collectionView.bottomAnchor.constraint(equalTo: mainView.bottomAnchor, constant: -20),
             
             // DeleteRowButton Constraint
-            addRowButton.topAnchor.constraint(equalTo: tableFloorsBar.topAnchor, constant: 0),
+            addRowButton.topAnchor.constraint(equalTo: titleBackgroundView.topAnchor, constant: 0),
             addRowButton.trailingAnchor.constraint(equalTo: closeButton.leadingAnchor, constant: -6),
             addRowButton.widthAnchor.constraint(equalToConstant: 94),
             addRowButton.heightAnchor.constraint(equalToConstant: 27),
             
             // Close Button
-            closeButton.topAnchor.constraint(equalTo: tableFloorsBar.topAnchor, constant: 0),
-            closeButton.trailingAnchor.constraint(equalTo: tableFloorsBar.trailingAnchor, constant: -6),
+            closeButton.topAnchor.constraint(equalTo: titleBackgroundView.topAnchor, constant: 0),
+            closeButton.trailingAnchor.constraint(equalTo: titleBackgroundView.trailingAnchor, constant: -6),
             closeButton.widthAnchor.constraint(equalToConstant: 30),
             closeButton.heightAnchor.constraint(equalToConstant: 27),
             
             // MoreButton Constraint
-            moreButton.topAnchor.constraint(equalTo: tableFloorsBar.topAnchor, constant: 0),
+            moreButton.topAnchor.constraint(equalTo: titleBackgroundView.topAnchor, constant: 0),
             moreButton.trailingAnchor.constraint(equalTo: addRowButton.leadingAnchor, constant: -6),
             moreButton.widthAnchor.constraint(equalToConstant: 78),
             moreButton.heightAnchor.constraint(equalToConstant: 27),
@@ -262,7 +262,7 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
         dropdownView.layer.shadowColor = UIColor.black.cgColor
         dropdownView.layer.shadowOffset = CGSize(width: 0.0, height: 3.0)
         
-        tableFloorsLabel.font = UIFont.boldSystemFont(ofSize: 14)
+        titleLabel.font = UIFont.boldSystemFont(ofSize: 14)
         
         // TableView Properties
         numberOfColumns = tableColumnType.count
@@ -370,7 +370,7 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
             // Fallback on earlier versions
         }
         closeButton.tintColor = .black
-        closeButton.addTarget(self, action: #selector(clossTapped), for: .touchUpInside)
+        closeButton.addTarget(self, action: #selector(closeTapped), for: .touchUpInside)
     }
     
     // Hide dropdown menu on view click
@@ -388,7 +388,7 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
     }
     
     // Action for close button
-    @objc func clossTapped() {
+    @objc func closeTapped() {
         tableColumnTitle.removeFirst(2)
         tableColumnType.removeFirst(2)
         viewType = "field"
@@ -451,7 +451,7 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
     
     // Empty cell data to append or insert when insertRow and insertBelow is tapped
     var data = [String]()
-    func emptyCellsData() {
+    func insertEmptyCellsData() {
         for k in 0..<valueData.count {
             if valueData[k].cells != nil {
                 let values = ""
@@ -461,7 +461,7 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
     }
     
     // Function to show default value when row is added or inserted
-    func addDefaultValue(indexpath: IndexPath) {
+    func insertColumnDefaultValue(indexpath: IndexPath) {
         emptyValueElement.cells?.removeAll()
         var cellValue = [String:String]()
         for i in 0..<tableColumnOrderId.count {
@@ -486,12 +486,12 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
     @objc func insertRowTapped() {
         dropdownView.isHidden = true
         numberOfRows += 1
-        emptyCellsData()
+        insertEmptyCellsData()
         updateRowNumber()
         let lastSection = collectionView.numberOfSections - 1
         let lastItem = collectionView.numberOfItems(inSection: lastSection) - 1
         let lastIndexPath = IndexPath(item: lastItem, section: lastSection)
-        addDefaultValue(indexpath: lastIndexPath)
+        insertColumnDefaultValue(indexpath: lastIndexPath)
         valueData.append(emptyValueElement)
         tableCellsData.append(data)
         collectionView.scrollToItem(at: lastIndexPath, at: .bottom, animated: true)
@@ -507,12 +507,12 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
     // MARK: InsertBelow Tapped
     @objc func insertBelowTapped() {
         numberOfRows += 1
-        emptyCellsData()
+        insertEmptyCellsData()
         updateRowNumber()
         let lastSection = collectionView.numberOfSections - 1
         let lastItem = collectionView.numberOfItems(inSection: lastSection) - 1
         let lastIndexPath = IndexPath(item: lastItem, section: lastSection)
-        addDefaultValue(indexpath: lastIndexPath)
+        insertColumnDefaultValue(indexpath: lastIndexPath)
         valueData.insert(emptyValueElement, at: cellSelectedIndexPath?.section ?? 0)
         tableCellsData.insert(data, at: cellSelectedIndexPath?.section ?? 0)
         collectionView.insertSections(IndexSet(integer: cellSelectedIndexPath?.section ?? 0))
@@ -609,8 +609,8 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
         }
     }
     
-    // Function to update textField and textView on left, up and down navigation button tapped
-    func updateTextFieldandViewOnNavigationTapped(cell: CollectionViewCell, newIndexPath: IndexPath) {
+    // Function to update textField border
+    func setTextFieldBorder(cell: CollectionViewCell, newIndexPath: IndexPath) {
         cell.cellTextView.layer.borderWidth = 1.0
         cell.cellTextView.layer.cornerRadius = 1.0
         cell.cellTextView.layer.borderColor = UIColor(hexString: "#1F6BFF")?.cgColor
@@ -625,7 +625,7 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
         }
         let newIndexPath = IndexPath(row: selectedTextFieldIndexPath.row - 1, section: selectedTextFieldIndexPath.section)
         if let cell = collectionView.cellForItem(at: newIndexPath) as? CollectionViewCell {
-            updateTextFieldandViewOnNavigationTapped(cell: cell, newIndexPath: newIndexPath)
+            setTextFieldBorder(cell: cell, newIndexPath: newIndexPath)
         }
     }
     
@@ -637,7 +637,7 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
             }
             let newIndexPath = IndexPath(row: selectedTextFieldIndexPath.row, section: selectedTextFieldIndexPath.section - 1)
             if let cell = collectionView.cellForItem(at: newIndexPath) as? CollectionViewCell {
-                updateTextFieldandViewOnNavigationTapped(cell: cell, newIndexPath: newIndexPath)
+                setTextFieldBorder(cell: cell, newIndexPath: newIndexPath)
             }
         }
     }
@@ -649,7 +649,7 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
         }
         let newIndexPath = IndexPath(row: selectedTextFieldIndexPath.row, section: selectedTextFieldIndexPath.section + 1)
         if let cell = collectionView.cellForItem(at: newIndexPath) as? CollectionViewCell {
-            updateTextFieldandViewOnNavigationTapped(cell: cell, newIndexPath: newIndexPath)
+            setTextFieldBorder(cell: cell, newIndexPath: newIndexPath)
         }
     }
     
@@ -660,7 +660,7 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
         }
         let newIndexPath = IndexPath(row: selectedTextFieldIndexPath.row + 1, section: selectedTextFieldIndexPath.section)
         if let cell = collectionView.cellForItem(at: newIndexPath) as? CollectionViewCell {
-            updateTextFieldandViewOnNavigationTapped(cell: cell, newIndexPath: newIndexPath)
+            setTextFieldBorder(cell: cell, newIndexPath: newIndexPath)
         }
     }
 }
@@ -683,9 +683,9 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
         cell.contentView.backgroundColor = .clear
         cell.textViewDelegate = self
         
-        viewTableDispalyMode(at: cell)
+        tableViewDispalyMode(at: cell)
         viewTablePopUpModal(cell: cell, indexPath: indexPath)
-        viewTableCollectionViewHeader(cell: cell, indexPath: indexPath)
+        tableCollectionViewHeader(cell: cell, indexPath: indexPath)
         
         if indexPath.section == selectedIndexPath {
             cell.selectionButton.setImage(UIImage(named: "selectButton"), for: .normal)
@@ -833,30 +833,30 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
             cell.selectionButton.isUserInteractionEnabled = false
             cell.contentView.subviews.forEach { $0.removeFromSuperview() }
             cell.setupSeparator()
-            cell.setupSelectionButton()
+            cell.setSelectionButtonInTableColumn()
         } else if indexPath.row == 1 && indexPath.item == 1 {
             cell.numberLabel.labelText = numberingData[indexPath.section]
             cell.contentView.subviews.forEach { $0.removeFromSuperview() }
             cell.setupSeparator()
-            cell.setupNumberLabel()
+            cell.setNumberLabelInTableColumn()
         } else {
             if tableColumnType[indexPath.row] == "dropdown" {
                 if indexPath.section > 0 {
                     setCellDropdownValue(cell: cell, indexPath: indexPath)
                 }
                 if indexPath.section == indexPathSection && indexPath.item == indexPathItem  {
-                    cell.dropdownTextField.text = dropDownSelect
+                    cell.dropdownTextField.text = dropDownSelectedValue
                 }
                 cell.contentView.subviews.forEach { $0.removeFromSuperview() }
                 cell.setupSeparator()
-                cell.setupDropdown()
+                cell.setDropdownInTableColumn()
             } else {
                 if indexPath.section > 0 {
                     setCellTextValue(cell: cell, indexPath: indexPath)
                 }
                 cell.contentView.subviews.forEach { $0.removeFromSuperview() }
                 cell.setupSeparator()
-                cell.setupTextView()
+                cell.setTextViewInTableColumn()
             }
         }
     }
@@ -887,7 +887,7 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
     }
     
     // Function to handle cells according to displayMode
-    func viewTableDispalyMode(at cell: CollectionViewCell) {
+    func tableViewDispalyMode(at cell: CollectionViewCell) {
         switch tableDisplayMode {
         case "readonly":
             cell.cellTextView.isUserInteractionEnabled = false
@@ -897,7 +897,7 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
     }
     
     // Function to handle collectionView header
-    func viewTableCollectionViewHeader(cell: CollectionViewCell, indexPath: IndexPath) {
+    func tableCollectionViewHeader(cell: CollectionViewCell, indexPath: IndexPath) {
         switch indexPath.section {
         case 0:
             let cellLabel = Label()
@@ -908,7 +908,7 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
             cellLabel.labelText = tableColumnTitle[indexPath.row]
             cellLabel.backgroundColor = UIColor(hexString: "#F3F4F8")
             cellLabel.borderColor = UIColor(hexString: "#E6E7EA") ?? .lightGray
-            viewTableHandlePopupModalForHeader(cellLabel: cellLabel, indexPath: indexPath)
+            setTableHeaderHeightAccordingToText(cellLabel: cellLabel, indexPath: indexPath)
             cell.contentView.addSubview(cellLabel)
         default:
             break
@@ -916,7 +916,7 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
     }
     
     // Function to handle popup modal for collectionView header
-    func viewTableHandlePopupModalForHeader(cellLabel: Label, indexPath: IndexPath) {
+    func setTableHeaderHeightAccordingToText(cellLabel: Label, indexPath: IndexPath) {
         setCellWidth()
         let maxTextHeight = calculateMaxTextHeight(forTextArray: tableColumnTitle, font: UIFont.boldSystemFont(ofSize: 12), width: CGFloat(cellWidth))
         let cellHeight = maxTextHeight + 20
@@ -944,8 +944,8 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
         return maxHeight
     }
     
-    func selectText(text: String) {
-        dropDownSelect = text
+    func setDropdownSelectedValue(text: String) {
+        dropDownSelectedValue = text
         let cell = collectionView.cellForItem(at: IndexPath(row: indexPathRow, section: indexPathSection)) as? CollectionViewCell
         cell?.dropdownTextField.text = text
     }
