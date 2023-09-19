@@ -89,11 +89,11 @@ public class CollectionViewTable: UIView, UIImagePickerControllerDelegate, TextV
         tableHeading = tableColumnTitle
         
         // To show fake rows with empty data
-        if valueData.count == 1 {
-            valueData.append(emptyValueElement)
-            valueData.append(emptyValueElement)
-        } else if valueData.count == 2 {
-            valueData.append(emptyValueElement)
+        if tableFieldValue.count == 1 {
+            tableFieldValue.append(emptyValueElement)
+            tableFieldValue.append(emptyValueElement)
+        } else if tableFieldValue.count == 2 {
+            tableFieldValue.append(emptyValueElement)
         } else {}
     }
 }
@@ -130,7 +130,7 @@ extension CollectionViewTable: UICollectionViewDelegate, UICollectionViewDataSou
                 let dropdownOptionArray: NSArray = ["Yes","No","N/A"]
                 let vc = CustomModalViewController()
                 vc.modalPresentationStyle = .overCurrentContext
-                vc.doneHide = "singleSelect"
+                vc.hideDoneButtonOnSingleSelect = "singleSelect"
                 vc.delegate = self
                 vc.dropdownOptionArray = dropdownOptionArray
                 
@@ -206,7 +206,7 @@ extension CollectionViewTable: UICollectionViewDelegate, UICollectionViewDataSou
     
     // Function to set dropdown value after matching column id
     func setCellDropdownValue(cell: CollectionViewCell, indexPath: IndexPath) {
-        let cellData = valueData[indexPath.section-1].cells ?? [:]
+        let cellData = tableFieldValue[indexPath.section-1].cells ?? [:]
         if let matchData = cellData.first(where: {$0.key == tableColumnOrderId[indexPath.row]}) {
             for i in 0..<(optionsData.count) {
                 let tableColumnsData = optionsData[i].options
@@ -221,7 +221,7 @@ extension CollectionViewTable: UICollectionViewDelegate, UICollectionViewDataSou
     
     // Function to set text value after matching column id
     func setCellTextValue(cell: CollectionViewCell, indexPath: IndexPath) {
-        let cellData = valueData[indexPath.section-1].cells ?? [:]
+        let cellData = tableFieldValue[indexPath.section-1].cells ?? [:]
         if let matchData = cellData.first(where: {$0.key == tableColumnOrderId[indexPath.row]}) {
             cell.cellTextView.text = matchData.value
         } else {
@@ -252,6 +252,7 @@ extension CollectionViewTable: UICollectionViewDelegate, UICollectionViewDataSou
             cellLabel.backgroundColor = UIColor(hexString: "#F3F4F8")
             cellLabel.borderColor = UIColor(hexString: "#E6E7EA") ?? .lightGray
             
+            // Set the width of cells based on numberOfColumns
             if tableColumnOrderId.count == 1 {
                 cellLabel.frame = CGRect(x: 0, y: 0, width: self.frame.width, height: 50.0)
             } else if tableColumnOrderId.count == 2 {

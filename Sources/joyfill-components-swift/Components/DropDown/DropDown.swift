@@ -262,7 +262,7 @@ public class Dropdown : UIView, DropDownSelectText, UITextFieldDelegate {
         let vc = CustomModalViewController()
         vc.modalPresentationStyle = .overCurrentContext
         vc.delegate = self
-        vc.doneHide = doneHide
+        vc.hideDoneButtonOnSingleSelect = doneHide
         vc.dropdownOptionArray = dropdownOptions as NSArray
         // keep false
         // modal animation will be handled in VC itself

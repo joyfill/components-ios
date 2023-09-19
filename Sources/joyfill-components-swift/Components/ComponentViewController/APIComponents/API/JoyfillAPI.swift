@@ -27,10 +27,10 @@ public var tableColumnOrderId = [String]()
 public var componentId = [String]()
 
 public var jsonString = String()
-var valueData: [ValueElement] = []
+var tableFieldValue: [ValueElement] = []
 var optionsData: [FieldTableColumn] = []
-var valueUnion : [ValueUnion] = []
-var joyApiData : [JoyFillAPIField] = []
+var valueUnion: [ValueUnion] = []
+var joyApiData: [JoyFillAPIField] = []
 
 // Variable to save counts
 var pageCount = Int()
@@ -74,7 +74,7 @@ public func joyfillAPICall() {
                     graphLabelData = []
                     joyApiData.removeAll()
                     pickedImg.removeAll()
-                    valueData.removeAll()
+                    tableFieldValue.removeAll()
                     optionsData.removeAll()
                     tableRowOrder.removeAll()
                     componentType.removeAll()
@@ -121,11 +121,12 @@ func fetchDataFromApi() {
                 componentHeaderText.append(joyFillStruct?.fields?[j].title ?? "")
                 componentTypeValue = joyFillStruct?.files?[0].pages?[i].fieldPositions?[j].type ?? ""
                 componentId.append(joyFillStruct?.files?[0].pages?[i].fieldPositions?[j].field ?? "")
-                ZipAndSortComponents()
+                zipAndSortComponents()
                 getInputValuesFromPrimaryView(i: i, j: j)
                 getOptionValues(i: i, j: j)
             }
             
+            // Save field data from JoyDoc
             let count = joyFillStruct?.fields?.count ?? 0
             for k in 0..<count {
                 if let field = joyFillStruct?.fields?.first(where: { $0.id == componentId[k] }){
@@ -146,7 +147,7 @@ func fetchDataFromApi() {
                 componentsYValueForMobileView.append(Int(yFieldValue))
                 componentType.append(joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].type ?? "")
                 componentId.append(joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].field ?? "")
-                ZipAndSortComponents()
+                zipAndSortComponents()
                 
                 if joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].type == "block" {
                     blockTextSize = joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].fontSize ?? 18
@@ -181,7 +182,7 @@ func fetchDataFromApi() {
 }
 
 // Zip and sort componentType and ComponentHeaderText with componentsYValueForMobileView
-func ZipAndSortComponents() {
+func zipAndSortComponents() {
     var componentIdPairedArray = Array(zip(componentsYValueForMobileView, componentId))
     var componentTypePairedArray = Array(zip(componentsYValueForMobileView, componentType))
     var componentHeaderTextPairedArray = Array(zip(componentsYValueForMobileView, componentHeaderText))
@@ -308,7 +309,7 @@ func getArrayValue(valueElements: [ValueElement], j: Int) {
         optionsData = joyFillStruct?.fields?[j].tableColumns ?? []
         for item in valueElements {
             if (item.deleted ?? false) == false {
-                valueData.append(item)
+                tableFieldValue.append(item)
             }
         }
         
@@ -326,8 +327,8 @@ func getArrayValue(valueElements: [ValueElement], j: Int) {
             }
         }
         
-        for k in 0..<valueData.count {
-            if let cells = valueData[k].cells {
+        for k in 0..<tableFieldValue.count {
+            if let cells = tableFieldValue[k].cells {
                 let valuesArray = Array(cells.values)
                 tableCellsData.append(valuesArray)
             }

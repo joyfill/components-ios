@@ -131,9 +131,9 @@ open class Table: UIView, UIViewControllerTransitioningDelegate {
         tableColumnType.insert("#", at: 1)
         
         if tableRowOrder.count == 1 {
-            valueData.removeLast(2)
+            tableFieldValue.removeLast(2)
         } else if tableRowOrder.count == 2 {
-            valueData.removeLast(1)
+            tableFieldValue.removeLast(1)
         } else {}
         
         viewType = "modal"
