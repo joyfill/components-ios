@@ -1,12 +1,13 @@
 import Foundation
 import UIKit
 
+protocol saveSignatureFieldValue {
+    func handleSignatureUpload(sign: Any, signer: String, index: Int)
+}
+
 open class SignatureView : UIView {
     
     public var titleLabel = Label()
-    public var lookIcon = UIImageView()
-    public var lookTitle = UILabel()
-    public var lookView = UIView()
     public var imageView = UIView()
     public var imageSignature = ImageView()
     public var signViewBt = UIView()
@@ -15,6 +16,9 @@ open class SignatureView : UIView {
     public var toolTipIconButton = UIButton()
     public var toolTipTitle = String()
     public var toolTipDescription = String()
+    
+    var index = Int()
+    var saveDelegate: saveSignatureFieldValue? = nil
     
     // MARK: - Initializer
     required public init?(coder aDecoder: NSCoder) {
@@ -30,9 +34,9 @@ open class SignatureView : UIView {
     open override func didMoveToWindow() {
         super.didMoveToWindow()
         if signatureDisplayModes != "readonly" {
-            if signedImage != "" {
+            if signedImage[index] != "" {
                 imageView.layer.borderWidth = 0
-                imageSignature.load(urlString: signedImage)
+                imageSignature.load(urlString: signedImage[index])
             }
         }
     }
@@ -49,53 +53,33 @@ open class SignatureView : UIView {
         // SubViews
         self.addSubview(titleLabel)
         self.addSubview(toolTipIconButton)
-        self.addSubview(lookView)
         self.addSubview(imageView)
         self.addSubview(signViewBt)
-        lookView.addSubview(lookIcon)
-        lookView.addSubview(lookTitle)
         imageView.addSubview(imageSignature)
         signViewBt.addSubview(signLbBt)
         signViewBt.addSubview(signIconBt)
         
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        toolTipIconButton.translatesAutoresizingMaskIntoConstraints = false
-        lookView.translatesAutoresizingMaskIntoConstraints = false
+        signLbBt.translatesAutoresizingMaskIntoConstraints = false
         imageView.translatesAutoresizingMaskIntoConstraints = false
         signViewBt.translatesAutoresizingMaskIntoConstraints = false
-        lookTitle.translatesAutoresizingMaskIntoConstraints = false
-        imageSignature.translatesAutoresizingMaskIntoConstraints = false
-        lookIcon.translatesAutoresizingMaskIntoConstraints = false
-        signLbBt.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
         signIconBt.translatesAutoresizingMaskIntoConstraints = false
+        imageSignature.translatesAutoresizingMaskIntoConstraints = false
+        toolTipIconButton.translatesAutoresizingMaskIntoConstraints = false
         
         // Constraint to arrange subviews acc. to signatureView
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 21),
+            titleLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
             titleLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 6),
-            titleLabel.heightAnchor.constraint(equalToConstant: 30),
+            titleLabel.trailingAnchor.constraint(equalTo: toolTipIconButton.leadingAnchor, constant: -5),
             
             //TooltipIconButton
-            toolTipIconButton.topAnchor.constraint(equalTo: self.topAnchor, constant: 30),
-            toolTipIconButton.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: 5),
+            toolTipIconButton.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
+            toolTipIconButton.trailingAnchor.constraint(lessThanOrEqualTo: self.trailingAnchor, constant: -10),
             toolTipIconButton.heightAnchor.constraint(equalToConstant: 15),
             toolTipIconButton.widthAnchor.constraint(equalToConstant: 15),
             
-            lookView.topAnchor.constraint(equalTo: self.topAnchor, constant: 21),
-            lookView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -9),
-            lookView.heightAnchor.constraint(equalToConstant: 30),
-            lookView.widthAnchor.constraint(equalToConstant: 200),
-            
-            lookTitle.topAnchor.constraint(equalTo: lookView.topAnchor),
-            lookTitle.bottomAnchor.constraint(equalTo: lookView.bottomAnchor),
-            lookTitle.trailingAnchor.constraint(equalTo: lookView.trailingAnchor),
-            lookTitle.leadingAnchor.constraint(equalTo: lookIcon.trailingAnchor, constant: 5),
-            
-            lookIcon.topAnchor.constraint(equalTo: lookView.topAnchor, constant: 4),
-            lookIcon.heightAnchor.constraint(equalToConstant: 20),
-            lookIcon.widthAnchor.constraint(equalToConstant: 20),
-            
-            imageView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 7),
+            imageView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 15),
             imageView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -6),
             imageView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 6),
             imageView.heightAnchor.constraint(equalToConstant: 143),
@@ -120,18 +104,16 @@ open class SignatureView : UIView {
             signIconBt.trailingAnchor.constraint(equalTo: signViewBt.trailingAnchor,constant: -10),
             signIconBt.bottomAnchor.constraint(equalTo: signViewBt.bottomAnchor, constant: -7)
         ])
-        
+        if #available(iOS 13.0, *) {
+         self.overrideUserInterfaceStyle = .light
+        }
+        titleLabel.numberOfLines = 0
+        titleLabel.textColor = .black
         titleLabel.text = "Signature Filled"
         titleLabel.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
-        titleLabel.textColor = .black
         
         toolTipIconButton.setImage(UIImage(named: "tooltipIcon"), for: .normal)
         toolTipIconButton.addTarget(self, action: #selector(tooltipButtonTapped), for: .touchUpInside)
-        
-        lookTitle.text = "Sign to add timestamp"
-        lookTitle.textColor = UIColor(hexString: "#C0C1CC")
-        lookTitle.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
-        lookIcon.image = UIImage(named: "Lock")
         
         imageView.layer.cornerRadius = 12
         imageView.layer.borderWidth = 1
@@ -140,8 +122,12 @@ open class SignatureView : UIView {
         signViewBt.layer.cornerRadius = 6
         signViewBt.layer.borderWidth = 1
         signViewBt.layer.borderColor = UIColor(hexString: "#D1D1D6")?.cgColor
-        let tap = UITapGestureRecognizer(target: self, action: #selector(signButtonAction))
-        signViewBt.addGestureRecognizer(tap)
+        if #available(iOS 13.0, *) {
+            let tap = UITapGestureRecognizer(target: self, action: #selector(signButtonAction))
+            signViewBt.addGestureRecognizer(tap)
+        } else {
+            // Fallback on earlier versions
+        }
         signViewBt.isUserInteractionEnabled = true
         
         signIconBt.image = UIImage(named: "Edit_alt_black")
@@ -156,17 +142,15 @@ open class SignatureView : UIView {
     }
     
     // Action function for SignButton
+    @available(iOS 13.0, *)
     @objc func signButtonAction() {
         var parentResponder: UIResponder? = self
         while parentResponder != nil {
             parentResponder = parentResponder?.next
             if let viewController = parentResponder as? UIViewController {
-                var newViewController = UIViewController()
-                if #available(iOS 13.0, *) {
-                    newViewController = SignatureViewController()
-                } else {
-                    // Fallback on earlier versions
-                }
+                let newViewController = SignatureViewController()
+                newViewController.index = index
+                newViewController.saveDelegate = self.saveDelegate
                 newViewController.modalPresentationStyle = .fullScreen
                 newViewController.modalTransitionStyle = .crossDissolve
                 viewController.present(newViewController, animated: true, completion: nil)

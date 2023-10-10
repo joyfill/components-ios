@@ -4,6 +4,7 @@ import QuartzCore
 
 open class LineChart: UIView {
     
+    var index = Int()
     let numberOfLabels = 6
     public var xMax = Int()
     public var xMin = Int()
@@ -145,54 +146,56 @@ open class LineChart: UIView {
     }
     
     override open func draw(_ rect: CGRect) {
-        if removeAll {
-            let context = UIGraphicsGetCurrentContext()
-            context?.clear(rect)
-            return
-        }
-        
-        self.drawingHeight = self.bounds.height - (2 * y.axis.inset)
-        self.drawingWidth = self.bounds.width - (2 * x.axis.inset)
-        
-        // remove all labels
-        for view: AnyObject in self.subviews {
-            view.removeFromSuperview()
-        }
-        
-        // remove all lines on device rotation
-        for lineLayer in lineLayerStore {
-            lineLayer.removeFromSuperlayer()
-        }
-        lineLayerStore.removeAll()
-        
-        // remove all dots on device rotation
-        for dotsData in dotsDataStore {
-            for dot in dotsData {
-                dot.removeFromSuperlayer()
+        if xCoordinates[index].isEmpty != true {
+            if removeAll {
+                let context = UIGraphicsGetCurrentContext()
+                context?.clear(rect)
+                return
             }
-        }
-        dotsDataStore.removeAll()
-        
-        // draw grid
-        if x.grid.visible && y.grid.visible { drawGrid() }
-        
-        // draw axes
-        if x.axis.visible && y.axis.visible { drawAxes() }
-        
-        // draw labels
-        if x.labels.visible { drawXLabels() }
-        if y.labels.visible { drawYLabels() }
-        
-        // draw lines
-        for (lineIndex, _) in yCoordinates.enumerated() {
             
-            drawLine(lineIndex)
+            self.drawingHeight = self.bounds.height - (2 * y.axis.inset)
+            self.drawingWidth = self.bounds.width - (2 * x.axis.inset)
             
-            // draw dots
-            if dots.visible { drawDataDots(lineIndex) }
+            // remove all labels
+            for view: AnyObject in self.subviews {
+                view.removeFromSuperview()
+            }
             
-            // draw area under line chart
-            // if area { drawAreaBeneathLineChart(lineIndex) }
+            // remove all lines on device rotation
+            for lineLayer in lineLayerStore {
+                lineLayer.removeFromSuperlayer()
+            }
+            lineLayerStore.removeAll()
+            
+            // remove all dots on device rotation
+            for dotsData in dotsDataStore {
+                for dot in dotsData {
+                    dot.removeFromSuperlayer()
+                }
+            }
+            dotsDataStore.removeAll()
+            
+            // draw grid
+            if x.grid.visible && y.grid.visible { drawGrid() }
+            
+            // draw axes
+            if x.axis.visible && y.axis.visible { drawAxes() }
+            
+            // draw labels
+            if x.labels.visible { drawXLabels() }
+            if y.labels.visible { drawYLabels() }
+            
+            // draw lines
+            for (lineIndex, _) in yCoordinates[index].enumerated() {
+                
+                drawLine(lineIndex)
+                
+                // draw dots
+                if dots.visible { drawDataDots(lineIndex) }
+                
+                // draw area under line chart
+                // if area { drawAreaBeneathLineChart(lineIndex) }
+            }
         }
     }
     
@@ -257,9 +260,9 @@ open class LineChart: UIView {
     // Draw small dot at every data point.
     fileprivate func drawDataDots(_ lineIndex: Int) {
         var dotLayers: [DotCALayer] = []
-        let data = yCoordinates[lineIndex]
-        let data2 = xCoordinates[lineIndex]
-        let labelData = graphLabelData[lineIndex]
+        let data = yCoordinates[index][lineIndex]
+        let data2 = xCoordinates[index][lineIndex]
+        let labelData = graphLabelData[index][lineIndex]
         
         for index in 0..<data.count {
             let xValue = self.y.scale(data2[index]) + x.axis.inset - dots.outerRadius/2 + data2[index]
@@ -331,8 +334,8 @@ open class LineChart: UIView {
     
     // Draw line.
     fileprivate func drawLine(_ lineIndex: Int) {
-        let data = yCoordinates[lineIndex]
-        let data2 = xCoordinates[lineIndex]
+        let data = yCoordinates[index][lineIndex]
+        let data2 = xCoordinates[index][lineIndex]
         let path = UIBezierPath()
         
         var xValue = self.y.scale(data2[0]) + x.axis.inset + data2[0]
@@ -476,7 +479,7 @@ open class LineChart: UIView {
     
     // Remove charts, areas and labels but keep axis and grid.
     open func clear() {
-        dataStore.removeAll()
+        // dataStore.removeAll()
         self.setNeedsDisplay()
     }
 }

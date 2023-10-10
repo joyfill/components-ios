@@ -5,6 +5,12 @@ public class MultipleImageTableCell: UITableViewCell {
     let cellImageField = ImageView()
     let checkboxButton = Checkbox()
     
+    public var imageIndexPath = Int()
+    public var imageDisplayMode = String()
+    
+    public var index = Int()
+    public var selectedImage = [[String]]()
+    
     var isSelectedCell: Bool = false {
         didSet {
             checkboxButton.isSelected = isSelectedCell
@@ -32,7 +38,9 @@ public class MultipleImageTableCell: UITableViewCell {
             checkboxButton.widthAnchor.constraint(equalToConstant: 23),
             checkboxButton.heightAnchor.constraint(equalToConstant: 23)
         ])
-        
+        if #available(iOS 13.0, *) {
+         self.overrideUserInterfaceStyle = .light
+        }
         cellImageField.contentModeValue = 0
         cellImageField.cornerRadius = 6
         
@@ -44,15 +52,17 @@ public class MultipleImageTableCell: UITableViewCell {
         checkboxButton.borderCornerRadius = 10
         checkboxButton.uncheckedBorderColor = .white
         checkboxButton.isUserInteractionEnabled = false
-        
+    }
+    
+    public func checkDisplayMode() {
         if imageDisplayMode == "readonly" {
-            if pickedImg.count != 0 {
+            if selectedImage[index].count != 0 {
                 checkboxButton.isHidden = true
             } else {
                 checkboxButton.isHidden = true
             }
         } else {
-            if pickedImg.count != 0 {
+            if selectedImage[index].count != 0 {
                 checkboxButton.isHidden = false
             } else {
                 checkboxButton.isHidden = false

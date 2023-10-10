@@ -1,21 +1,30 @@
 import Foundation
 import UIKit
 
-open class RichDisplayText: UITextView {
+open class RichDisplayText: UITextView, UITextViewDelegate {
     
     private var textViewAlignment: NSTextAlignment = .left
     private var textViewText: String = "Hello World"
     private var scrollEnable: Bool = false
     
+    var index = Int()
+    var saveDelegate: SaveTextFieldValue? = nil
+    
     //MARK: - Initializer
     public required init?(coder: NSCoder) {
         super.init(coder: coder)
         setDefaults()
+        self.delegate = self
     }
     
     public override init(frame: CGRect, textContainer: NSTextContainer?) {
         super.init(frame: frame, textContainer: textContainer)
         setDefaults()
+        self.delegate = self
+    }
+    
+    public func textViewDidEndEditing(_ textView: UITextView) {
+        saveDelegate?.handleFieldChange(text: textView.text ?? "", isEditingEnd: true, index: index)
     }
     
     // A property that accesses the backing layer's background
@@ -112,11 +121,15 @@ open class RichDisplayText: UITextView {
 
     // To give default value to the textView
     private func setDefaults() {
+        if #available(iOS 13.0, *) {
+         self.overrideUserInterfaceStyle = .light
+        }
         self.textContainerInset = UIEdgeInsets(top: 15, left: 15, bottom: 10, right: 10)
         borderColor = UIColor(hexString: "#D1D1D6") ?? .lightGray
         fontSize = 14.0
         fontName = "Helvetica Neue"
         borderWidth = 1.0
         cornerRadius = 12
+        tintColor = .blue
     }
 }

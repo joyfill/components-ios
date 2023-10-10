@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-open class Table: UIView, UIViewControllerTransitioningDelegate {
+open class Table: UIView, UIViewControllerTransitioningDelegate, tableUpdate {
     
     public var countLabel = Label()
     public var countView = UIView()
@@ -11,21 +11,31 @@ open class Table: UIView, UIViewControllerTransitioningDelegate {
     public var toolTipIconButton = UIButton()
     public var toolTipTitle = String()
     public var toolTipDescription = String()
+    var saveDelegate: SaveTableFieldValue? = nil
+    var index = Int()
+    
+    var numberOfRows = Int()
+    var numberOfColumns = Int()
+    var numberingData = [String]()
+    public var tableIndexNo = Int()
     
     // MARK: Initializer
     public override init(frame: CGRect) {
         super.init(frame: frame)
         setupView()
+        updateRowNumber()
     }
     
     public required init?(coder: NSCoder) {
         super.init(coder: coder)
         setupView()
+        updateRowNumber()
     }
     
     public init() {
         super.init(frame: .zero)
         setupView()
+        updateRowNumber()
     }
     
     public func tooltipVisible(bool: Bool) {
@@ -36,17 +46,39 @@ open class Table: UIView, UIViewControllerTransitioningDelegate {
         }
     }
     
-    open override func didMoveToWindow() {
-        super.didMoveToWindow()
-        countLabel.labelText = "+\(numberOfRows)"
+    // To get indexPath of tableField
+    public func tableIndexNo(indexPath: Int) {
+        tableIndexNo = indexPath
+        collectionView.tableIndexNo = indexPath
+    }
+    
+    // Update rows count
+    func tableCountNumberUpdate(no: Int, tableIndexNo: Int) {
+        countLabel.labelText = "+\(no)"
+    }
+    
+    // Update numberOfRows
+    public func numberRows(number:Int){
+        numberOfRows = number
+        collectionView.numberOfRows = number
+        setupView()
+        updateRowNumber()
+    }
+    
+    // Update numberOfColumns
+    public func numberColumns(number:Int) {
+        numberOfColumns = number
+        collectionView.numberOfColumns = number
+        setupView()
+        updateRowNumber()
     }
     
     func setupView() {
         // SubViews
-        addSubview(countView)
         addSubview(collectionView)
         addSubview(titleLabel)
         addSubview(toolTipIconButton)
+        collectionView.addSubview(countView)
         countView.addSubview(viewButton)
         countView.addSubview(countLabel)
         
@@ -64,16 +96,16 @@ open class Table: UIView, UIViewControllerTransitioningDelegate {
             titleLabel.trailingAnchor.constraint(equalTo: toolTipIconButton.leadingAnchor, constant: -5),
             
             //TooltipIconButton
-            toolTipIconButton.topAnchor.constraint(equalTo: self.topAnchor, constant: 8),
-            toolTipIconButton.trailingAnchor.constraint(lessThanOrEqualTo: countView.leadingAnchor, constant: -10),
+            toolTipIconButton.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
+            toolTipIconButton.trailingAnchor.constraint(lessThanOrEqualTo: self.trailingAnchor, constant: -10),
             toolTipIconButton.heightAnchor.constraint(equalToConstant: 15),
             toolTipIconButton.widthAnchor.constraint(equalToConstant: 15),
             
             // CountView Constraint
-            countView.topAnchor.constraint(equalTo: topAnchor, constant: 6),
-            countView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
+            countView.bottomAnchor.constraint(equalTo: collectionView.bottomAnchor, constant: -9),
+            countView.trailingAnchor.constraint(equalTo: collectionView.trailingAnchor, constant: -9),
             countView.widthAnchor.constraint(equalToConstant: 90),
-            countView.heightAnchor.constraint(equalToConstant: 20),
+            countView.heightAnchor.constraint(equalToConstant: 30),
             
             // ViewButton Constraint
             viewButton.topAnchor.constraint(equalTo: countView.topAnchor, constant: 0),
@@ -93,7 +125,12 @@ open class Table: UIView, UIViewControllerTransitioningDelegate {
             collectionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
             collectionView.heightAnchor.constraint(equalToConstant: 200),
         ])
-
+        if #available(iOS 13.0, *) {
+            self.overrideUserInterfaceStyle = .light
+        }
+        countView.layer.cornerRadius = 6
+        countView.backgroundColor = .white
+        
         viewButton.titleLabel?.textColor = UIColor(hexString: "#1464FF")
         viewButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 14)
         let moreButtonAttributedString = NSMutableAttributedString(string: "View")
@@ -115,25 +152,32 @@ open class Table: UIView, UIViewControllerTransitioningDelegate {
         collectionView.collectionView.layer.borderWidth = 1
         collectionView.collectionView.layer.cornerRadius = 14
         collectionView.collectionView.layer.borderColor = UIColor(hexString: "#C0C1C6")?.cgColor
-        numberOfRows = tableRowOrder.count
         
         countLabel.labelText = "+\(numberOfRows)"
         countLabel.textAlignment = .center
         countLabel.fontSize = 12
     }
     
+    // Function to update numberOfRows when insert or delete tapped
+    func updateRowNumber() {
+        numberingData.removeAll()
+        for i in 0...numberOfRows {
+            numberingData.append("\(i)")
+        }
+    }
+    
     // Action function for viewButton
     @objc func viewButtonTapped() {
         var parentResponder: UIResponder? = self
-        tableColumnTitle.insert("", at: 0)
-        tableColumnTitle.insert("#", at: 1)
-        tableColumnType.insert("", at: 0)
-        tableColumnType.insert("#", at: 1)
+        tableColumnTitle[tableIndexNo].insert("", at: 0)
+        tableColumnTitle[tableIndexNo].insert("#", at: 1)
+        tableColumnType[tableIndexNo].insert("", at: 0)
+        tableColumnType[tableIndexNo].insert("#", at: 1)
         
-        if tableRowOrder.count == 1 {
-            tableFieldValue.removeLast(2)
-        } else if tableRowOrder.count == 2 {
-            tableFieldValue.removeLast(1)
+        if tableRowOrder[tableIndexNo].count == 1 {
+            tableFieldValue[tableIndexNo].removeLast(2)
+        } else if tableRowOrder[tableIndexNo].count == 2 {
+            tableFieldValue[tableIndexNo].removeLast(1)
         } else {}
         
         viewType = "modal"
@@ -142,9 +186,15 @@ open class Table: UIView, UIViewControllerTransitioningDelegate {
             if let viewController = parentResponder as? UIViewController {
                 viewController.modalPresentationStyle = .fullScreen
                 let newViewController = ViewTable()
+                newViewController.saveDelegate = saveDelegate.self
+                newViewController.index = index
+                newViewController.numberOfRows = tableFieldValue[tableIndexNo].count
+                newViewController.numberOfColumns = numberOfColumns
                 newViewController.transitioningDelegate = self
                 newViewController.modalPresentationStyle = .fullScreen
                 newViewController.updateTitle(text: titleLabel.text ?? "")
+                newViewController.tableIndexNo = tableIndexNo
+                newViewController.deleage = self
                 viewController.present(newViewController, animated: true, completion: nil)
                 break
             }

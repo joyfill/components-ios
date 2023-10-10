@@ -360,20 +360,20 @@ extension JoyfillApi2 {
                                             graphYCoordianteSubArray.append(yCoordinate)
                                         }
                                     }
-                                    graphLabelData.append(graphLabelSubArray)
-                                    xCoordinates.append(graphXCoordinateSubArray)
-                                    yCoordinates.append(graphYCoordianteSubArray)
+//                                    graphLabelData.append(graphLabelSubArray)
+//                                    xCoordinates.append(graphXCoordinateSubArray)
+//                                    yCoordinates.append(graphYCoordianteSubArray)
                                 }
                             }
                             
-                            if componentType2[j] == "image" {
-                                for k in 0..<valueElements.count {
-                                    pickedImg.append(valueElements[k].url ?? "")
-                                    DispatchQueue.main.async {
-                                        componentTableView.reloadData()
-                                    }
-                                }
-                            }
+//                            if componentType2[j] == "image" {
+//                                for k in 0..<valueElements.count {
+//                                    pickedImg.append(valueElements[k].url ?? "")
+//                                    DispatchQueue.main.async {
+//                                        componentTableView.reloadData()
+//                                    }
+//                                }
+//                            }
                             
                         case .double(let double):
                             if componentType2[j] == "number" {

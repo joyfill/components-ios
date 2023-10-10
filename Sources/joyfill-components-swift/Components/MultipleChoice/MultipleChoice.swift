@@ -2,20 +2,23 @@ import Foundation
 import UIKit
 import Photos
 
-public var multiSelect = Bool()
-public var multiSelectOptions = [String]()
+public var multiSelect = [Bool]()
+public var multiSelectOptions = [[String]]()
+public var singleChoiseSelectedIndexPath = [Int]()
+public var multiChoiseSelectedIndexPath = [NSMutableArray]()
 
 public class MultipleChoice: UIView {
 
     public var titleLabel = Label()
-    public var tableView = UITableView()
-    public var toolTipIconButton = UIButton()
     public var toolTipTitle = String()
+    public var tableView = UITableView()
     public var toolTipDescription = String()
-    
-    public var selectArray : Int?
+    public var toolTipIconButton = UIButton()
+    public var multiSelectOptionsIndex = Int()
     public var multipleChoiceDspMode = String()
-    public var selectedIndexPath = NSMutableArray()
+    
+    var index = Int()
+    var saveDelegate: SaveTextFieldValue? = nil
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
@@ -130,11 +133,11 @@ public class MultipleChoice: UIView {
             // TitleLabel Constraints
             titleLabel.topAnchor.constraint(equalTo: self.topAnchor),
             titleLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 2),
-            titleLabel.heightAnchor.constraint(equalToConstant: 15),
+            titleLabel.trailingAnchor.constraint(equalTo: toolTipIconButton.leadingAnchor, constant: -5),
             
             //TooltipIconButton
-            toolTipIconButton.topAnchor.constraint(equalTo: self.topAnchor),
-            toolTipIconButton.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: 5),
+            toolTipIconButton.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
+            toolTipIconButton.trailingAnchor.constraint(lessThanOrEqualTo: self.trailingAnchor, constant: -10),
             toolTipIconButton.heightAnchor.constraint(equalToConstant: 15),
             toolTipIconButton.widthAnchor.constraint(equalToConstant: 15),
             
@@ -144,6 +147,10 @@ public class MultipleChoice: UIView {
             tableView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
         ])
+        
+        if #available(iOS 13.0, *) {
+         self.overrideUserInterfaceStyle = .light
+        }
         
         // tableView Properties
         tableView.delegate = self
@@ -158,6 +165,7 @@ public class MultipleChoice: UIView {
         
         titleLabel.borderWidth = 0
         titleLabel.textColor = .black
+        titleLabel.numberOfLines = 0
         titleLabel.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         
         toolTipIconButton.setImage(UIImage(named: "tooltipIcon"), for: .normal)
@@ -173,14 +181,14 @@ public class MultipleChoice: UIView {
 extension MultipleChoice: UITableViewDelegate, UITableViewDataSource {
     // MARK: TableView delegate method for number of rows in section
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return multiSelectOptions.count
+        return multiSelectOptions[multiSelectOptionsIndex].count
     }
     
     // MARK: TableView delegate method for cell for row at
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MultiChoiceTableViewCell", for: indexPath as IndexPath) as! MultiChoiceTableViewCell
-        if multiSelect == true {
-            if selectedIndexPath.contains(indexPath.row) {
+        if multiSelect[multiSelectOptionsIndex] == true {
+            if multiChoiseSelectedIndexPath[multiSelectOptionsIndex].contains(indexPath.row) {
                 cell.cellCheckbox.isChecked = true
                 cell.cellCheckbox.checkboxFillColor = UIColor(hexString: "#3767ED") ?? .lightGray
             } else {
@@ -188,13 +196,14 @@ extension MultipleChoice: UITableViewDelegate, UITableViewDataSource {
                 cell.cellCheckbox.checkboxFillColor = .white
             }
         } else {
-            if selectArray == indexPath.row {
+            if singleChoiseSelectedIndexPath[multiSelectOptionsIndex] == indexPath.row {
                 cell.cellCheckbox.isChecked = true
                 cell.cellCheckbox.checkmarkStyle = .circle
                 cell.cellCheckbox.borderStyle = .circle
                 cell.cellCheckbox.checkmarkSize = 0.4
                 cell.cellCheckbox.checkboxFillColor = UIColor(hexString: "#256FFF") ?? .blue
                 cell.cellCheckbox.checkmarkColor = .white
+                
             } else {
                 cell.cellCheckbox.isChecked = false
                 cell.cellCheckbox.checkboxFillColor = .white
@@ -205,7 +214,7 @@ extension MultipleChoice: UITableViewDelegate, UITableViewDataSource {
         }
         cell.selectionStyle = .none
         cell.cellCheckbox.isUserInteractionEnabled = false
-        cell.cellLabel.text = multiSelectOptions[indexPath.row]
+        cell.cellLabel.text = multiSelectOptions[multiSelectOptionsIndex][indexPath.row]
         return cell
     }
     
@@ -213,45 +222,45 @@ extension MultipleChoice: UITableViewDelegate, UITableViewDataSource {
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if multipleChoiceDspMode != "readonly" {
             checkForMultiSelectOrSingleSelect(at: indexPath)
+           
         }
     }
     
     // MARK: TableView delegate method to adjust cell height
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         // Calculate the required height for the text in the cell
-        let text = multiSelectOptions[indexPath.row]
-        let font = UIFont.systemFont(ofSize: 16) // Replace with your desired font and size
-        let width = tableView.frame.width - 10 // Adjust the left and right margins
+        let text = multiSelectOptions[multiSelectOptionsIndex][indexPath.row]
+        let font = UIFont.systemFont(ofSize: 16)
+        let width = tableView.frame.width - 10
         let height = heightForText(text , font: font, width: width)
         return height + 30
     }
     
-    // Helper method to calculate the height of the text
-    func heightForText(_ text: String, font: UIFont, width: CGFloat) -> CGFloat {
-        let nsText = text as NSString
-        let options: NSStringDrawingOptions = [.usesLineFragmentOrigin, .usesFontLeading]
-        let attributes = [NSAttributedString.Key.font: font]
-        let boundingRect = nsText.boundingRect(with: CGSize(width: width, height: CGFloat.greatestFiniteMagnitude), options: options, attributes: attributes, context: nil)
-        return ceil(boundingRect.height)
-    }
-    
     // Function to check multiSelect or singleSelect
     func checkForMultiSelectOrSingleSelect(at indexPath: IndexPath) {
-        if multiSelect == true {
+        if multiSelect[multiSelectOptionsIndex] == true {
             workAsMultipleSelection(at: indexPath)
         } else {
-            selectArray = indexPath.row
+            singleChoiseSelectedIndexPath[multiSelectOptionsIndex] = indexPath.row
+            saveDelegate?.handleFieldChange(text: [multiSelectOptionId[multiSelectOptionsIndex][indexPath.row]], isEditingEnd: true, index: index)
             tableView.reloadData()
         }
     }
     
     // Function called when multiSelect == true
     func workAsMultipleSelection(at indexPath: IndexPath) {
-        if selectedIndexPath.contains(indexPath.row) {
-            selectedIndexPath.remove(indexPath.row)
+        var selectedId = [String]()
+        if multiChoiseSelectedIndexPath[multiSelectOptionsIndex].contains(indexPath.row) {
+            multiChoiseSelectedIndexPath[multiSelectOptionsIndex].remove(indexPath.row)
             tableView.reloadData()
         } else {
-            selectedIndexPath.add(indexPath.row)
+            multiChoiseSelectedIndexPath[multiSelectOptionsIndex].add(indexPath.row)
+            for i in 0..<multiSelectOptionId[multiSelectOptionsIndex].count {
+                if multiChoiseSelectedIndexPath[multiSelectOptionsIndex].contains(i) {
+                    selectedId.append(multiSelectOptionId[multiSelectOptionsIndex][i])
+                    saveDelegate?.handleFieldChange(text: selectedId, isEditingEnd: true, index: index)
+                }
+            }
             tableView.reloadData()
         }
     }

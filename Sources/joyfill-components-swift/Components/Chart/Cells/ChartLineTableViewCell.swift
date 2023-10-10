@@ -14,11 +14,16 @@ public class ChartLineTableViewCell: UITableViewCell, ChartViewTextFieldCellDele
     public var pointsLabel = Label()
     public var removeView = UIView()
     public var removeLabel = Button()
+    public var lineGraph = LineChart()
     public var removeImage = ImageView()
     public var addPointButton = Button()
     public var pointsTableView = UITableView()
     public var typeTitleTextField = ShortText()
     public var typeDescriptionTextField = TextField()
+    
+    var index = Int()
+    var newLineId = String()
+    var saveDelegate: saveChartFieldValue? = nil
     
     var cellTapGestureRecognizer: UITapGestureRecognizer?
     weak var textFieldDelegate: ChartViewTextFieldCellDelegate?
@@ -33,23 +38,23 @@ public class ChartLineTableViewCell: UITableViewCell, ChartViewTextFieldCellDele
     
     // Function to get the YCoordinates value
     func configureY(with data: [CGFloat], at indexPath: IndexPath) {
-        if indexPath.row < yCoordinates.count {
-            yCoordinates[indexPath.row] = data
+        if indexPath.row < yCoordinates[index].count {
+            yCoordinates[index][indexPath.row] = data
         } else {
-            yCoordinates.append(data)
+            yCoordinates[index].append(data)
         }
-        yPointsData = data
+        yPointsData[index] = data
         pointsTableView.reloadData()
     }
     
     // Function to get the XCoordinates value
     func configureX(with data: [CGFloat], at indexPath: IndexPath) {
-        if indexPath.row < xCoordinates.count {
-            xCoordinates[indexPath.row] = data
+        if indexPath.row < xCoordinates[index].count {
+            xCoordinates[index][indexPath.row] = data
         } else {
-            xCoordinates.append(data)
+            xCoordinates[index].append(data)
         }
-        xPointsData = data
+        xPointsData[index] = data
         pointsTableView.reloadData()
     }
     
@@ -146,6 +151,10 @@ public class ChartLineTableViewCell: UITableViewCell, ChartViewTextFieldCellDele
             pointsTableView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
             pointsTableView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8)
         ])
+        
+        if #available(iOS 13.0, *) {
+         self.overrideUserInterfaceStyle = .light
+        }
         
         // View Properties
         view.layer.borderWidth = 1
@@ -252,7 +261,7 @@ extension ChartLineTableViewCell: UITableViewDelegate, UITableViewDataSource {
     
     // MARK: TableView delegate method to give tableView rows
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return yPointsData.count
+        return yPointsData[index].count
     }
     
     // MARK: TableView delegate function to set cell inside tableView
@@ -265,20 +274,20 @@ extension ChartLineTableViewCell: UITableViewDelegate, UITableViewDataSource {
         cell.deleteButton.tag = indexPath.row
         cell.deleteButton.addTarget(self, action: #selector(deleteTapped(_:)), for: .touchUpInside)
         
-        if yCoordinates[addPointButtonIndexPath].count == 1 {
-            cell.verticalValueTF.text = "\(Int(yCoordinates[addPointButtonIndexPath][0]))"
+        if yCoordinates[index][addPointButtonIndexPath].count == 1 {
+            cell.verticalValueTF.text = "\(Int(yCoordinates[index][addPointButtonIndexPath][0]))"
         } else {
-            cell.verticalValueTF.text = "\(Int(yCoordinates[addPointButtonIndexPath][indexPath.row]))"
+            cell.verticalValueTF.text = "\(Int(yCoordinates[index][addPointButtonIndexPath][indexPath.row]))"
         }
-        if xCoordinates[addPointButtonIndexPath].count == 1 {
-            cell.horizontalValueTF.text = "\(Int(xCoordinates[addPointButtonIndexPath][0]))"
+        if xCoordinates[index][addPointButtonIndexPath].count == 1 {
+            cell.horizontalValueTF.text = "\(Int(xCoordinates[index][addPointButtonIndexPath][0]))"
         } else {
-            cell.horizontalValueTF.text = "\(Int(xCoordinates[addPointButtonIndexPath][indexPath.row]))"
+            cell.horizontalValueTF.text = "\(Int(xCoordinates[index][addPointButtonIndexPath][indexPath.row]))"
         }
-        if graphLabelData[addPointButtonIndexPath].count == 1 {
-            cell.labelTF.text = graphLabelData[addPointButtonIndexPath][0]
+        if graphLabelData[index][addPointButtonIndexPath].count == 1 {
+            cell.labelTF.text = graphLabelData[index][addPointButtonIndexPath][0]
         } else {
-            cell.labelTF.text = graphLabelData[addPointButtonIndexPath][indexPath.row]
+            cell.labelTF.text = graphLabelData[index][addPointButtonIndexPath][indexPath.row]
         }
         
         cell.contentView.subviews.forEach { $0.removeFromSuperview() }
@@ -303,30 +312,41 @@ extension ChartLineTableViewCell: UITableViewDelegate, UITableViewDataSource {
             let addPointButtonIndexPath = addPointButtonIndexPath
             
             // Check if addPointButtonIndexPath is within the valid range of arrays
-            if addPointButtonIndexPath >= 0 && addPointButtonIndexPath < yCoordinates.count {
+            if addPointButtonIndexPath >= 0 && addPointButtonIndexPath < yCoordinates[self.index].count {
                 if let verticalTextFieldText = tableCell?.verticalValueTF.text,
                    let verticalValue = NumberFormatter().number(from: verticalTextFieldText)?.doubleValue {
-                    var yPointsData = yCoordinates[addPointButtonIndexPath]
+                    var yPointsData = yCoordinates[self.index][addPointButtonIndexPath]
                     yPointsData[indexPath.row] = CGFloat(verticalValue)
-                    yCoordinates[addPointButtonIndexPath] = yPointsData
+                    yCoordinates[self.index][addPointButtonIndexPath] = yPointsData
                 }
             }
-            if addPointButtonIndexPath >= 0 && addPointButtonIndexPath < xCoordinates.count {
+            if addPointButtonIndexPath >= 0 && addPointButtonIndexPath < xCoordinates[self.index].count {
                 if let horizontalTextFieldText = tableCell?.horizontalValueTF.text,
                    let horizontalValue = NumberFormatter().number(from: horizontalTextFieldText)?.doubleValue {
-                    var xPointsData = xCoordinates[addPointButtonIndexPath]
+                    var xPointsData = xCoordinates[self.index][addPointButtonIndexPath]
                     xPointsData[indexPath.row] = CGFloat(horizontalValue)
-                    xCoordinates[addPointButtonIndexPath] = xPointsData
+                    xCoordinates[self.index][addPointButtonIndexPath] = xPointsData
                 }
             }
-            if addPointButtonIndexPath >= 0 && addPointButtonIndexPath < graphLabelData.count {
+            if addPointButtonIndexPath >= 0 && addPointButtonIndexPath < graphLabelData[self.index].count {
                 if let labelTextFieldText = tableCell?.labelTF.text {
-                    var graphTextData = graphLabelData[addPointButtonIndexPath]
+                    var graphTextData = graphLabelData[self.index][addPointButtonIndexPath]
                     graphTextData[indexPath.row] = labelTextFieldText
-                    graphLabelData[addPointButtonIndexPath] = graphTextData
+                    graphLabelData[self.index][addPointButtonIndexPath] = graphTextData
                 }
             }
-            lineGraph.setNeedsDisplay()
+            self.lineGraph.setNeedsDisplay()
+            
+            let updatedValueElement = Point(
+                id: chartPointsId[self.index][addPointButtonIndexPath][indexPath.row],
+                label: tableCell?.labelTF.text ?? "",
+                y: CGFloat(Int(tableCell?.verticalValueTF.text ?? "") ?? 0),
+                x: CGFloat(Int(tableCell?.horizontalValueTF.text ?? "") ?? 0)
+            )
+            
+            chartValueElement[self.index][addPointButtonIndexPath].points?[indexPath.row] = updatedValueElement
+            
+            self.saveDelegate?.handleLineData(rowId: chartPointsId[self.index][addPointButtonIndexPath][indexPath.row], line: self.index, indexPath: indexPath.row, newYValue: Int(tableCell?.verticalValueTF.text ?? "") ?? 0, newXValue: Int(tableCell?.horizontalValueTF.text ?? "") ?? 0, newLabelValue: tableCell?.labelTF.text ?? "")
         }
     }
     
@@ -335,18 +355,18 @@ extension ChartLineTableViewCell: UITableViewDelegate, UITableViewDataSource {
         let indexPath = IndexPath(row: sender.tag, section: 0)
         
         // Check if it's the last row, and if so, do nothing
-        if pointsTableView.numberOfRows(inSection: 0) == 1 {
-            
-        } else {
-            yCoordinates[addPointButtonIndexPath].remove(at: indexPath.row)
-            xCoordinates[addPointButtonIndexPath].remove(at: indexPath.row)
-            graphLabelData[addPointButtonIndexPath].remove(at: indexPath.row)
-            let graphYPointData = yCoordinates[addPointButtonIndexPath]
-            yPointsData = graphYPointData
-            let graphXPointData = xCoordinates[addPointButtonIndexPath]
-            xPointsData = graphXPointData
+        if pointsTableView.numberOfRows(inSection: 0) != 1 {
+            yCoordinates[index][addPointButtonIndexPath].remove(at: indexPath.row)
+            xCoordinates[index][addPointButtonIndexPath].remove(at: indexPath.row)
+            graphLabelData[index][addPointButtonIndexPath].remove(at: indexPath.row)
+            let graphYPointData = yCoordinates[index][addPointButtonIndexPath]
+            yPointsData[index] = graphYPointData
+            let graphXPointData = xCoordinates[index][addPointButtonIndexPath]
+            xPointsData[index] = graphXPointData
             pointsTableView.reloadData()
             lineGraph.setNeedsDisplay()
+            
+            self.saveDelegate?.handleLineChange(line: index, indexPath: indexPath.row)
         }
     }
 }

@@ -1,10 +1,13 @@
 import Foundation
 import UIKit
 
-public class CollectionViewTable: UIView, UIImagePickerControllerDelegate, TextViewCellDelegate, UINavigationControllerDelegate, DropDownSelectText {
-    
+public class CollectionViewTable: UIView {
+
+    var tableIndexNo = Int()
     var indexPathRow = Int()
+    var numberOfRows = Int()
     var indexPathItem = Int()
+    var numberOfColumns = Int()
     var indexPathSection = Int()
     var dropDownSelectedValue = String()
     
@@ -47,31 +50,27 @@ public class CollectionViewTable: UIView, UIImagePickerControllerDelegate, TextV
         }
     }
     
-    // Function to update numberOfRows when insert or delete tapped
-    func updateRowNumber() {
-        numberingData.removeAll()
-        numberOfRows = tableRowOrder.count
-        for i in 0...numberOfRows {
-            numberingData.append("\(i)")
-        }
+    open override func didMoveToWindow() {
+        super.didMoveToWindow()
+        collectionView.reloadData()
     }
     
     // MARK: - Initializer
     public override init(frame: CGRect) {
         super.init(frame: frame)
-        updateRowNumber()
+        self.backgroundColor = .white
         registerCollectionViewCell()
     }
     
     public required init?(coder: NSCoder) {
         super.init(coder: coder)
-        updateRowNumber()
+        self.backgroundColor = .white
         registerCollectionViewCell()
     }
     
     public init() {
         super.init(frame: .zero)
-        updateRowNumber()
+        self.backgroundColor = .white
         registerCollectionViewCell()
     }
     
@@ -84,16 +83,18 @@ public class CollectionViewTable: UIView, UIImagePickerControllerDelegate, TextV
         collectionView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
         collectionView.topAnchor.constraint(equalTo: topAnchor).isActive = true
         collectionView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
-        
-        numberOfColumns = tableColumnType.count
-        tableHeading = tableColumnTitle
+        if #available(iOS 13.0, *) {
+            self.overrideUserInterfaceStyle = .light
+        }
+        numberOfColumns = tableColumnType[tableIndexNo].count
+        tableHeading = tableColumnTitle[tableIndexNo]
         
         // To show fake rows with empty data
-        if tableFieldValue.count == 1 {
-            tableFieldValue.append(emptyValueElement)
-            tableFieldValue.append(emptyValueElement)
-        } else if tableFieldValue.count == 2 {
-            tableFieldValue.append(emptyValueElement)
+        if tableFieldValue[tableIndexPath].count == 1 {
+            tableFieldValue[tableIndexPath].append(emptyValueElement)
+            tableFieldValue[tableIndexPath].append(emptyValueElement)
+        } else if tableFieldValue[tableIndexPath].count == 2 {
+            tableFieldValue[tableIndexPath].append(emptyValueElement)
         } else {}
     }
 }
@@ -114,7 +115,6 @@ extension CollectionViewTable: UICollectionViewDelegate, UICollectionViewDataSou
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! CollectionViewCell
         cell.contentView.backgroundColor = .clear
-        cell.textViewDelegate = self
         
         viewTableDispalyMode(at: cell)
         viewTablePopUpModal(cell: cell, indexPath: indexPath)
@@ -123,42 +123,14 @@ extension CollectionViewTable: UICollectionViewDelegate, UICollectionViewDataSou
         return cell
     }
     
-    // MARK: CollectionView delegate method for cell selection at indexPath
-    public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if tableDisplayMode != "readonly" {
-            if tableColumnType[indexPath.row] == "dropdown" {
-                let dropdownOptionArray: NSArray = ["Yes","No","N/A"]
-                let vc = CustomModalViewController()
-                vc.modalPresentationStyle = .overCurrentContext
-                vc.hideDoneButtonOnSingleSelect = "singleSelect"
-                vc.delegate = self
-                vc.dropdownOptionArray = dropdownOptionArray
-                
-                var parentResponder: UIResponder? = self
-                while parentResponder != nil {
-                    parentResponder = parentResponder?.next
-                    if let viewController = parentResponder as? UIViewController {
-                        let newViewController = vc
-                        viewController.present(newViewController, animated: false)
-                        break
-                    }
-                }
-                
-                indexPathRow = indexPath.row
-                indexPathItem = indexPath.item
-                indexPathSection = indexPath.section
-            }
-        }
-    }
-    
     // MARK: CollectionView delegate method to adjust cell height and width
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         var cellWidth = Double()
         let cellHeight = 50.0
         
-        if tableColumnOrderId.count == 1 {
+        if tableColumnOrderId[tableIndexNo].count == 1 {
             cellWidth = self.frame.width
-        } else if tableColumnOrderId.count == 2 {
+        } else if tableColumnOrderId[tableIndexNo].count == 2 {
             cellWidth = self.frame.width / 2
         } else {
             cellWidth = 133.0
@@ -167,29 +139,13 @@ extension CollectionViewTable: UICollectionViewDelegate, UICollectionViewDataSou
         return CGSize(width: cellWidth, height: cellHeight)
     }
     
-    // MARK: TextView delegate method for textView selection
-    func textViewCellDidSelect(_ cell: UICollectionViewCell) {
-        if let previousCell = collectionView.cellForItem(at: selectedTextFieldIndexPath) as? CollectionViewCell {
-            previousCell.cellTextView.borderWidth = 0
-        }
-        let indexPath = collectionView.indexPath(for: cell)
-        if let cell = collectionView.cellForItem(at: indexPath ?? IndexPath(row: 0, section: 0)) as? CollectionViewCell {
-            cell.cellTextView.layer.borderWidth = 1.0
-            cell.cellTextView.layer.cornerRadius = 1.0
-            cell.cellTextView.layer.borderColor = UIColor(hexString: "#1F6BFF")?.cgColor
-            cell.cellTextView.selectedRange = NSRange(location: cell.cellTextView.text.count, length: 0)
-            cell.cellTextView.becomeFirstResponder()
-        }
-        
-        selectedTextFieldIndexPath = indexPath ?? IndexPath(row: 0, section: 0)
-    }
-    
     // Function to handle table popup modal
     func viewTablePopUpModal(cell: CollectionViewCell, indexPath: IndexPath) {
-        if tableColumnType[indexPath.row] == "dropdown" {
+        if tableColumnType[tableIndexNo][indexPath.row] == "dropdown" {
             if indexPath.section > 0 {
                 setCellDropdownValue(cell: cell, indexPath: indexPath)
             }
+            cell.dropdownView.isUserInteractionEnabled = false
             cell.contentView.subviews.forEach { $0.removeFromSuperview() }
             cell.setupSeparator()
             cell.setDropdownInTableColumn()
@@ -197,6 +153,7 @@ extension CollectionViewTable: UICollectionViewDelegate, UICollectionViewDataSou
             if indexPath.section > 0 {
                 setCellTextValue(cell: cell, indexPath: indexPath)
             }
+            cell.cellTextView.isUserInteractionEnabled = false
             cell.cellTextView.textContainer.maximumNumberOfLines = 2
             cell.contentView.subviews.forEach { $0.removeFromSuperview() }
             cell.setupSeparator()
@@ -206,13 +163,11 @@ extension CollectionViewTable: UICollectionViewDelegate, UICollectionViewDataSou
     
     // Function to set dropdown value after matching column id
     func setCellDropdownValue(cell: CollectionViewCell, indexPath: IndexPath) {
-        let cellData = tableFieldValue[indexPath.section-1].cells ?? [:]
-        if let matchData = cellData.first(where: {$0.key == tableColumnOrderId[indexPath.row]}) {
-            for i in 0..<(optionsData.count) {
-                let tableColumnsData = optionsData[i].options
-                if let dropDownId = tableColumnsData?.first(where: {$0.id == matchData.value}) {
-                    cell.dropdownTextField.text = dropDownId.value
-                }
+        let cellData = tableFieldValue[tableIndexNo][indexPath.section-1].cells ?? [:]
+        if let matchData = cellData.first(where: {$0.key == tableColumnOrderId[tableIndexNo][indexPath.row]}) {
+            let tableColumnsData = optionsData[tableIndexNo][indexPath.row].options
+            if let dropDownId = tableColumnsData?.first(where: {$0.id == matchData.value}) {
+                cell.dropdownTextField.text = dropDownId.value
             }
         } else {
             cell.dropdownTextField.text = ""
@@ -221,8 +176,8 @@ extension CollectionViewTable: UICollectionViewDelegate, UICollectionViewDataSou
     
     // Function to set text value after matching column id
     func setCellTextValue(cell: CollectionViewCell, indexPath: IndexPath) {
-        let cellData = tableFieldValue[indexPath.section-1].cells ?? [:]
-        if let matchData = cellData.first(where: {$0.key == tableColumnOrderId[indexPath.row]}) {
+        let cellData = tableFieldValue[tableIndexNo][indexPath.section-1].cells ?? [:]
+        if let matchData = cellData.first(where: {$0.key == tableColumnOrderId[tableIndexNo][indexPath.row]}) {
             cell.cellTextView.text = matchData.value
         } else {
             cell.cellTextView.text = ""
@@ -248,14 +203,14 @@ extension CollectionViewTable: UICollectionViewDelegate, UICollectionViewDataSou
             cellLabel.borderCornerRadius = 0
             cellLabel.textAlignment = .center
             cellLabel.numberOfLines = 1
-            cellLabel.labelText = tableColumnTitle[indexPath.row]
+            cellLabel.labelText = tableColumnTitle[tableIndexNo][indexPath.row]
             cellLabel.backgroundColor = UIColor(hexString: "#F3F4F8")
             cellLabel.borderColor = UIColor(hexString: "#E6E7EA") ?? .lightGray
             
             // Set the width of cells based on numberOfColumns
-            if tableColumnOrderId.count == 1 {
+            if tableColumnOrderId[tableIndexNo].count == 1 {
                 cellLabel.frame = CGRect(x: 0, y: 0, width: self.frame.width, height: 50.0)
-            } else if tableColumnOrderId.count == 2 {
+            } else if tableColumnOrderId[tableIndexNo].count == 2 {
                 cellLabel.frame = CGRect(x: 0, y: 0, width: self.frame.width / 2, height: 50.0)
             } else {
                 cellLabel.frame = CGRect(x: 0, y: 0, width: 133.0, height: 50.0)
@@ -266,11 +221,5 @@ extension CollectionViewTable: UICollectionViewDelegate, UICollectionViewDataSou
         default:
             break
         }
-    }
-    
-    func setDropdownSelectedValue(text: String) {
-        dropDownSelectedValue = text
-        let cell = collectionView.cellForItem(at: IndexPath(row: indexPathRow, section: indexPathSection)) as? CollectionViewCell
-        cell?.dropdownTextField.text = text
     }
 }

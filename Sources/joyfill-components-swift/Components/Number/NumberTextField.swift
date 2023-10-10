@@ -5,14 +5,14 @@ public class NumberField: UIView, UITextFieldDelegate {
     
     public var view = UIView()
     public var titleLbl = Label()
-    public var numberField = UITextField()
-    public var currentPage : Int = 0
-    public let button = UIButton(type: .custom)
-    public let button1 = UIButton(type: .custom)
-    public let stackView = UIStackView()
-    public var toolTipIconButton = UIButton()
     public var toolTipTitle = String()
+    public var numberField = UITextField()
     public var toolTipDescription = String()
+    public var toolTipIconButton = UIButton()
+    
+    var index = Int()
+    public var currentPage : Int = 0
+    var saveDelegate: SaveTextFieldValue? = nil
     
     // MARK: - Initializer
     override init(frame: CGRect) {
@@ -147,20 +147,6 @@ public class NumberField: UIView, UITextFieldDelegate {
         }
     }
     
-    @IBInspectable
-    open var numberFieldUpIcon = UIColor.black {
-        didSet {
-            button.tintColor = numberFieldUpIcon
-        }
-    }
-    
-    @IBInspectable
-    open var numberFieldDownIcon = UIColor.black {
-        didSet {
-            button1.tintColor = numberFieldDownIcon
-        }
-    }
-    
     public func tooltipVisible(bool: Bool) {
         if bool {
             toolTipIconButton.isHidden = false
@@ -174,31 +160,25 @@ public class NumberField: UIView, UITextFieldDelegate {
         addSubview(toolTipIconButton)
         addSubview(view)
         view.addSubview(numberField)
-        view.addSubview(stackView)
-        stackView.addSubview(button)
-        stackView.addSubview(button1)
         
-        titleLbl.translatesAutoresizingMaskIntoConstraints = false
-        toolTipIconButton.translatesAutoresizingMaskIntoConstraints = false
         view.translatesAutoresizingMaskIntoConstraints = false
+        titleLbl.translatesAutoresizingMaskIntoConstraints = false
         numberField.translatesAutoresizingMaskIntoConstraints = false
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button1.translatesAutoresizingMaskIntoConstraints = false
+        toolTipIconButton.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             // Title
             titleLbl.topAnchor.constraint(equalTo: self.topAnchor),
             titleLbl.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
-            titleLbl.heightAnchor.constraint(equalToConstant: 15),
+            titleLbl.trailingAnchor.constraint(equalTo: toolTipIconButton.leadingAnchor, constant: -5),
             
             //TooltipIconButton
-            toolTipIconButton.topAnchor.constraint(equalTo: self.topAnchor),
-            toolTipIconButton.leadingAnchor.constraint(equalTo: titleLbl.trailingAnchor, constant: 5),
+            toolTipIconButton.centerYAnchor.constraint(equalTo: titleLbl.centerYAnchor),
+            toolTipIconButton.trailingAnchor.constraint(lessThanOrEqualTo: self.trailingAnchor, constant: -10),
             toolTipIconButton.heightAnchor.constraint(equalToConstant: 15),
             toolTipIconButton.widthAnchor.constraint(equalToConstant: 15),
             
-            // view
+            // View
             view.topAnchor.constraint(equalTo: titleLbl.bottomAnchor, constant: 13),
             view.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
             view.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -10),
@@ -207,89 +187,34 @@ public class NumberField: UIView, UITextFieldDelegate {
             // NumberFiield
             numberField.topAnchor.constraint(equalTo: view.topAnchor, constant: 0),
             numberField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 15),
-            numberField.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -20),
+            numberField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -15),
             numberField.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0),
-            
-            // StackView
-            stackView.topAnchor.constraint(equalTo: view.topAnchor, constant: 0),
-            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0),
-            stackView.widthAnchor.constraint(equalToConstant: 30),
-            
-            // Up Button
-            button.topAnchor.constraint(equalTo: stackView.topAnchor, constant: 5),
-            button.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: 3),
-            button.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -3),
-            button.heightAnchor.constraint(equalToConstant: 20),
-            
-            // Down Button
-            button1.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: 3),
-            button1.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -3),
-            button1.bottomAnchor.constraint(equalTo: stackView.bottomAnchor, constant: -5),
-            button1.heightAnchor.constraint(equalToConstant: 20)
         ])
+        if #available(iOS 13.0, *) {
+         self.overrideUserInterfaceStyle = .light
+        }
         
-        // Title UI
-        self.titleLbl.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
-        self.titleText = "Number"
-        self.titleTextColor = .black
+        // Title label properties
+        titleLbl.numberOfLines = 0
+        titleLbl.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
+        titleTextColor = .black
         
         toolTipIconButton.setImage(UIImage(named: "tooltipIcon"), for: .normal)
         toolTipIconButton.addTarget(self, action: #selector(tooltipButtonTapped), for: .touchUpInside)
         
-        // View UI
-        self.numberViewBorderColor = UIColor(hexString: "#D1D1D6") ?? .lightGray
-        self.numberViewBorderWidth = 1.0
-        self.numberViewCornerRadius = 12
+        numberViewBorderColor = UIColor(hexString: "#D1D1D6") ?? .lightGray
+        numberViewBorderWidth = 1.0
+        numberViewCornerRadius = 12
         
-        // Text Field UI
-        self.numberFieldTextSize = 14
-        self.numberFieldPlacholder = "Building Count"
-        
-        // Up Button UI Set
-        button.tintColor = .black
-        button.addTarget(self, action: #selector(self.refresh), for: .touchUpInside)
-        button.layer.zPosition = CGFloat(Float.greatestFiniteMagnitude)
-        if #available(iOS 13.0, *) {
-            let boldConfig = UIImage.SymbolConfiguration(weight: .bold)
-            let boldSearch = UIImage(systemName: "chevron.up", withConfiguration: boldConfig)
-            button.setImage(boldSearch, for: .normal)
-        } else {
-            // Fallback on earlier versions
-        }
-        
-        // Down Button UI Set
-        button1.tintColor = .black
-        button1.addTarget(self, action: #selector(self.downNumber), for: .touchUpInside)
-        button1.layer.zPosition = CGFloat(Float.greatestFiniteMagnitude)
-        if #available(iOS 13.0, *) {
-            let boldConfig = UIImage.SymbolConfiguration(weight: .bold)
-            let boldSearch = UIImage(systemName: "chevron.down", withConfiguration: boldConfig)
-            button1.setImage(boldSearch, for: .normal)
-        } else {
-            // Fallback on earlier versions
-        }
+        numberFieldTextSize = 14
+        numberField.keyboardType = .numberPad
     }
     
-    public func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
-        return false
+    public func textFieldDidEndEditing(_ textField: UITextField) {
+        saveDelegate?.handleFieldChange(text: textField.text ?? "", isEditingEnd: true, index: index)
     }
     
     @objc func tooltipButtonTapped(_ sender: UIButton) {
         toolTipAlertShow(for: self, title: toolTipTitle, message: toolTipDescription)
-    }
-    
-    @IBAction func refresh(_ sender: Any) {
-        self.currentPage += 1
-        self.numberField.text = String(currentPage)
-        let text = self.numberField.text
-        currentPage = Int(text!) ?? 0
-    }
-    
-    @IBAction func downNumber(_ sender: Any) {
-        self.currentPage -= 1
-        self.numberField.text = String(currentPage)
-        let text = self.numberField.text
-        currentPage = Int(text!) ?? 0
     }
 }

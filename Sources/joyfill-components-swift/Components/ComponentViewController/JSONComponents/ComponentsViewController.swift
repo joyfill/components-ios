@@ -30,8 +30,8 @@ public class ComponentsViewController: UIView {
         yCoordinates = []
         xCoordinates = []
         graphLabelData = []
-        pickedImg.removeAll()
-        _ = JoyfillApi2.loadFromJSON()
+      //  pickedImg.removeAll()
+       // _ = JoyfillApi2.loadFromJSON()
         
         // SubViews
         addSubview(componentView)
@@ -189,7 +189,7 @@ extension ComponentsViewController: UITableViewDelegate, UITableViewDataSource {
                 // MARK: Chart Function Call From Package
                 let chart = Chart()
                 tableView.rowHeight = 380
-                chart.performanceGraphLabel.labelText = componentHeaderText2[i]
+                chart.titleLabel.labelText = componentHeaderText2[i]
                 chart.frame = CGRect(x: 10, y: 0, width: tableView.bounds.width - 20, height: tableView.rowHeight)
                 cellView.append(chart)
                 

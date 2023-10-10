@@ -2,16 +2,27 @@ import Foundation
 import UIKit
 
 // Global variables
-public var lineGraph = LineChart()
-public var yPointsData: [CGFloat] = []
-public var xPointsData: [CGFloat] = []
 public var chartDisplayMode = String()
-public var graphTextData: [String] = []
-public var yCoordinates = [[CGFloat]]()
-public var xCoordinates = [[CGFloat]]()
+public var yPointsData = [[CGFloat]]()
+public var xPointsData = [[CGFloat]]()
 public var activeTextField: UITextField!
-public var graphLabelData = [[String]]()
+public var yCoordinates = [[[CGFloat]]]()
+public var chartPointsId = [[[String]]]()
+public var xCoordinates = [[[CGFloat]]]()
+public var graphLabelData = [[[String]]]()
 public var addPointButtonIndexPath = Int()
+
+protocol saveChartFieldValue {
+    func handleLineCreate(line: Int)
+    func handleLineChange(line: Int, indexPath: Int)
+    func handleLineDelete(line: Int, indexPath: Int)
+    func handleXMaxCoordinates(line: Int, newValue: Int)
+    func handleYMaxCoordinates(line: Int, newValue: Int)
+    func handleXMinCoordinates(line: Int, newValue: Int)
+    func handleYMinCoordinates(line: Int, newValue: Int)
+    func handlePointCreate(rowId: String, line: Int, indexPath: Int)
+    func handleLineData(rowId: String, line: Int, indexPath: Int, newYValue: Int, newXValue: Int, newLabelValue: String)
+}
 
 public class Chart: UIView, UIViewControllerTransitioningDelegate {
     
@@ -22,11 +33,13 @@ public class Chart: UIView, UIViewControllerTransitioningDelegate {
     public var viewMoreLabel = Label()
     public var horizontalLabel = Label()
     public var viewMoreArrow = ImageView()
-    public var performanceGraphBar = UIView()
-    public var performanceGraphLabel = Label()
+    public var titleLabel = Label()
     public var toolTipIconButton = UIButton()
     public var toolTipTitle = String()
     public var toolTipDescription = String()
+    
+    var index = Int()
+    var saveDelegate: saveChartFieldValue? = nil
     
     // MARK: Initializer
     public override init(frame: CGRect) {
@@ -52,18 +65,26 @@ public class Chart: UIView, UIViewControllerTransitioningDelegate {
         }
     }
     
+    public override func didMoveToWindow() {
+        super.didMoveToWindow()
+        setupUI()
+        lineGraph.setNeedsDisplay()
+    }
+    
     func setupUI() {
         // SubViews
+        if #available(iOS 13.0, *) {
+         self.overrideUserInterfaceStyle = .light
+        }
         addSubview(viewMore)
         addSubview(graphView)
-        addSubview(performanceGraphBar)
         addSubview(toolTipIconButton)
+        addSubview(titleLabel)
         graphView.addSubview(lineGraph)
         viewMore.addSubview(viewMoreLabel)
         viewMore.addSubview(viewMoreArrow)
         graphView.addSubview(verticalLabel)
         graphView.addSubview(horizontalLabel)
-        performanceGraphBar.addSubview(performanceGraphLabel)
         
         viewMore.translatesAutoresizingMaskIntoConstraints = false
         toolTipIconButton.translatesAutoresizingMaskIntoConstraints = false
@@ -73,30 +94,23 @@ public class Chart: UIView, UIViewControllerTransitioningDelegate {
         viewMoreLabel.translatesAutoresizingMaskIntoConstraints = false
         viewMoreArrow.translatesAutoresizingMaskIntoConstraints = false
         horizontalLabel.translatesAutoresizingMaskIntoConstraints = false
-        performanceGraphBar.translatesAutoresizingMaskIntoConstraints = false
-        performanceGraphLabel.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
         
         // Constraint to arrange subviews acc. to imageView
         NSLayoutConstraint.activate([
-            // PageView Constraint
-            performanceGraphBar.topAnchor.constraint(equalTo: topAnchor ,constant: 20),
-            performanceGraphBar.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8),
-            performanceGraphBar.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
-            performanceGraphBar.heightAnchor.constraint(equalToConstant: 39),
-            
-            // PageLabel Constraint
-            performanceGraphLabel.topAnchor.constraint(equalTo: performanceGraphBar.topAnchor, constant: 4),
-            performanceGraphLabel.leadingAnchor.constraint(equalTo: performanceGraphBar.leadingAnchor, constant: 0),
-            performanceGraphLabel.heightAnchor.constraint(equalToConstant: 15),
+            // TitleLabel Constraint
+            titleLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
+            titleLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
+            titleLabel.trailingAnchor.constraint(equalTo: toolTipIconButton.leadingAnchor, constant: -5),
             
             //TooltipIconButton
-            toolTipIconButton.topAnchor.constraint(equalTo: performanceGraphBar.topAnchor, constant: 4),
-            toolTipIconButton.leadingAnchor.constraint(equalTo: performanceGraphLabel.trailingAnchor, constant: 5),
+            toolTipIconButton.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
+            toolTipIconButton.trailingAnchor.constraint(lessThanOrEqualTo: self.trailingAnchor, constant: -10),
             toolTipIconButton.heightAnchor.constraint(equalToConstant: 15),
             toolTipIconButton.widthAnchor.constraint(equalToConstant: 15),
             
             // GraphView Constraint
-            graphView.topAnchor.constraint(equalTo: performanceGraphBar.bottomAnchor, constant: 0),
+            graphView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 13),
             graphView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8),
             graphView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
             graphView.heightAnchor.constraint(equalToConstant: 272),
@@ -162,8 +176,8 @@ public class Chart: UIView, UIViewControllerTransitioningDelegate {
         viewMoreLabel.labelText = "View More"
         viewMoreLabel.textAlignment = .center
         
-        performanceGraphLabel.labelText = "Performance Graph"
-        performanceGraphLabel.font = UIFont.boldSystemFont(ofSize: 14)
+        titleLabel.numberOfLines = 0
+        titleLabel.font = UIFont.boldSystemFont(ofSize: 14)
         
         verticalLabel.fontSize = 12
         verticalLabel.numberOfLines = 0
@@ -175,13 +189,10 @@ public class Chart: UIView, UIViewControllerTransitioningDelegate {
         horizontalLabel.textAlignment = .center
         horizontalLabel.labelText = "Horizontal"
         
-        if xCoordinates.isEmpty {
-            yCoordinates = [[0, 50]]
-            xCoordinates = [[0, 60]]
-            graphLabelData = [["", ""]]
-        }
-        for i in 0...yCoordinates.count - 1 {
-            lineGraph.addLine(yCoordinates[i], labels: graphLabelData[i])
+        if xCoordinates[index].isEmpty != true {
+            for i in 0...yCoordinates[index].count - 1 {
+                lineGraph.addLine(yCoordinates[index][i], labels: graphLabelData[index][i])
+            }
         }
         
         lineGraph.yMin = 0
@@ -200,7 +211,13 @@ public class Chart: UIView, UIViewControllerTransitioningDelegate {
             parentResponder = parentResponder?.next
             if let viewController = parentResponder as? UIViewController {
                 let newViewController = ChartView()
+                newViewController.index = self.index
+                newViewController.lineGraph.index = self.index
+                newViewController.saveDelegate = self.saveDelegate
                 newViewController.transitioningDelegate = self
+                newViewController.modalPresentationStyle = .fullScreen
+                newViewController.modalTransitionStyle = .crossDissolve
+                newViewController.labelTitle = titleLabel.labelText ?? ""
                 viewController.present(newViewController, animated: true, completion: nil)
                 break
             }

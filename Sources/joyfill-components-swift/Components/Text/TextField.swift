@@ -1,7 +1,14 @@
 import Foundation
 import UIKit
 
+protocol SaveTextFieldValue {
+    func handleFieldChange(text: Any, isEditingEnd: Bool, index: Int)
+}
+
 public class TextField: UITextField, UITextFieldDelegate {
+    
+    var index = Int()
+    var saveDelegate: SaveTextFieldValue? = nil
     
     // MARK: - Enums
     // Possible behaviors for the label
@@ -118,6 +125,7 @@ public class TextField: UITextField, UITextFieldDelegate {
         borderColor = UIColor(hexString: "#D1D1D6") ?? .lightGray
         font = UIFont(name: "Helvetica Neue", size: 14)
         borderWidth = 1.0
+        self.delegate = self
     }
     
     required init?(coder: NSCoder) {
@@ -128,6 +136,7 @@ public class TextField: UITextField, UITextFieldDelegate {
         borderColor = UIColor(hexString: "#D1D1D6") ?? .lightGray
         font = UIFont(name: "Helvetica Neue", size: 14)
         borderWidth = 1.0
+        self.delegate = self
     }
     
     public func textFieldDidBeginEditing(_ textField: UITextField) {
@@ -140,14 +149,16 @@ public class TextField: UITextField, UITextFieldDelegate {
         layer.cornerRadius = deselectedCornerRadius ?? 12
         layer.borderWidth = deselectedBorderWidth ?? 1.0
         layer.borderColor = deselectedBorderColor?.cgColor ?? UIColor(hexString: "#D1D1D6")?.cgColor
+        saveDelegate?.handleFieldChange(text: textField.text ?? "", isEditingEnd: true, index: index)
     }
-    
+
     private func initTextField() {
         setUpOutlineSublayer()
         cornerRadius = 12
         borderColor = UIColor(hexString: "#D1D1D6") ?? .lightGray
         font = UIFont(name: "Helvetica Neue", size: 14)
         borderWidth = 1.0
+        tintColor = .blue
     }
     
     // Sets the border width for the textField.

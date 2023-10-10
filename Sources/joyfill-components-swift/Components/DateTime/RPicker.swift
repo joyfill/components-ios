@@ -190,7 +190,11 @@ class RPickerController: UIViewController {
         self.datePickerStyle = style
         
         super.init(nibName: nil, bundle: nil)
+        if #available(iOS 13.0, *) {
+            view.overrideUserInterfaceStyle = .light
+        }
         initialSetup()
+        
     }
     
     required init?(coder: NSCoder) {
@@ -206,7 +210,7 @@ class RPickerController: UIViewController {
         if #available(iOS 12.0, *) {
             if newCollection.userInterfaceStyle != traitCollection.userInterfaceStyle {
                 if newCollection.userInterfaceStyle == .dark {
-                    setUpThemeMode(isDark: true)
+                    setUpThemeMode(isDark: false)
                 } else {
                     setUpThemeMode(isDark: false)
                 }
@@ -244,6 +248,8 @@ class RPickerController: UIViewController {
                         height = height + 450
                     } else if datePicker.datePickerMode == .date {
                         height = height + 386
+                    } else if datePicker.datePickerMode == .time {
+                        height = height + 386
                     } else {
                         height = height + pickerHeight
                     }
@@ -263,7 +269,7 @@ class RPickerController: UIViewController {
         
         if #available(iOS 12.0, *) {
             if traitCollection.userInterfaceStyle == .dark {
-                setUpThemeMode(isDark: true)
+                setUpThemeMode(isDark: false)
             } else {
                 setUpThemeMode(isDark: false)
             }

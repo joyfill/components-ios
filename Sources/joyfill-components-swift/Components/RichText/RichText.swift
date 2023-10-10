@@ -44,6 +44,7 @@ open class RichText: UIView {
             var inlineStyleValue = String()
             var inlineStyleKey = String()
             
+            
             for block in blocks {
                 if let text = block.text as NSString? {
                     let attributes: [NSAttributedString.Key: Any] = [:]
@@ -64,8 +65,9 @@ open class RichText: UIView {
                             if inlineStyleKey == "fontsize" {
                                 attributedText.addAttribute(.font, value: UIFont.systemFont(ofSize: CGFloat(Int(inlineStyleValue) ?? 0)), range: range)
                             } else if inlineStyleKey == "color" {
-                                attributedText.addAttribute(.foregroundColor, value: UIColor(hexString: inlineStyleValue) as Any, range: range)
-                                attributedText.addAttribute(.underlineColor, value: UIColor(hexString: inlineStyleValue) as Any, range: range)
+                                let hexValue = rgbToHex(rgbString: inlineStyleValue)
+                                attributedText.addAttribute(.foregroundColor, value: UIColor(hexString: hexValue ?? "") as Any, range: range)
+                                attributedText.addAttribute(.underlineColor, value: UIColor(hexString: hexValue ?? "") as Any, range: range)
                             }
                         }
                         

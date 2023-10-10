@@ -2,11 +2,8 @@ import Foundation
 import UIKit
 
 // Global variables
-public var numberOfRows = Int()
-public var numberOfColumns = Int()
-public var selectedIndexPath : Int?
+public var selectedIndexPath: Int?
 public var tableHeading = [String]()
-public var numberingData = [String]()
 public var tableDisplayMode = String()
 public var cellSelectedIndexPath: IndexPath?
 public var selectedTextFieldIndexPath = IndexPath()
@@ -24,7 +21,21 @@ var emptyValueElement = ValueElement(
     cells: [:]
 )
 
-public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectText, UITextViewDelegate {
+protocol tableUpdate {
+    func tableCountNumberUpdate(no: Int, tableIndexNo: Int)
+}
+
+protocol SaveTableFieldValue {
+    func handleDeleteRow(rowId: String, rowIndex: Int, isEditingEnd: Bool, index: Int)
+    func handleMoveRowUp(rowId: String, rowIndex: Int, isEditingEnd: Bool, index: Int)
+    func handleMoveRowDown(rowId: String, rowIndex: Int, isEditigEnd: Bool, index: Int)
+    func handleDuplicateRow(row: [String:Any], rowIndex: Int, isEditingEnd: Bool, index: Int)
+    func handleAddBelowRow(row: [String:Any], rowIndex: Int, isEditingEnd: Bool, index: Int)
+    func handleCreateRow(row: [String:Any], rowIndex: Int, isEditingEnd: Bool, index: Int)
+    func handleTextCellChangeValue(row: [String:Any], rowId: String, isEditingEnd: Bool, index: Int)
+}
+
+public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectText {
     
     public var mainView = UIView()
     public var moreButton = Button()
@@ -44,14 +55,23 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
     public var navigationLeftMoveButton = Button()
     public var navigationRightMoveButton = Button()
     
+    var data = [String]()
+    var tableIndexNo = Int()
     var cellWidth = Double()
     var indexPathRow = Int()
+    var numberOfRows = Int()
     var indexPathItem = Int()
+    var deleage: tableUpdate?
+    var numberOfColumns = Int()
     var indexPathSection = Int()
+    var numberingData = [String]()
     var dropDownSelectedValue = String()
     let topAndBottomSubviewborderWidth: CGFloat = 1.0
     let layout = TwoWayScrollingCollectionViewLayout()
     let topAndBottomSubviewborderColor: UIColor = UIColor(hexString: "#1F6BFF") ?? .blue
+    var index = Int()
+    var saveDelegate: SaveTableFieldValue? = nil
+    var dropDownId = String()
     
     public override func viewDidLoad() {
         super.viewDidLoad()
@@ -69,17 +89,21 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
         collectionView.register(CollectionViewCell.self, forCellWithReuseIdentifier: "Cell")
         collectionView.backgroundColor = .clear
         layout.stickyRowsCount = 1
-        
         setupUI()
     }
     
     public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        view.backgroundColor = .white
+        if #available(iOS 13.0, *) {
+            view.overrideUserInterfaceStyle = .light
+        }
         setupUI()
+        view.endEditing(true)
+        updateRowNumber()
     }
     
     public override func viewDidDisappear(_ animated: Bool) {
+        view.endEditing(false)
         selectedIndexPath = nil
     }
     
@@ -265,8 +289,8 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
         titleLabel.font = UIFont.boldSystemFont(ofSize: 14)
         
         // TableView Properties
-        numberOfColumns = tableColumnType.count
-        tableHeading = tableColumnTitle
+        numberOfColumns = tableColumnType[tableIndexNo].count
+        tableHeading = tableColumnTitle[tableIndexNo]
         collectionView.layer.borderWidth = 1
         collectionView.layer.cornerRadius = 12
         collectionView.layer.borderColor = UIColor(hexString: "#C0C1C6")?.cgColor
@@ -361,6 +385,7 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
         let tap = UITapGestureRecognizer(target: self, action: #selector(mainViewTap))
         mainView.addGestureRecognizer(tap)
         
+        // Sets table and action to pageButton
         if #available(iOS 13.0, *) {
             let boldConfig = UIImage.SymbolConfiguration(weight: .bold)
             let boldSearch = UIImage(systemName: "xmark.circle", withConfiguration: boldConfig)
@@ -388,17 +413,19 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
     
     // Action for close button
     @objc func closeTapped() {
-        tableColumnTitle.removeFirst(2)
-        tableColumnType.removeFirst(2)
+        view.endEditing(false)
+        tableColumnTitle[tableIndexNo].removeFirst(2)
+        tableColumnType[tableIndexNo].removeFirst(2)
         viewType = "field"
         
-        if tableRowOrder.count == 1 {
-            tableFieldValue.append(emptyValueElement)
-            tableFieldValue.append(emptyValueElement)
-        } else if tableRowOrder.count == 2 {
-            tableFieldValue.append(emptyValueElement)
+        if tableRowOrder[tableIndexNo].count == 1 {
+            tableFieldValue[tableIndexNo].append(emptyValueElement)
+            tableFieldValue[tableIndexNo].append(emptyValueElement)
+        } else if tableRowOrder[tableIndexNo].count == 2 {
+            tableFieldValue[tableIndexNo].append(emptyValueElement)
         } else {}
         emptyValueElement.cells?.removeAll()
+        self.deleage?.tableCountNumberUpdate(no: numberOfRows, tableIndexNo: tableIndexNo)
         
         var parentResponder: UIResponder? = self
         while parentResponder != nil {
@@ -448,24 +475,13 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
         }
     }
     
-    // Empty cell data to append or insert when insertRow and insertBelow is tapped
-    var data = [String]()
-    func insertEmptyCellsData() {
-        for k in 0..<tableFieldValue.count {
-            if tableFieldValue[k].cells != nil {
-                let values = ""
-                data.append(values)
-            }
-        }
-    }
-    
     // Function to show default value when row is added or inserted
     func insertColumnDefaultValue(indexpath: IndexPath) {
         emptyValueElement.cells?.removeAll()
         var cellValue = [String:String]()
-        for i in 0..<tableColumnOrderId.count {
-            if let _ = optionsData.first(where: { $0.id == tableColumnOrderId[indexpath.row-2] }) {
-                cellValue[optionsData[i].id ?? ""] = optionsData[i].value
+        for i in 0..<tableColumnOrderId[tableIndexNo].count {
+            if let _ = optionsData[tableIndexNo].first(where: { $0.id == tableColumnOrderId[tableIndexNo][indexpath.row-2]}) {
+                cellValue[optionsData[tableIndexNo][i].id ?? ""] = optionsData[tableIndexNo][i].value
             }
         }
         emptyValueElement = ValueElement(
@@ -485,44 +501,100 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
     @objc func insertRowTapped() {
         dropdownView.isHidden = true
         numberOfRows += 1
-        insertEmptyCellsData()
         updateRowNumber()
         let lastSection = collectionView.numberOfSections - 1
         let lastItem = collectionView.numberOfItems(inSection: lastSection) - 1
         let lastIndexPath = IndexPath(item: lastItem, section: lastSection)
-        insertColumnDefaultValue(indexpath: lastIndexPath)
-        tableFieldValue.append(emptyValueElement)
-        tableCellsData.append(data)
-        collectionView.scrollToItem(at: lastIndexPath, at: .bottom, animated: true)
-        collectionView.insertSections(IndexSet(integer: lastSection))
-        reloadCollectionRowNumber()
-        let itemCount = collectionView.numberOfItems(inSection: lastSection)
-        for itemIndex in 0..<itemCount {
-            let indexPath = IndexPath(item: itemIndex, section: lastSection + 1)
-            collectionView.reloadItems(at: [indexPath])
+        var cellValue = [String:String]()
+        for i in 0..<tableColumnOrderId[tableIndexNo].count {
+            if let _ = optionsData[tableIndexNo].first(where: { $0.id == tableColumnOrderId[tableIndexNo][lastIndexPath.row-2]}) {
+                cellValue[optionsData[tableIndexNo][i].id ?? ""] = optionsData[tableIndexNo][i].value
+            }
+        }
+        if var valueElement = tableFieldValue[tableIndexNo][lastIndexPath.section - 1] as? ValueElement {
+            let objectId = generateObjectId()
+            tableRowOrder[tableIndexNo].append(objectId)
+            // Create a new ValueElement with the updated id value.
+            valueElement = ValueElement(
+                id: objectId,
+                url: valueElement.url,
+                fileName: valueElement.fileName,
+                filePath: valueElement.filePath,
+                deleted: valueElement.deleted,
+                title: valueElement.title,
+                description: valueElement.description,
+                points: valueElement.points,
+                cells: cellValue
+            )
+            tableFieldValue[tableIndexNo].append(valueElement)
+            tableCellsData[tableIndexNo].append(data)
+            collectionView.scrollToItem(at: lastIndexPath, at: .bottom, animated: true)
+            collectionView.insertSections(IndexSet(integer: lastSection))
+            let dict = tableFieldValue[tableIndexNo][lastIndexPath.section].cells
+            var cells : [String:Any] = [:]
+            for (key, value) in dict ?? [:] {
+                cells[key] = value
+            }
+            let row = ["_id":  tableFieldValue[tableIndexNo][lastIndexPath.section].id ?? "",
+                       "deleted": false,
+                       "cells": cells
+            ] as [String: Any]
+            saveDelegate?.handleCreateRow(row: row, rowIndex: lastIndexPath.section, isEditingEnd: true, index: index)
+            reloadCollectionRowNumber()
+            let itemCount = collectionView.numberOfItems(inSection: lastSection)
+            for itemIndex in 0..<itemCount {
+                let indexPath = IndexPath(item: itemIndex, section: lastSection + 1)
+                collectionView.reloadItems(at: [indexPath])
+            }
         }
     }
     
     // MARK: InsertBelow Tapped
     @objc func insertBelowTapped() {
         numberOfRows += 1
-        insertEmptyCellsData()
         updateRowNumber()
         let lastSection = collectionView.numberOfSections - 1
         let lastItem = collectionView.numberOfItems(inSection: lastSection) - 1
         let lastIndexPath = IndexPath(item: lastItem, section: lastSection)
         insertColumnDefaultValue(indexpath: lastIndexPath)
-        tableFieldValue.insert(emptyValueElement, at: cellSelectedIndexPath?.section ?? 0)
-        tableCellsData.insert(data, at: cellSelectedIndexPath?.section ?? 0)
-        collectionView.insertSections(IndexSet(integer: cellSelectedIndexPath?.section ?? 0))
-        selectedIndexPath = nil
-        updateCellSubviewBorder(at: 0)
-        updateSelectionButton()
-        let itemCount = collectionView.numberOfItems(inSection: (cellSelectedIndexPath?.section ?? 0) + 1)
-        for itemIndex in 0..<itemCount {
-            let indexPath = IndexPath(item: itemIndex, section: (cellSelectedIndexPath?.section ?? 0) + 1)
-            collectionView.reloadItems(at: [indexPath])
-            collectionView.reloadItems(at: [IndexPath(item: itemIndex, section: cellSelectedIndexPath?.section ?? 0)])
+        
+        if var valueElement = tableFieldValue[tableIndexNo][(cellSelectedIndexPath?.section ?? 0) - 1] as? ValueElement {
+            let objectId = generateObjectId()
+            tableRowOrder[tableIndexNo].insert(objectId, at: (cellSelectedIndexPath?.section ?? 0))
+            // Create a new ValueElement with the updated id value.
+            valueElement = ValueElement(
+                id: objectId,
+                url: valueElement.url,
+                fileName: valueElement.fileName,
+                filePath: valueElement.filePath,
+                deleted: valueElement.deleted,
+                title: valueElement.title,
+                description: valueElement.description,
+                points: valueElement.points,
+                cells: [:]
+            )
+            tableFieldValue[tableIndexNo].insert(valueElement, at: cellSelectedIndexPath?.section ?? 0)
+            tableCellsData[tableIndexNo].insert(data, at: cellSelectedIndexPath?.section ?? 0)
+            collectionView.insertSections(IndexSet(integer: cellSelectedIndexPath?.section ?? 0))
+            let dict = tableFieldValue[tableIndexNo][lastSection - 2].cells
+            var cells : [String:Any] = [:]
+            for (key, _) in dict ?? [:] {
+                cells[key] = ""
+            }
+            let row = ["_id":  tableFieldValue[tableIndexNo][(cellSelectedIndexPath?.section ?? 0)].id ?? "",
+                       "deleted": false,
+                       "cells": cells
+            ] as [String: Any]
+            saveDelegate?.handleAddBelowRow(row: row, rowIndex: (cellSelectedIndexPath?.section ?? 0), isEditingEnd: true, index: index)
+            selectedIndexPath = nil
+            updateCellSubviewBorder(at: 0)
+            updateSelectionButton()
+            let itemCount = collectionView.numberOfItems(inSection: (cellSelectedIndexPath?.section ?? 0) + 1)
+            for itemIndex in 0..<itemCount {
+                let indexPath = IndexPath(item: itemIndex, section: (cellSelectedIndexPath?.section ?? 0) + 1)
+                collectionView.reloadItems(at: [indexPath])
+                collectionView.reloadItems(at: [IndexPath(item: itemIndex, section: cellSelectedIndexPath?.section ?? 0)])
+            }
         }
     }
     
@@ -530,23 +602,50 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
     @objc func duplicateTapped() {
         numberOfRows += 1
         updateRowNumber()
-        let itemToDuplicate = tableFieldValue[(cellSelectedIndexPath?.section ?? 0) - 1]
-        let cellItemToDuplicate = tableCellsData[(cellSelectedIndexPath?.section ?? 0) - 1]
-        tableFieldValue.insert(itemToDuplicate, at: cellSelectedIndexPath?.section ?? 0)
-        tableCellsData.insert(cellItemToDuplicate, at: cellSelectedIndexPath?.section ?? 0)
-        collectionView.insertSections(IndexSet(integer: cellSelectedIndexPath?.section ?? 0))
-        selectedIndexPath = nil
-        updateCellSubviewBorder(at: 0)
-        updateCellSubviewBorder(at: 1)
-        updateSelectionButton()
-        let itemCount = collectionView.numberOfItems(inSection: cellSelectedIndexPath?.section ?? 0)
-        for itemIndex in 0..<itemCount {
-            let indexPath = IndexPath(item: itemIndex, section: cellSelectedIndexPath?.section ?? 0)
-            collectionView.reloadItems(at: [indexPath])
-        }
-        let newIndexPath = IndexPath(row: cellSelectedIndexPath?.row ?? 0, section: (cellSelectedIndexPath?.section ?? 0) + 1)
-        if let cell = collectionView.cellForItem(at: newIndexPath) as? CollectionViewCell {
-            cell.selectionButton.setImage(UIImage(named: "unSelectButton"), for: .normal)
+        if var valueElement = tableFieldValue[tableIndexNo][(cellSelectedIndexPath?.section ?? 0) - 1] as? ValueElement {
+            let objectId = generateObjectId()
+            tableRowOrder[tableIndexNo].insert(objectId, at: (cellSelectedIndexPath?.section ?? 0))
+            // Create a new ValueElement with the updated id value.
+            valueElement = ValueElement(
+                id: objectId,
+                url: valueElement.url,
+                fileName: valueElement.fileName,
+                filePath: valueElement.filePath,
+                deleted: valueElement.deleted,
+                title: valueElement.title,
+                description: valueElement.description,
+                points: valueElement.points,
+                cells: valueElement.cells
+            )
+            let cellItemToDuplicate = tableCellsData[tableIndexNo][(cellSelectedIndexPath?.section ?? 0) - 1]
+            tableFieldValue[tableIndexNo].insert(valueElement, at: cellSelectedIndexPath?.section ?? 0)
+            tableCellsData[tableIndexNo].insert(cellItemToDuplicate, at: cellSelectedIndexPath?.section ?? 0)
+            collectionView.insertSections(IndexSet(integer: cellSelectedIndexPath?.section ?? 0))
+            
+            let dict = tableFieldValue[tableIndexNo][cellSelectedIndexPath?.section ?? 0].cells
+            var cells: [String: Any] = [:]
+            for (key, value) in dict ?? [:] {
+                cells[key] = value
+            }
+            let row = ["_id":  tableFieldValue[tableIndexNo][cellSelectedIndexPath?.section ?? 0].id ?? "",
+                       "deleted" : false,
+                       "cells" : cells
+            ] as [String: Any]
+            doc = ["row": row, "targetRowIndex": cellSelectedIndexPath?.section ?? 0]
+            saveDelegate?.handleDuplicateRow(row: doc, rowIndex: cellSelectedIndexPath?.section ?? 0, isEditingEnd: true, index: index)
+            selectedIndexPath = nil
+            updateCellSubviewBorder(at: 0)
+            updateCellSubviewBorder(at: 1)
+            updateSelectionButton()
+            let itemCount = collectionView.numberOfItems(inSection: cellSelectedIndexPath?.section ?? 0)
+            for itemIndex in 0..<itemCount {
+                let indexPath = IndexPath(item: itemIndex, section: cellSelectedIndexPath?.section ?? 0)
+                collectionView.reloadItems(at: [indexPath])
+            }
+            let newIndexPath = IndexPath(row: cellSelectedIndexPath?.row ?? 0, section: (cellSelectedIndexPath?.section ?? 0) + 1)
+            if let cell = collectionView.cellForItem(at: newIndexPath) as? CollectionViewCell {
+                cell.selectionButton.setImage(UIImage(named: "unSelectButton"), for: .normal)
+            }
         }
     }
     
@@ -560,8 +659,10 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
         } else {
             updateSelectionButton()
             collectionView.moveSection(cellSelectedIndexPath?.section ?? 0, toSection: (cellSelectedIndexPath?.section ?? 0) - 1)
-            tableFieldValue.swapAt((cellSelectedIndexPath?.section ?? 0) - 1, (cellSelectedIndexPath?.section ?? 0) - 2)
-            tableCellsData.swapAt((cellSelectedIndexPath?.section ?? 0) - 1, (cellSelectedIndexPath?.section ?? 0) - 2)
+            tableFieldValue[tableIndexNo].swapAt((cellSelectedIndexPath?.section ?? 0) - 1, (cellSelectedIndexPath?.section ?? 0) - 2)
+            tableCellsData[tableIndexNo].swapAt((cellSelectedIndexPath?.section ?? 0) - 1, (cellSelectedIndexPath?.section ?? 0) - 2)
+            let rowMoveUpId = tableRowOrder[tableIndexNo][(cellSelectedIndexPath?.section ?? 0) - 1]
+            saveDelegate?.handleMoveRowUp(rowId: rowMoveUpId, rowIndex: (cellSelectedIndexPath?.section ?? 0) - 2, isEditingEnd: true, index: index)
             selectedIndexPath = nil
             updateCellSubviewBorder(at: -1)
         }
@@ -577,8 +678,10 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
         } else {
             updateSelectionButton()
             collectionView.moveSection(cellSelectedIndexPath?.section ?? 0, toSection: (cellSelectedIndexPath?.section ?? 0) + 1)
-            tableFieldValue.swapAt((cellSelectedIndexPath?.section ?? 0) - 1, cellSelectedIndexPath?.section ?? 0)
-            tableCellsData.swapAt((cellSelectedIndexPath?.section ?? 0) - 1, cellSelectedIndexPath?.section ?? 0)
+            tableFieldValue[tableIndexNo].swapAt((cellSelectedIndexPath?.section ?? 0) - 1, cellSelectedIndexPath?.section ?? 0)
+            tableCellsData[tableIndexNo].swapAt((cellSelectedIndexPath?.section ?? 0) - 1, cellSelectedIndexPath?.section ?? 0)
+            let rowMoveDownId = tableRowOrder[tableIndexNo][(cellSelectedIndexPath?.section ?? 0) - 1]
+            saveDelegate?.handleMoveRowDown(rowId: rowMoveDownId, rowIndex: (cellSelectedIndexPath?.section ?? 0), isEditigEnd: true, index: index)
             selectedIndexPath = nil
             updateCellSubviewBorder(at: 1)
         }
@@ -591,9 +694,12 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
         if numberOfRows != 1 {
             numberOfRows -= 1
             updateRowNumber()
-            tableFieldValue.remove(at: (cellSelectedIndexPath?.section ?? 0) - 1)
-            tableCellsData.remove(at: (cellSelectedIndexPath?.section ?? 0) - 1)
+            tableFieldValue[tableIndexNo].remove(at: (cellSelectedIndexPath?.section ?? 0) - 1)
+            tableCellsData[tableIndexNo].remove(at: (cellSelectedIndexPath?.section ?? 0) - 1)
             collectionView.deleteSections(IndexSet(integer: cellSelectedIndexPath?.section ?? 0))
+            let deleteRowId = tableRowOrder[tableIndexNo][(cellSelectedIndexPath?.section ?? 0) - 1]
+            tableRowOrder[tableIndexNo].remove(at: (cellSelectedIndexPath?.section ?? 0) - 1)
+            saveDelegate?.handleDeleteRow(rowId: deleteRowId, rowIndex: (cellSelectedIndexPath?.section ?? 0) - 1, isEditingEnd: true, index: index)
         }
         selectedIndexPath = nil
         reloadCollectionRowNumber()
@@ -608,7 +714,7 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
         }
     }
     
-    // Function to update textField border
+    // Function to update textField and border
     func setTextFieldBorder(cell: CollectionViewCell, newIndexPath: IndexPath) {
         cell.cellTextView.layer.borderWidth = 1.0
         cell.cellTextView.layer.cornerRadius = 1.0
@@ -665,7 +771,7 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
 }
 
 // MARK: Setup collectionView
-extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UITextViewDelegate {
     // MARK: CollectionView delegate method for number of sections
     public func numberOfSections(in collectionView: UICollectionView) -> Int {
         return numberOfRows + 1
@@ -701,33 +807,64 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if tableDisplayMode != "readonly" {
             if indexPath.item == 0 {
-                if indexPath.section == selectedIndexPath {
-                    let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell
-                    cell?.selectionButton.setImage(UIImage(named: "unSelectButton"), for: .normal)
-                    selectedIndexPath = nil
-                    moreButton.isHidden = true
-                    collectionView.reloadData()
+                changeSelectionButtonState(indexPath: indexPath)
+            }
+            if indexPath.section != 0 {
+                dropdownCellValue(indexPath: indexPath)
+            }
+        }
+    }
+    
+    func changeSelectionButtonState(indexPath: IndexPath) {
+        if indexPath.section == selectedIndexPath {
+            let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell
+            cell?.selectionButton.setImage(UIImage(named: "unSelectButton"), for: .normal)
+            selectedIndexPath = nil
+            moreButton.isHidden = true
+            collectionView.reloadData()
+        } else {
+            let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell
+            cell?.selectionButton.setImage(UIImage(named: "selectButton"), for: .normal)
+            selectedIndexPath = indexPath.section
+            cellSelectedIndexPath = indexPath
+            moreButton.isHidden = false
+            collectionView.reloadData()
+        }
+    }
+    
+    // Function to fetch and set dropdown value from JoyDoc
+    func dropdownCellValue(indexPath: IndexPath) {
+        if tableColumnType[tableIndexNo][indexPath.row] == "dropdown" {
+            var dropdownOptionArray = [String]()
+            for k in 0..<(optionsData[tableIndexNo][indexPath.row-2].options?.count ?? 0) {
+                dropDownId = optionsData[tableIndexNo][k].id ?? ""
+                dropdownOptionArray.append(optionsData[tableIndexNo][indexPath.row-2].options?[k].value ?? "")
+            }
+            
+            let vc = CustomModalViewController()
+            vc.modalPresentationStyle = .overCurrentContext
+            vc.hideDoneButtonOnSingleSelect = "singleSelect"
+            vc.index = tableIndexNo
+            vc.delegate = self
+            vc.dropdownOptionArray = dropdownOptionArray
+            
+            // To find and highlight the selected option in the dropdown
+            for i in 0..<optionsData[tableIndexNo].count {
+                let cellData = tableFieldValue[tableIndexNo][indexPath.section-1].cells ?? [:]
+                if let matchData = cellData.first(where: {$0.key == tableColumnOrderId[tableIndexNo][indexPath.row-2]}) {
+                    let tableColumnsData = optionsData[tableIndexNo][indexPath.row-2].options
+                    if tableColumnsData?[i].id == matchData.value {
+                        selectedDropdownOptionIndexPath[tableIndexNo] = i
+                    }
                 } else {
-                    let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell
-                    cell?.selectionButton.setImage(UIImage(named: "selectButton"), for: .normal)
-                    selectedIndexPath = indexPath.section
-                    cellSelectedIndexPath = indexPath
-                    moreButton.isHidden = false
-                    collectionView.reloadData()
+                    selectedDropdownOptionIndexPath[tableIndexNo] = nil
                 }
             }
-            if tableColumnType[indexPath.row] == "dropdown" {
-                let dropdownOptionArray: NSArray = ["Yes","No","N/A"]
-                let vc = CustomModalViewController()
-                vc.modalPresentationStyle = .overCurrentContext
-                vc.hideDoneButtonOnSingleSelect = "singleSelect"
-                vc.delegate = self
-                vc.dropdownOptionArray = dropdownOptionArray
-                self.present(vc, animated: false)
-                indexPathRow = indexPath.row
-                indexPathItem = indexPath.item
-                indexPathSection = indexPath.section
-            }
+            
+            self.present(vc, animated: false)
+            indexPathRow = indexPath.row
+            indexPathItem = indexPath.item
+            indexPathSection = indexPath.section
         }
     }
     
@@ -735,7 +872,7 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
         setCellWidth()
-        let maxTextHeight = calculateMaxTextHeight(forTextArray: tableColumnTitle, font: UIFont.boldSystemFont(ofSize: 12), width: CGFloat(cellWidth))
+        let maxTextHeight = calculateMaxTextHeight(forTextArray: tableColumnTitle[tableIndexNo], font: UIFont.boldSystemFont(ofSize: 12), width: CGFloat(cellWidth))
         let cellHeight = maxTextHeight + 20
         
         if indexPath.section == 0 {
@@ -748,7 +885,7 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
             }
         }
         
-        var textHeight = calculateMaxTextHeight(forTextArray: tableCellsData[indexPath.section-1], font: UIFont.boldSystemFont(ofSize: 17), width: CGFloat(cellWidth))
+        var textHeight = calculateMaxTextHeight(forTextArray: tableCellsData[tableIndexNo][indexPath.section-1], font: UIFont.boldSystemFont(ofSize: 17), width: CGFloat(cellWidth))
         
         if textHeight < 20 {
             textHeight += 40
@@ -768,9 +905,9 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
     }
     
     func setCellWidth() {
-        if tableColumnOrderId.count == 1 {
+        if tableColumnOrderId[tableIndexNo].count == 1 {
             cellWidth = self.collectionView.frame.width - 100
-        } else if tableColumnOrderId.count == 2 {
+        } else if tableColumnOrderId[tableIndexNo].count == 2 {
             let collectionViewWidth = self.collectionView.frame.width
             cellWidth = (collectionViewWidth - 100) / 2
         } else {
@@ -791,7 +928,7 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
     // MARK: TextView delegate method for textView selection
     func textViewCellDidSelect(_ cell: UICollectionViewCell) {
         if let previousCell = collectionView.cellForItem(at: selectedTextFieldIndexPath) as? CollectionViewCell {
-            previousCell.cellTextView.borderWidth = 0
+            previousCell.cellTextView.layer.borderWidth = 0
         }
         let indexPath = collectionView.indexPath(for: cell)
         if let cell = collectionView.cellForItem(at: indexPath ?? IndexPath(row: 0, section: 0)) as? CollectionViewCell {
@@ -799,20 +936,12 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
             cell.cellTextView.layer.cornerRadius = 1.0
             cell.cellTextView.layer.borderColor = UIColor(hexString: "#1F6BFF")?.cgColor
             cell.cellTextView.selectedRange = NSRange(location: cell.cellTextView.text.count, length: 0)
-            cell.cellTextView.becomeFirstResponder()
+            cell.indexRow = indexPath?.row ?? 0
+            cell.indexSection = indexPath?.section ?? 0
+            cell.tableIndexNo = tableIndexNo
         }
         
         selectedTextFieldIndexPath = indexPath ?? IndexPath(row: 0, section: 0)
-    }
-    
-    // Function to calculate text height
-    private func heightForText(_ text: String, font: UIFont, width: CGFloat) -> CGFloat {
-        let constraintRect = CGSize(width: width, height: .greatestFiniteMagnitude)
-        let boundingBox = text.boundingRect(with: constraintRect,
-                                            options: .usesLineFragmentOrigin,
-                                            attributes: [NSAttributedString.Key.font: font],
-                                            context: nil)
-        return ceil(boundingBox.height)
     }
     
     // Function to add top & bottom border only to collectionView cell
@@ -839,7 +968,7 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
             cell.setupSeparator()
             cell.setNumberLabelInTableColumn()
         } else {
-            if tableColumnType[indexPath.row] == "dropdown" {
+            if tableColumnType[tableIndexNo][indexPath.row] == "dropdown" {
                 if indexPath.section > 0 {
                     setCellDropdownValue(cell: cell, indexPath: indexPath)
                 }
@@ -862,13 +991,11 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
     
     // Function to set dropdown value after matching column id
     func setCellDropdownValue(cell: CollectionViewCell, indexPath: IndexPath) {
-        let cellData = tableFieldValue[indexPath.section-1].cells ?? [:]
-        if let matchData = cellData.first(where: {$0.key == tableColumnOrderId[indexPath.row-2]}) {
-            for i in 0..<(optionsData.count) {
-                let tableColumnsData = optionsData[i].options
-                if let dropDownId = tableColumnsData?.first(where: {$0.id == matchData.value}) {
-                    cell.dropdownTextField.text = dropDownId.value
-                }
+        let cellData = tableFieldValue[tableIndexNo][indexPath.section-1].cells ?? [:]
+        if let matchData = cellData.first(where: {$0.key == tableColumnOrderId[tableIndexNo][indexPath.row-2]}) {
+            let tableColumnsData = optionsData[tableIndexNo][indexPath.row-2].options
+            if let dropDownId = tableColumnsData?.first(where: {$0.id == matchData.value}) {
+                cell.dropdownTextField.text = dropDownId.value
             }
         } else {
             cell.dropdownTextField.text = ""
@@ -877,8 +1004,8 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
     
     // Function to set text value after matching column id
     func setCellTextValue(cell: CollectionViewCell, indexPath: IndexPath) {
-        let cellData = tableFieldValue[indexPath.section-1].cells ?? [:]
-        if let matchData = cellData.first(where: {$0.key == tableColumnOrderId[indexPath.row-2]}) {
+        let cellData = tableFieldValue[tableIndexNo][indexPath.section-1].cells ?? [:]
+        if let matchData = cellData.first(where: {$0.key == tableColumnOrderId[tableIndexNo][indexPath.row-2]}) {
             cell.cellTextView.text = matchData.value
         } else {
             cell.cellTextView.text = ""
@@ -904,7 +1031,7 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
             cellLabel.borderCornerRadius = 0
             cellLabel.textAlignment = .center
             cellLabel.numberOfLines = 0
-            cellLabel.labelText = tableColumnTitle[indexPath.row]
+            cellLabel.labelText = tableColumnTitle[tableIndexNo][indexPath.row]
             cellLabel.backgroundColor = UIColor(hexString: "#F3F4F8")
             cellLabel.borderColor = UIColor(hexString: "#E6E7EA") ?? .lightGray
             setTableHeaderHeightAccordingToText(cellLabel: cellLabel, indexPath: indexPath)
@@ -917,7 +1044,7 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
     // Function to handle popup modal for collectionView header
     func setTableHeaderHeightAccordingToText(cellLabel: Label, indexPath: IndexPath) {
         setCellWidth()
-        let maxTextHeight = calculateMaxTextHeight(forTextArray: tableColumnTitle, font: UIFont.boldSystemFont(ofSize: 12), width: CGFloat(cellWidth))
+        let maxTextHeight = calculateMaxTextHeight(forTextArray: tableColumnTitle[tableIndexNo], font: UIFont.boldSystemFont(ofSize: 12), width: CGFloat(cellWidth))
         let cellHeight = maxTextHeight + 20
         
         if indexPath.section == 0 && indexPath.item == 0 {
@@ -932,20 +1059,122 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
         }
     }
     
-    // Function to calculate max text height
-    func calculateMaxTextHeight(forTextArray textArray: [String], font: UIFont, width: CGFloat) -> CGFloat {
-        var maxHeight: CGFloat = 0.0
-        for text in textArray {
-            let textHeight = heightForText(text, font: font, width: width)
-            maxHeight = max(maxHeight, textHeight)
-        }
-        
-        return maxHeight
-    }
-    
     func setDropdownSelectedValue(text: String) {
         dropDownSelectedValue = text
         let cell = collectionView.cellForItem(at: IndexPath(row: indexPathRow, section: indexPathSection)) as? CollectionViewCell
         cell?.dropdownTextField.text = text
+        
+        if text != "" {
+            var dropDownSelectId = String()
+            var cells = [String:String]()
+            
+            if let option = optionsData[tableIndexNo][indexPathRow-2].options?.first(where: {$0.value == text}) {
+                dropDownSelectId = option.id ?? ""
+            }
+            
+            if let fieldTableColumn = tableColumnOrderId[tableIndexNo].first(where: {$0 == optionsData[tableIndexNo][indexPathRow-2].id}) {
+                cells[fieldTableColumn] = dropDownSelectId
+            }
+            
+            let rowId = tableRowOrder[tableIndexNo][indexPathSection-1]
+            let dict = tableFieldValue[tableIndexNo][indexPathSection-1].cells
+            for (key, value) in dict ?? [:] {
+                if key == optionsData[tableIndexNo][indexPathRow-2].id {
+                    cells[key] = dropDownSelectId
+                } else {
+                    cells[key] = value
+                }
+            }
+            if var valueElement = tableFieldValue[tableIndexNo][indexPathSection - 1] as? ValueElement {
+                valueElement = ValueElement(
+                    id: valueElement.id,
+                    url: valueElement.url,
+                    fileName: valueElement.fileName,
+                    filePath: valueElement.filePath,
+                    deleted: valueElement.deleted,
+                    title: valueElement.title,
+                    description: valueElement.description,
+                    points: valueElement.points,
+                    cells: cells
+                )
+                if (tableFieldValue[tableIndexNo].first(where: {$0.id == valueElement.id}) != nil) {
+                    tableFieldValue[tableIndexNo][indexPathSection - 1] = valueElement
+                }
+                let row = ["_id":  tableFieldValue[tableIndexNo][indexPathSection - 1].id ?? "",
+                           "deleted": false,
+                           "cells": cells
+                ] as [String: Any]
+                saveDelegate?.handleTextCellChangeValue(row: row, rowId: rowId, isEditingEnd: true, index: index)
+            }
+        }
+    }
+    
+    func handleTextCellUpdateValue(_id: String, cellKey: String, cellValue: String, indexRow: Int, indexSection: Int) {
+        let rowId = tableRowOrder[tableIndexNo][indexSection-1]
+        let dict = tableFieldValue[tableIndexNo][indexSection-1].cells
+        var cells = [String:String]()
+        for (key, value) in dict ?? [:] {
+            if cellKey == key {
+                cells[cellKey] = cellValue
+            } else {
+                cells[key] = value
+            }
+        }
+        if var valueElement = tableFieldValue[tableIndexNo][indexSection - 1] as? ValueElement {
+            valueElement = ValueElement(
+                id: valueElement.id,
+                url: valueElement.url,
+                fileName: valueElement.fileName,
+                filePath: valueElement.filePath,
+                deleted: valueElement.deleted,
+                title: valueElement.title,
+                description: valueElement.description,
+                points: valueElement.points,
+                cells: cells
+            )
+            if (tableFieldValue[tableIndexNo].first(where: {$0.id == valueElement.id}) != nil) {
+                tableFieldValue[tableIndexNo][indexSection - 1] = valueElement
+            }
+            let row = ["_id":  tableFieldValue[tableIndexNo][indexSection - 1].id ?? "",
+                       "deleted": false,
+                       "cells": cells
+            ] as [String: Any]
+            saveDelegate?.handleTextCellChangeValue(row: row, rowId: rowId, isEditingEnd: true, index: index)
+        }
+    }
+    
+    func handleTextCellSetValue(cellValue: String, indexRow: Int, indexSection: Int) {
+        let rowId = tableRowOrder[tableIndexNo][indexSection-1]
+        let dict = tableFieldValue[tableIndexNo][indexSection-1].cells
+        var cells = [String:String]()
+        var textCellId = String()
+        if let fieldTableColumn = tableColumnOrderId[tableIndexNo].first(where: {$0 == optionsData[tableIndexNo][indexRow-2].id}) {
+            textCellId = fieldTableColumn
+            cells[textCellId] = cellValue
+        }
+        for (key, value) in dict ?? [:] {
+            cells[key] = value
+        }
+        if var valueElement = tableFieldValue[tableIndexNo][indexSection - 1] as? ValueElement {
+            valueElement = ValueElement(
+                id: valueElement.id,
+                url: valueElement.url,
+                fileName: valueElement.fileName,
+                filePath: valueElement.filePath,
+                deleted: valueElement.deleted,
+                title: valueElement.title,
+                description: valueElement.description,
+                points: valueElement.points,
+                cells: cells
+            )
+            if (tableFieldValue[tableIndexNo].first(where: {$0.id == valueElement.id}) != nil) {
+                tableFieldValue[tableIndexNo][indexSection - 1] = valueElement
+            }
+            let row = ["_id":  tableFieldValue[tableIndexNo][indexSection - 1].id ?? "",
+                       "deleted": false,
+                       "cells": cells
+            ] as [String: Any]
+            saveDelegate?.handleTextCellChangeValue(row: row, rowId: rowId, isEditingEnd: true, index: index)
+        }
     }
 }

@@ -438,6 +438,7 @@ public class DropDownTestField: UITextField {
             
         },
                        completion: { (didFinish) -> Void in
+            //  self.shadow.layer.shadowPath = UIBezierPath(rect: self.table.bounds).cgPath
             self.layoutIfNeeded()
             
         })
@@ -517,6 +518,8 @@ extension DropDownTestField: UITableViewDataSource {
         }else {
             cell?.backgroundColor = selectedRowColor
         }
+        //        let dataArray = dataArray[indexPath.row]
+        //        cell!.textLabel!.text = dataArray["value"] as? String ?? ""
         cell!.textLabel!.text = "\(dataArray[indexPath.row])"
         cell!.accessoryType = (indexPath.row == selectedIndex) && checkMarkEnabled  ? .checkmark : .none
         cell!.selectionStyle = .none
