@@ -1,78 +1,8 @@
 import Foundation
 import UIKit
 
-// Custom layout for collectionView
-class CustomCollectionViewLayout: UICollectionViewFlowLayout {
-    
-    var CELL_HEIGHT = 50.0
-    var CELL_WIDTH = 200.0
-    let STATUS_BAR = UIApplication.shared.statusBarFrame.height
-    var cellAttrsDictionary = Dictionary<IndexPath, UICollectionViewLayoutAttributes>()
-    var contentSize = CGSize.zero
-    
-    override var collectionViewContentSize: CGSize {
-        return self.contentSize
-    }
-    
-    override func prepare() {
-        // Cycle through each section of the data source.
-        if (collectionView?.numberOfSections)! > 0 {
-            for section in 0...collectionView!.numberOfSections-1 {
-                
-                // Cycle through each item in the section.
-                if (collectionView?.numberOfItems(inSection: section))! > 0 {
-                    for item in 0...collectionView!.numberOfItems(inSection: section)-1 {
-                        
-                        // Build the UICollectionVieLayoutAttributes for the cell.
-                        let cellIndex = NSIndexPath.init(item: item, section: section)
-                        let xPos = Double(item) * CELL_WIDTH
-                        let yPos = Double(section) * CELL_HEIGHT
-                        let cellAttributes = UICollectionViewLayoutAttributes(forCellWith: cellIndex as IndexPath)
-                        cellAttributes.frame = CGRect(x: xPos, y: yPos, width: CELL_WIDTH, height: CELL_HEIGHT)
-                        
-                        // Determine zIndex based on cell type.
-                        if section == 0 && item == 0 {
-                            cellAttributes.zIndex = 4
-                        } else if section == 0 {
-                            cellAttributes.zIndex = 3
-                        } else if item == 0 {
-                            cellAttributes.zIndex = 2
-                        } else {
-                            cellAttributes.zIndex = 1
-                        }
-                        cellAttrsDictionary[cellIndex as IndexPath] = cellAttributes
-                    }
-                }
-            }
-        }
-        let contentWidth = Double(collectionView!.numberOfItems(inSection: 0)) * CELL_WIDTH
-        let contentHeight = Double(collectionView!.numberOfSections) * CELL_HEIGHT
-        self.contentSize = CGSize(width: contentWidth, height: contentHeight)
-    }
-    
-    override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
-        // Create an array to hold all elements found in our current view.
-        var attributesInRect = [UICollectionViewLayoutAttributes]()
-        
-        // Check each element to see if it should be returned.
-        for cellAttributes in cellAttrsDictionary.values {
-            if rect.intersects(cellAttributes.frame) {
-                attributesInRect.append(cellAttributes)
-            }
-        }
-        return attributesInRect
-    }
-    
-    override func layoutAttributesForItem(at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
-        return cellAttrsDictionary[indexPath]!
-    }
-    
-    override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
-        return true
-    }
-}
-
 // Class to create 2 way scrollView for collectionView
+public var viewType = String()
 class TwoWayScrollingCollectionViewLayout: UICollectionViewFlowLayout {
     
     var stickyRowsCount = 0 {
@@ -104,7 +34,11 @@ class TwoWayScrollingCollectionViewLayout: UICollectionViewFlowLayout {
         updateStickyItemsPositions()
         
         let lastItemFrame = allAttributes.last?.last?.frame ?? .zero
-        contentSize = CGSize(width: 800, height: lastItemFrame.maxY)
+        if viewType == "modal" {
+            contentSize = CGSize(width: lastItemFrame.maxX + 160, height: lastItemFrame.maxY)
+        } else {
+            contentSize = CGSize(width: lastItemFrame.maxX, height: lastItemFrame.maxY)
+        }
     }
     
     override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {

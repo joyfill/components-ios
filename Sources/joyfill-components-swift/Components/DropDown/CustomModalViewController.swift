@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 
 protocol DropDownSelectText {
-    func selectText(text:String)
+    func setDropdownSelectedValue(text:String)
 }
 
 class CustomModalViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
@@ -11,7 +11,7 @@ class CustomModalViewController: UIViewController, UITableViewDelegate, UITableV
     public var dropdownOptionArray: NSArray = ["Yes","No","N/A"]
     var select = NSMutableArray()
     var delegate:DropDownSelectText?
-    public var doneHide = ""
+    public var hideDoneButtonOnSingleSelect = ""
     
     // define lazy views
     lazy var titleButton: UIButton = {
@@ -101,7 +101,7 @@ class CustomModalViewController: UIViewController, UITableViewDelegate, UITableV
         dimmedView.translatesAutoresizingMaskIntoConstraints = false
         containerView.translatesAutoresizingMaskIntoConstraints = false
         
-        if doneHide == "singleSelect" {
+        if hideDoneButtonOnSingleSelect == "singleSelect" {
             containerView.addSubview(dropdowntableView)
             dropdowntableView.translatesAutoresizingMaskIntoConstraints = false
             
@@ -255,7 +255,7 @@ class CustomModalViewController: UIViewController, UITableViewDelegate, UITableV
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Tablecell", for: indexPath as IndexPath) as! Tablecell
-        if doneHide == "singleSelect" {
+        if hideDoneButtonOnSingleSelect == "singleSelect" {
             if sltArray != nil && sltArray == indexPath.row {
                 cell.cellCheckbox.isChecked = true
                 cell.cellCheckbox.checkboxFillColor = UIColor(hexString: "#3767ED") ?? .lightGray
@@ -284,22 +284,22 @@ class CustomModalViewController: UIViewController, UITableViewDelegate, UITableV
     }
     
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if doneHide == "singleSelect" {
+        if hideDoneButtonOnSingleSelect == "singleSelect" {
             sltArray = indexPath.row
             let text = dropdownOptionArray[indexPath.row] as? String ?? ""
-            self.delegate?.selectText(text: text)
+            self.delegate?.setDropdownSelectedValue(text: text)
             animateDismissView()
             dropdowntableView.reloadData()
         } else {
             if select.contains(indexPath.row) {
                 select.remove(indexPath.row)
                 let selectCount = select.count
-                self.delegate?.selectText(text: String(selectCount))
+                self.delegate?.setDropdownSelectedValue(text: String(selectCount))
                 dropdowntableView.reloadData()
             } else {
                 select.add(indexPath.row)
                 let selectCount = select.count
-                self.delegate?.selectText(text: String(selectCount))
+                self.delegate?.setDropdownSelectedValue(text: String(selectCount))
                 dropdowntableView.reloadData()
             }
         }

@@ -228,7 +228,7 @@ public class Dropdown : UIView, DropDownSelectText, UITextFieldDelegate {
         toolTipAlertShow(for: self, title: toolTipTitle, message: toolTipDescription)
     }
     
-    func selectText(text: String) {
+    func setDropdownSelectedValue(text: String) {
         if doneHide == "singleSelect" {
             textField.text = text
             viewTextField.layer.cornerRadius = 12
@@ -262,7 +262,7 @@ public class Dropdown : UIView, DropDownSelectText, UITextFieldDelegate {
         let vc = CustomModalViewController()
         vc.modalPresentationStyle = .overCurrentContext
         vc.delegate = self
-        vc.doneHide = doneHide
+        vc.hideDoneButtonOnSingleSelect = doneHide
         vc.dropdownOptionArray = dropdownOptions as NSArray
         // keep false
         // modal animation will be handled in VC itself

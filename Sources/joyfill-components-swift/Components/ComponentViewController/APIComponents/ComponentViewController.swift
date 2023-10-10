@@ -9,6 +9,7 @@ public class ComponentViewController: UIView {
     public var image = Image()
     var cellView = [UIView]()
     var cellHeight = [CGFloat]()
+    var tableHeight = CGFloat()
     
     // MARK: Initializer
     public override init(frame: CGRect) {
@@ -210,7 +211,12 @@ extension ComponentViewController: UITableViewDelegate, UITableViewDataSource {
                 
                 // MARK: Chart Function Call From Package
                 let table = Table()
-                tableView.rowHeight = 200
+                table.toolTipTitle = "Testing Table"
+                table.titleLabel.labelText = componentHeaderText[i]
+                table.toolTipDescription = "Should be same person that signs signature field. Don’t forget to capture."
+                let height = (componentHeaderText[indexPath.row].height(withConstrainedWidth: frame.width, font: table.titleLabel.font))
+                tableView.rowHeight = 220 + height + 20
+                tableHeight = tableView.rowHeight
                 table.frame = CGRect(x: 10, y: 0, width: tableView.bounds.width - 20, height: tableView.rowHeight)
                 cellView.append(table)
             }
@@ -260,7 +266,7 @@ extension ComponentViewController: UITableViewDelegate, UITableViewDataSource {
                 cellHeight.append(380)
             }
             if componentType[i] == "table" {
-                cellHeight.append(200)
+                cellHeight.append(tableHeight)
             }
         }
         return cellHeight[indexPath.row]

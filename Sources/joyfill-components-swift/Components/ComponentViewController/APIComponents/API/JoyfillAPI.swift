@@ -19,6 +19,19 @@ public var blockTextStyle = String()
 public var blockTextWeight = String()
 public var blockTextAlignment = String()
 
+public var tableRowOrder = [String]()
+public var tableColumnType = [String]()
+public var tableColumnTitle = [String]()
+public var tableCellsData = [[String]]()
+public var tableColumnOrderId = [String]()
+public var componentId = [String]()
+
+public var jsonString = String()
+var tableFieldValue: [ValueElement] = []
+var optionsData: [FieldTableColumn] = []
+var valueUnion: [ValueUnion] = []
+var joyApiData: [JoyFillAPIField] = []
+
 // Variable to save counts
 var pageCount = Int()
 var fieldCount = Int()
@@ -59,12 +72,23 @@ public func joyfillAPICall() {
                     yCoordinates = []
                     xCoordinates = []
                     graphLabelData = []
+                    joyApiData.removeAll()
                     pickedImg.removeAll()
+                    tableFieldValue.removeAll()
+                    optionsData.removeAll()
+                    tableRowOrder.removeAll()
                     componentType.removeAll()
+                    tableCellsData.removeAll()
                     dropdownOptions.removeAll()
+                    tableColumnType.removeAll()
+                    tableColumnTitle.removeAll()
+                    tableColumnOrderId.removeAll()
                     multiSelectOptions.removeAll()
                     componentHeaderText.removeAll()
                     componentsYValueForMobileView.removeAll()
+                    componentId.removeAll()
+                    
+                    jsonString = ""
                     
                     fetchDataFromApi()
                     
@@ -90,19 +114,24 @@ func fetchDataFromApi() {
         for i in 0..<pageCount {
             fieldCount = joyFillStruct?.files?[0].pages?[i].fieldPositions?.count ?? 0
             for j in 0..<fieldCount {
-                
                 // Get y value of all components
                 let yFieldValue = joyFillStruct?.files?[0].pages?[i].fieldPositions?[j].y ?? 0.0
                 componentsYValueForMobileView.append(Int(yFieldValue))
-                
                 componentType.append(joyFillStruct?.files?[0].pages?[i].fieldPositions?[j].type ?? "")
                 componentHeaderText.append(joyFillStruct?.fields?[j].title ?? "")
                 componentTypeValue = joyFillStruct?.files?[0].pages?[i].fieldPositions?[j].type ?? ""
-                
-                // MARK: Functions call
-                ZipAndSortComponents()
+                componentId.append(joyFillStruct?.files?[0].pages?[i].fieldPositions?[j].field ?? "")
+                zipAndSortComponents()
                 getInputValuesFromPrimaryView(i: i, j: j)
                 getOptionValues(i: i, j: j)
+            }
+            
+            // Save field data from JoyDoc
+            let count = joyFillStruct?.fields?.count ?? 0
+            for k in 0..<count {
+                if let field = joyFillStruct?.fields?.first(where: { $0.id == componentId[k] }){
+                    joyApiData.append(field)
+                }
             }
         }
     } else {
@@ -117,7 +146,8 @@ func fetchDataFromApi() {
                 let yFieldValue = joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].y ?? 0.0
                 componentsYValueForMobileView.append(Int(yFieldValue))
                 componentType.append(joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].type ?? "")
-                ZipAndSortComponents()
+                componentId.append(joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].field ?? "")
+                zipAndSortComponents()
                 
                 if joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].type == "block" {
                     blockTextSize = joyFillStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].fontSize ?? 18
@@ -131,9 +161,14 @@ func fetchDataFromApi() {
             // Get values of the components from the fields
             for k in 0..<count {
                 componentTypeValue = joyFillStruct?.fields?[k].type ?? ""
-                // MARK: Functions call
                 getInputValuesFromMobileView(i: i, j: k)
                 getOptionValues(i: i, j: k)
+                if let field = joyFillStruct?.fields?.first(where: { $0.id == componentId[k] }){
+                    joyApiData.append(field)
+                    DispatchQueue.main.async {
+                        componentTableView.reloadData()
+                    }
+                }
             }
         }
         
@@ -147,13 +182,16 @@ func fetchDataFromApi() {
 }
 
 // Zip and sort componentType and ComponentHeaderText with componentsYValueForMobileView
-func ZipAndSortComponents() {
+func zipAndSortComponents() {
+    var componentIdPairedArray = Array(zip(componentsYValueForMobileView, componentId))
     var componentTypePairedArray = Array(zip(componentsYValueForMobileView, componentType))
     var componentHeaderTextPairedArray = Array(zip(componentsYValueForMobileView, componentHeaderText))
+    componentIdPairedArray.sort { $0.0 < $1.0}
     componentTypePairedArray.sort { $0.0 < $1.0 }
     componentHeaderTextPairedArray.sort { $0.0 < $1.0}
-
+    
     // Extract the sorted values back into the original arrays
+    componentId = componentIdPairedArray.map { $0.1 }
     componentType = componentTypePairedArray.map { $0.1 }
     componentHeaderText = componentHeaderTextPairedArray.map { $0.1 }
     componentsYValueForMobileView = componentTypePairedArray.map { $0.0 }
@@ -168,7 +206,7 @@ func getInputValuesFromPrimaryView(i: Int, j: Int) {
             getStringValues(string: string, i: i, j: j)
             
         case .valueElementArray(let valueElements):
-            getChartAndImageValue(valueElements: valueElements, j: j)
+            getArrayValue(valueElements: valueElements, j: j)
             
         case .integer(let integer):
             getIntegerValue(integer: integer)
@@ -185,7 +223,7 @@ func getInputValuesFromMobileView(i: Int, j: Int) {
             getStringValues(string: string, i: i, j: j, mobileView: true)
             
         case .valueElementArray(let valueElements):
-            getChartAndImageValue(valueElements: valueElements, j: j)
+            getArrayValue(valueElements: valueElements, j: j)
             
         case .integer(let integer):
             getIntegerValue(integer: integer)
@@ -230,10 +268,13 @@ func getStringValues(string: String, i: Int, j: Int, mobileView: Bool = false) {
     if componentTypeValue == "text" {
         textFieldString = string
     }
+    if componentTypeValue == "richText" {
+        jsonString = string
+    }
 }
 
 // Function to get chart and image values
-func getChartAndImageValue(valueElements: [ValueElement], j: Int) {
+func getArrayValue(valueElements: [ValueElement], j: Int) {
     if componentTypeValue == "chart" {
         for k in 0..<valueElements.count {
             var graphLabelSubArray: [String] = []
@@ -261,8 +302,35 @@ func getChartAndImageValue(valueElements: [ValueElement], j: Int) {
         for k in 0..<valueElements.count {
             pickedSingleImg = [valueElements[k].url ?? ""]
             pickedImg.append(valueElements[k].url ?? "")
-            DispatchQueue.main.async {
-                componentTableView.reloadData()
+        }
+    }
+    
+    if componentTypeValue == "table" {
+        optionsData = joyFillStruct?.fields?[j].tableColumns ?? []
+        for item in valueElements {
+            if (item.deleted ?? false) == false {
+                tableFieldValue.append(item)
+            }
+        }
+        
+        // Fetch table row order from joyDoc
+        for rows in 0..<(joyFillStruct?.fields?[0].rowOrder?.count ?? 0) {
+            tableRowOrder.append(joyFillStruct?.fields?[0].rowOrder?[rows] ?? "")
+        }
+        
+        // Fetch table column type and title after sorting column based on their columnId
+        for columns in 0..<(joyFillStruct?.fields?[0].tableColumnOrder?.count ?? 0) {
+            tableColumnOrderId.append(joyFillStruct?.fields?[0].tableColumnOrder?[columns] ?? "")
+            if let fieldTableColumn = joyFillStruct?.fields?[j].tableColumns?.first(where: { $0.id == joyFillStruct?.fields?[0].tableColumnOrder?[columns]}) {
+                tableColumnType.append(fieldTableColumn.type ?? "")
+                tableColumnTitle.append(fieldTableColumn.title ?? "")
+            }
+        }
+        
+        for k in 0..<tableFieldValue.count {
+            if let cells = tableFieldValue[k].cells {
+                let valuesArray = Array(cells.values)
+                tableCellsData.append(valuesArray)
             }
         }
     }
