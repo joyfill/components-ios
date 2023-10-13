@@ -834,7 +834,7 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
     
     // Function to fetch and set dropdown value from JoyDoc
     func dropdownCellValue(indexPath: IndexPath) {
-        if tableColumnType[tableIndexNo][indexPath.row] == "dropdown" {
+        if tableColumnType[tableIndexNo][indexPath.row] == FieldTypes.dropdown {
             var dropdownOptionArray = [String]()
             for k in 0..<(optionsData[tableIndexNo][indexPath.row-2].options?.count ?? 0) {
                 dropDownId = optionsData[tableIndexNo][k].id ?? ""
@@ -968,7 +968,7 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
             cell.setupSeparator()
             cell.setNumberLabelInTableColumn()
         } else {
-            if tableColumnType[tableIndexNo][indexPath.row] == "dropdown" {
+            if tableColumnType[tableIndexNo][indexPath.row] == FieldTypes.dropdown {
                 if indexPath.section > 0 {
                     setCellDropdownValue(cell: cell, indexPath: indexPath)
                 }

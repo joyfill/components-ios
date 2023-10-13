@@ -343,6 +343,7 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
         let tap = UITapGestureRecognizer(target: self, action: #selector(showHideButtonTapped))
         showHideButtonView.addGestureRecognizer(tap)
         
+        // Set system image to closeButton
         if #available(iOS 13.0, *) {
             let boldConfig = UIImage.SymbolConfiguration(weight: .bold)
             let boldSearch = UIImage(systemName: "xmark.circle", withConfiguration: boldConfig)

@@ -141,7 +141,7 @@ extension CollectionViewTable: UICollectionViewDelegate, UICollectionViewDataSou
     
     // Function to handle table popup modal
     func viewTablePopUpModal(cell: CollectionViewCell, indexPath: IndexPath) {
-        if tableColumnType[tableIndexNo][indexPath.row] == "dropdown" {
+        if tableColumnType[tableIndexNo][indexPath.row] == FieldTypes.dropdown {
             if indexPath.section > 0 {
                 setCellDropdownValue(cell: cell, indexPath: indexPath)
             }

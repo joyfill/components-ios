@@ -345,7 +345,7 @@ func fetchDataFromJoyDoc() {
                     joyDocFieldPositionData.append((joyDocStruct?.files?[0].pages?[0].fieldPositions?[j])!)
                     zipAndSortComponents()
                 }
-                if joyDocStruct?.files?[0].pages?[i].fieldPositions?[j].type == "block" {
+                if joyDocStruct?.files?[0].pages?[i].fieldPositions?[j].type == FieldTypes.block {
                     blockTextSize.append(joyDocStruct?.files?[0].pages?[i].fieldPositions?[j].fontSize ?? 18)
                     blockTextStyle.append(joyDocStruct?.files?[0].pages?[i].fieldPositions?[j].fontStyle ?? "")
                     blockTextWeight.append(joyDocStruct?.files?[0].pages?[i].fieldPositions?[j].fontWeight ?? "")
@@ -385,7 +385,7 @@ func fetchDataFromJoyDoc() {
                     joyDocFieldPositionData.append((joyDocStruct?.files?[0].views?[0].pages?[0].fieldPositions?[i])!)
                     zipAndSortComponents()
                 }
-                if joyDocStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].type == "block" {
+                if joyDocStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].type == FieldTypes.block {
                     blockTextSize.append(joyDocStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].fontSize ?? 18)
                     blockTextStyle.append(joyDocStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].fontStyle ?? "")
                     blockTextWeight.append(joyDocStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].fontWeight ?? "")

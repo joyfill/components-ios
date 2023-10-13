@@ -19,7 +19,7 @@ public protocol onChange {
     func handleOnChange(doc: [[String: Any]], isEditingEnd: Bool)
 }
 
-public class ComponentViewController: UIView, SaveTableFieldValue, saveImageFieldValue, saveSignatureFieldValue {
+public class Form: UIView, SaveTableFieldValue, saveImageFieldValue, saveSignatureFieldValue {
     
     var joyFillStruct: JoyDoc?
     var imageIndexPath = Int()
@@ -91,7 +91,7 @@ public class ComponentViewController: UIView, SaveTableFieldValue, saveImageFiel
 }
 
 // MARK: Setup tableView
-extension ComponentViewController: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, saveChartFieldValue {
+extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, saveChartFieldValue {
     // MARK: TableView delegate method for number of rows in section
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return componentType.count
@@ -103,45 +103,37 @@ extension ComponentViewController: UITableViewDelegate, UITableViewDataSource, S
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
         componentTableView.separatorStyle = .none
         
-        
         // Configure the cell
         let value = joyDocFieldData[indexPath.row].value
+        let fieldType = joyDocFieldData[indexPath.row].type
         
-        if joyDocFieldData[indexPath.row].type == "text" {
+        switch fieldType {
+        case FieldTypes.text:
             configureTextFieldCell(tableView: tableView, i: indexPath.row, value: value)
-            
-        } else if joyDocFieldData[indexPath.row].type == "multiSelect" {
+        case FieldTypes.multiSelect:
             configureMultiSelectFieldCell(tableView: tableView, i: indexPath.row, value: value)
-            
-        } else if joyDocFieldData[indexPath.row].type == "dropdown" {
+        case FieldTypes.dropdown:
             configureDropdownFieldCell(tableView: tableView, i: indexPath.row, value: value)
-            
-        } else if joyDocFieldData[indexPath.row].type == "textarea" {
+        case FieldTypes.textarea:
             configureTextAreaFieldCell(tableView: tableView, i: indexPath.row, value: value)
-            
-        } else if joyDocFieldData[indexPath.row].type == "date" {
+        case FieldTypes.date:
             configureDateTimeFieldCell(tableView: tableView, i: indexPath.row, value: value)
-            
-        } else if joyDocFieldData[indexPath.row].type == "signature" {
+        case FieldTypes.signature:
             configureSignatureFieldCell(tableView: tableView, i: indexPath.row, value: value)
-            
-        } else if joyDocFieldData[indexPath.row].type == "block" {
+        case FieldTypes.block:
             configureBlockFieldCell(tableView: tableView, i: indexPath.row, value: value)
-            
-        } else if joyDocFieldData[indexPath.row].type == "number" {
+        case FieldTypes.number:
             configureNumberFieldCell(tableView: tableView, i: indexPath.row, value: value)
-            
-        } else if joyDocFieldData[indexPath.row].type == "chart" {
+        case FieldTypes.chart:
             configureChartFieldCell(tableView: tableView, i: indexPath.row, value: value)
-            
-        } else if joyDocFieldData[indexPath.row].type == "richText" {
+        case FieldTypes.richText:
             configureRichTextFieldCell(tableView: tableView, i: indexPath.row, value: value)
-            
-        } else if joyDocFieldData[indexPath.row].type == "table" {
+        case FieldTypes.table:
             configureTableFieldCell(tableView: tableView, i: indexPath.row, value: value)
-            
-        } else if joyDocFieldData[indexPath.row].type == "image" {
+        case FieldTypes.image:
             configureImageFieldCell(tableView: tableView, i: indexPath.row, value: value)
+        default:
+            break
         }
         
         cell.contentView.subviews.forEach { $0.removeFromSuperview() }
@@ -154,7 +146,8 @@ extension ComponentViewController: UITableViewDelegate, UITableViewDataSource, S
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         cellHeight.removeAll()
         for i in 0..<componentType.count {
-            if componentType[i] == "image" {
+            switch componentType[i] {
+            case FieldTypes.image:
                 if imageSelectionCount[i].count == 0 {
                     if selectedPicture[i].count == 0 {
                         cellHeight.append(150)
@@ -164,39 +157,14 @@ extension ComponentViewController: UITableViewDelegate, UITableViewDataSource, S
                 } else {
                     cellHeight.append(270)
                 }
-            }
-            if componentType[i] == "text" {
+            case FieldTypes.text, FieldTypes.multiSelect, FieldTypes.dropdown, FieldTypes.textarea, FieldTypes.date, FieldTypes.signature, FieldTypes.number, FieldTypes.chart, FieldTypes.table:
                 cellHeight.append(componentTableViewCellHeight[i] + 10)
-            }
-            if componentType[i] == "multiSelect" {
-                cellHeight.append(componentTableViewCellHeight[i] + 20)
-            }
-            if componentType[i] == "dropdown" {
-                cellHeight.append(componentTableViewCellHeight[i] + 10)
-            }
-            if componentType[i] == "textarea" {
-                cellHeight.append(componentTableViewCellHeight[i] + 10)
-            }
-            if componentType[i] == "date" {
-                cellHeight.append(componentTableViewCellHeight[i] + 10)
-            }
-            if componentType[i] == "signature" {
-                cellHeight.append(componentTableViewCellHeight[i] + 10)
-            }
-            if componentType[i] == "block" {
+            case FieldTypes.block:
                 cellHeight.append(50)
-            }
-            if componentType[i] == "number" {
-                cellHeight.append(componentTableViewCellHeight[i] + 10)
-            }
-            if componentType[i] == "chart" {
-                cellHeight.append(componentTableViewCellHeight[i] + 10)
-            }
-            if componentType[i] == "table" {
-                cellHeight.append(componentTableViewCellHeight[i] + 10)
-            }
-            if componentType[i] == "richText" {
+            case FieldTypes.richText:
                 cellHeight.append(componentTableViewCellHeight[i])
+            default:
+                break
             }
         }
         return cellHeight[indexPath.row]

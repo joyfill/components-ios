@@ -141,7 +141,6 @@ open class Signature: UIView {
         signatureView.backgroundColor = .white
         
         // MARK: Label Function Call From Package
-        topLabel.labelText = "Signature"
         topLabel.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         topLabel.borderWidth = 0
         topLabel.textColor = .black
