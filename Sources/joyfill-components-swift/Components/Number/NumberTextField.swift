@@ -190,10 +190,8 @@ public class NumberField: UIView, UITextFieldDelegate {
             numberField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -15),
             numberField.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0),
         ])
-        if #available(iOS 13.0, *) {
-         self.overrideUserInterfaceStyle = .light
-        }
         
+        setGlobalUserInterfaceStyle()
         // Title label properties
         titleLbl.numberOfLines = 0
         titleLbl.font = UIFont.systemFont(ofSize: 14, weight: .semibold)

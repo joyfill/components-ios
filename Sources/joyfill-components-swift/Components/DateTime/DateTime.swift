@@ -193,9 +193,7 @@ public class DateTime: UIView, UITextFieldDelegate {
             datePickerButton.widthAnchor.constraint(equalToConstant: 30),
         ])
         
-        if #available(iOS 13.0, *) {
-         self.overrideUserInterfaceStyle = .light
-        }
+        setGlobalUserInterfaceStyle()
         
         dateTimeField.delegate = self
         dateTimeField.isUserInteractionEnabled = true

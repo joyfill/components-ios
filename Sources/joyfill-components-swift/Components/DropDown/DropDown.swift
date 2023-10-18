@@ -84,9 +84,8 @@ public class Dropdown: UIView, DropDownSelectText, UITextFieldDelegate {
             button.trailingAnchor.constraint(equalTo: viewTextField.trailingAnchor, constant: -20),
             button.widthAnchor.constraint(equalToConstant: 30),
         ])
-        if #available(iOS 13.0, *) {
-         self.overrideUserInterfaceStyle = .light
-        }
+        
+        setGlobalUserInterfaceStyle()
         
         self.titleLbl.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         self.titleText = "Drop Down"

@@ -121,9 +121,7 @@ open class RichDisplayText: UITextView, UITextViewDelegate {
 
     // To give default value to the textView
     private func setDefaults() {
-        if #available(iOS 13.0, *) {
-         self.overrideUserInterfaceStyle = .light
-        }
+        setGlobalUserInterfaceStyle()
         self.textContainerInset = UIEdgeInsets(top: 15, left: 15, bottom: 10, right: 10)
         borderColor = UIColor(hexString: "#D1D1D6") ?? .lightGray
         fontSize = 14.0

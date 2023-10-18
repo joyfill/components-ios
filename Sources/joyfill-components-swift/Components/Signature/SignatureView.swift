@@ -104,9 +104,8 @@ open class SignatureView : UIView {
             signIconBt.trailingAnchor.constraint(equalTo: signViewBt.trailingAnchor,constant: -10),
             signIconBt.bottomAnchor.constraint(equalTo: signViewBt.bottomAnchor, constant: -7)
         ])
-        if #available(iOS 13.0, *) {
-         self.overrideUserInterfaceStyle = .light
-        }
+        
+        setGlobalUserInterfaceStyle()
         titleLabel.numberOfLines = 0
         titleLabel.textColor = .black
         titleLabel.text = "Signature Filled"

@@ -374,3 +374,10 @@ func rgbToHex(rgbString: String) -> String? {
     
     return "#\(redHex)\(greenHex)\(blueHex)"
 }
+
+// It forces UI to work in light mode
+func setGlobalUserInterfaceStyle() {
+    if #available(iOS 13.0, *) {
+        UIApplication.shared.windows.first?.overrideUserInterfaceStyle = .light
+    }
+}

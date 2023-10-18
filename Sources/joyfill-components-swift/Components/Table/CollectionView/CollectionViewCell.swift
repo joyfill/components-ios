@@ -34,18 +34,12 @@ class CollectionViewCell: UICollectionViewCell, UITextFieldDelegate, UITextViewD
         super.init(frame: frame)
         setupSeparator()
         cellTextView.delegate = self
-        if #available(iOS 13.0, *) {
-            self.overrideUserInterfaceStyle = .light
-        }
     }
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         cellTextView.delegate = self
         setupSeparator()
-        if #available(iOS 13.0, *) {
-            self.overrideUserInterfaceStyle = .light
-        }
     }
     
     // Rows and Columns separator for table
@@ -67,6 +61,7 @@ class CollectionViewCell: UICollectionViewCell, UITextFieldDelegate, UITextViewD
             verticalSeparatorView.widthAnchor.constraint(equalToConstant: 1)
         ])
         
+        setGlobalUserInterfaceStyle()
         verticalSeparatorView.backgroundColor = UIColor(hexString: "#E6E7EA")
         horizontalSeparatorView.backgroundColor = UIColor(hexString: "#E6E7EA")
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(textViewDidTap(_:)))

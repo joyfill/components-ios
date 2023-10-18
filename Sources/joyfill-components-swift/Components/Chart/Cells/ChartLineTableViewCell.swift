@@ -152,9 +152,7 @@ public class ChartLineTableViewCell: UITableViewCell, ChartViewTextFieldCellDele
             pointsTableView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8)
         ])
         
-        if #available(iOS 13.0, *) {
-         self.overrideUserInterfaceStyle = .light
-        }
+        setGlobalUserInterfaceStyle()
         
         // View Properties
         view.layer.borderWidth = 1

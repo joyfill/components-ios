@@ -83,9 +83,7 @@ public class CollectionViewTable: UIView {
         collectionView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
         collectionView.topAnchor.constraint(equalTo: topAnchor).isActive = true
         collectionView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
-        if #available(iOS 13.0, *) {
-            self.overrideUserInterfaceStyle = .light
-        }
+        setGlobalUserInterfaceStyle()
         numberOfColumns = tableColumnType[tableIndexNo].count
         tableHeading = tableColumnTitle[tableIndexNo]
         

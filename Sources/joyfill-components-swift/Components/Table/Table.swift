@@ -125,9 +125,7 @@ open class Table: UIView, UIViewControllerTransitioningDelegate, tableUpdate {
             collectionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
             collectionView.heightAnchor.constraint(equalToConstant: 200),
         ])
-        if #available(iOS 13.0, *) {
-            self.overrideUserInterfaceStyle = .light
-        }
+        setGlobalUserInterfaceStyle()
         countView.layer.cornerRadius = 6
         countView.backgroundColor = .white
         

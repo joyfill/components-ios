@@ -67,9 +67,7 @@ public class PointsTableViewCell: UITableViewCell {
             lineSeparator.heightAnchor.constraint(equalToConstant: 1)
         ])
         
-        if #available(iOS 13.0, *) {
-         self.overrideUserInterfaceStyle = .light
-        }
+        setGlobalUserInterfaceStyle()
         
         // StackView properties
         textFieldStackView.spacing = 5

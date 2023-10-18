@@ -136,7 +136,7 @@ open class Signature: UIView {
         signatureView.lineWidth = 3
         signatureView.layer.borderWidth = 1
         signatureView.layer.cornerRadius = 8
-        self.overrideUserInterfaceStyle = .light
+        setGlobalUserInterfaceStyle()
         signatureView.layer.borderColor = UIColor(hexString: "#D1D1D6")?.cgColor
         signatureView.backgroundColor = .white
         

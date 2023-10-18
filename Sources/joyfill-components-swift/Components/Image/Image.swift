@@ -144,9 +144,7 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
             imageCountLabel.bottomAnchor.constraint(equalTo: imageCountView.bottomAnchor, constant: 0)
         ])
         
-        if #available(iOS 13.0, *) {
-         self.overrideUserInterfaceStyle = .light
-        }
+        setGlobalUserInterfaceStyle()
         
         // ImageCountView
         imageCountView.backgroundColor = .white

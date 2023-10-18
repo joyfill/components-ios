@@ -148,9 +148,7 @@ public class MultipleChoice: UIView {
             tableView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
         ])
         
-        if #available(iOS 13.0, *) {
-         self.overrideUserInterfaceStyle = .light
-        }
+        setGlobalUserInterfaceStyle()
         
         // tableView Properties
         tableView.delegate = self

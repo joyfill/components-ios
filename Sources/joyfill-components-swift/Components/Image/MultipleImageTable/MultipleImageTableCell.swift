@@ -38,9 +38,8 @@ public class MultipleImageTableCell: UITableViewCell {
             checkboxButton.widthAnchor.constraint(equalToConstant: 23),
             checkboxButton.heightAnchor.constraint(equalToConstant: 23)
         ])
-        if #available(iOS 13.0, *) {
-         self.overrideUserInterfaceStyle = .light
-        }
+        
+        setGlobalUserInterfaceStyle()
         cellImageField.contentModeValue = 0
         cellImageField.cornerRadius = 6
         

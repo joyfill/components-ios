@@ -72,10 +72,9 @@ public class Chart: UIView, UIViewControllerTransitioningDelegate {
     }
     
     func setupUI() {
+        setGlobalUserInterfaceStyle()
+        
         // SubViews
-        if #available(iOS 13.0, *) {
-         self.overrideUserInterfaceStyle = .light
-        }
         addSubview(viewMore)
         addSubview(graphView)
         addSubview(toolTipIconButton)

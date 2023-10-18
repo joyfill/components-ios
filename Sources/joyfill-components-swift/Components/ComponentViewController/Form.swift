@@ -34,36 +34,28 @@ public class Form: UIView, SaveTableFieldValue, saveImageFieldValue, saveSignatu
     // MARK: Initializer
     public override init(frame: CGRect) {
         super.init(frame: frame)
-        if #available(iOS 13.0, *) {
-            self.overrideUserInterfaceStyle = .light
-        }
         setupUI()
         hideKeyboardOnTapAnyView()
     }
     
     public required init?(coder: NSCoder) {
         super.init(coder: coder)
-        if #available(iOS 13.0, *) {
-            self.overrideUserInterfaceStyle = .light
-        }
         setupUI()
         hideKeyboardOnTapAnyView()
     }
     
     public init() {
         super.init(frame: .zero)
-        if #available(iOS 13.0, *) {
-            self.overrideUserInterfaceStyle = .light
-        }
         setupUI()
         hideKeyboardOnTapAnyView()
     }
     
     public func setupUI() {
+        setGlobalUserInterfaceStyle()
         _ = JoyDoc.loadFromJSON()
+        
         // SubViews
         addSubview(componentTableView)
-        
         componentTableView.translatesAutoresizingMaskIntoConstraints = false
         
         // Constraint to arrange subviews acc. to components
