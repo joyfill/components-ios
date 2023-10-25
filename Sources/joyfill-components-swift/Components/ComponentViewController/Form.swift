@@ -17,7 +17,6 @@ public var selectedPicture = [[String]]()
 public var pickedSinglePicture = [[String]]()
 public var imageSelectionCount = [[String]]()
 public var saveButtonTapAction: (() -> Void)?
-public var blurButtonTapAction: (() -> Void)?
 public var uploadImageTapAction: (() -> Void)?
 
 public protocol onChange {
@@ -29,7 +28,6 @@ public protocol onChange {
 public class Form: UIView, SaveTableFieldValue, saveImageFieldValue, saveSignatureFieldValue, SavePageNavigationChange {
     
     public var saveButton = Button()
-    public var blurButton = Button()
     public var pageNavigationView = UIView()
     public var pageNavigationLabel = Label()
     public var pageNavigationArrow = ImageView()
@@ -72,12 +70,10 @@ public class Form: UIView, SaveTableFieldValue, saveImageFieldValue, saveSignatu
         addSubview(pageNavigationView)
         addSubview(componentTableView)
         addSubview(saveButton)
-        addSubview(blurButton)
         pageNavigationView.addSubview(pageNavigationArrow)
         pageNavigationView.addSubview(pageNavigationLabel)
         
         saveButton.translatesAutoresizingMaskIntoConstraints = false
-        blurButton.translatesAutoresizingMaskIntoConstraints = false
         componentTableView.translatesAutoresizingMaskIntoConstraints = false
         pageNavigationView.translatesAutoresizingMaskIntoConstraints = false
         pageNavigationArrow.translatesAutoresizingMaskIntoConstraints = false
@@ -112,13 +108,7 @@ public class Form: UIView, SaveTableFieldValue, saveImageFieldValue, saveSignatu
             saveButton.topAnchor.constraint(equalTo: componentTableView.bottomAnchor, constant: 5),
             saveButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             saveButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            saveButton.bottomAnchor.constraint(equalTo: blurButton.topAnchor, constant: -5),
-            
-            // Blur Constraint
-            blurButton.topAnchor.constraint(equalTo: saveButton.bottomAnchor, constant: 5),
-            blurButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            blurButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            blurButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -20)
+            saveButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -20),
         ])
         
         // Set cornerRadius and shadow to view.
@@ -129,12 +119,6 @@ public class Form: UIView, SaveTableFieldValue, saveImageFieldValue, saveSignatu
         saveButton.titleColor = UIColor.blue
         saveButton.backgroundColor = UIColor(hexString: "#F5F5F5")
         saveButton.addTarget(self, action: #selector(saveButtonTapped), for: .touchUpInside)
-        
-        blurButton.title = "Blur"
-        blurButton.cornerRadius = 20
-        blurButton.titleColor = UIColor.blue
-        blurButton.backgroundColor = UIColor(hexString: "#F5F5F5")
-        blurButton.addTarget(self, action: #selector(blurButtonTapped), for: .touchUpInside)
         
         pageNavigationLabel.fontSize = 14
         pageNavigationView.layer.cornerRadius = 20
@@ -165,10 +149,6 @@ public class Form: UIView, SaveTableFieldValue, saveImageFieldValue, saveSignatu
         saveButtonTapAction?()
         docChangeLogs.removeAll()
         changelogs.removeAll()
-    }
-    
-    @objc public func blurButtonTapped(sender: UIButton) {
-        blurButtonTapAction?()
     }
     
     private func findViewController() -> UIViewController? {
