@@ -5,9 +5,13 @@ class SignatureViewController: UIViewController {
     
     public var signatureView = Signature()
     
+    var index = Int()
+    var saveDelegate: saveSignatureFieldValue? = nil
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
+        view.overrideUserInterfaceStyle = .light
         setupUI()
     }
     
@@ -22,5 +26,8 @@ class SignatureViewController: UIViewController {
             signatureView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             signatureView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
+        
+        signatureView.index = index
+        signatureView.saveDelegate = saveDelegate
     }
 }

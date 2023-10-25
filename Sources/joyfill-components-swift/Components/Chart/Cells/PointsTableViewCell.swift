@@ -67,6 +67,8 @@ public class PointsTableViewCell: UITableViewCell {
             lineSeparator.heightAnchor.constraint(equalToConstant: 1)
         ])
         
+        setGlobalUserInterfaceStyle()
+        
         // StackView properties
         textFieldStackView.spacing = 5
         textFieldStackView.alignment = .fill

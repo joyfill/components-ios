@@ -125,7 +125,7 @@ extension UIView {
         self.layer.mask = mask
     }
     
-    func hideKeyboardOnTapAnyView() {
+   public func hideKeyboardOnTapAnyView() {
         let tap =  UITapGestureRecognizer()
         tap.cancelsTouchesInView = false
         tap.addTarget(self, action: #selector(tapTriggeredAnyView))
@@ -298,5 +298,86 @@ extension String {
 extension UIFont {
     var isBold: Bool {
         return fontDescriptor.symbolicTraits.contains(.traitBold)
+    }
+}
+
+// Function to calculate max text height
+public func calculateMaxTextHeight(forTextArray textArray: [String], font: UIFont, width: CGFloat) -> CGFloat {
+    var maxHeight: CGFloat = 0.0
+    for text in textArray {
+        let textHeight = heightForText(text, font: font, width: width)
+        maxHeight = max(maxHeight, textHeight)
+    }
+    
+    return maxHeight
+}
+
+// Function to calculate text height
+public func heightForText(_ text: String, font: UIFont, width: CGFloat) -> CGFloat {
+    let constraintRect = CGSize(width: width, height: .greatestFiniteMagnitude)
+    let boundingBox = text.boundingRect(with: constraintRect,
+                                        options: .usesLineFragmentOrigin,
+                                        attributes: [NSAttributedString.Key.font: font],
+                                        context: nil)
+    return ceil(boundingBox.height)
+}
+
+// Function to generate ID
+func generateObjectId() -> String {
+    let characters = "65111466f7a5f25393fd0ac7"
+    let length = characters.count
+    var objectId = "6"
+    
+    for _ in 1..<24 {
+        let randomIndex = Int.random(in: 0..<length)
+        let randomCharacter = characters[characters.index(characters.startIndex, offsetBy: randomIndex)]
+        objectId.append(randomCharacter)
+    }
+    
+    return objectId
+}
+
+// Function to convert date in timeStamp
+public func dateToTimestampMilliseconds(date: Date) -> Int {
+    let timestampSeconds = date.timeIntervalSince1970
+    let timestampMilliseconds = Int(timestampSeconds * 1000)
+    return timestampMilliseconds
+}
+
+// Function to convert timeStamp in date
+public func timestampMillisecondsToDate(value: Int) -> String {
+    let timestampMilliseconds: TimeInterval = TimeInterval(value)
+    let date = Date(timeIntervalSince1970: timestampMilliseconds / 1000.0)
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "MMMM d, yyyy"
+    let formattedDate = dateFormatter.string(from: date)
+    return formattedDate
+}
+
+// Function to convert RGB color to Hexa
+func rgbToHex(rgbString: String) -> String? {
+    // Remove "rgb(" and ")" and split the string by ","
+    let components = rgbString.replacingOccurrences(of: "rgb(", with: "").replacingOccurrences(of: ")", with: "").split(separator: ",")
+    
+    // Ensure we have three components
+    guard components.count == 3,
+          let red = Int(components[0].trimmingCharacters(in: .whitespaces)),
+          let green = Int(components[1].trimmingCharacters(in: .whitespaces)),
+          let blue = Int(components[2].trimmingCharacters(in: .whitespaces)) else {
+        return nil // Invalid format or values
+    }
+    
+    // Convert RGB values to hex
+    let redHex = String(format: "%02X", red)
+    let greenHex = String(format: "%02X", green)
+    let blueHex = String(format: "%02X", blue)
+    
+    return "#\(redHex)\(greenHex)\(blueHex)"
+}
+
+// It forces UI to work in light mode
+func setGlobalUserInterfaceStyle() {
+    if #available(iOS 13.0, *) {
+        UIApplication.shared.windows.first?.overrideUserInterfaceStyle = .light
     }
 }

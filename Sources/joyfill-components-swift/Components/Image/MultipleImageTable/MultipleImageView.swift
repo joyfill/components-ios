@@ -2,24 +2,31 @@ import Foundation
 import UIKit
 
 protocol MultipleImageViewDelegate: AnyObject {
-    func imagesDeleted()
     func imagesUpdated()
+    func removeAllImages()
+    func imagesDeleted(selectedIndex: Int)
 }
-
-public var imageTableView = UITableView()
-public var interiorImageUploadButton = Button()
 
 public class MultipleImageView: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITableViewDelegate, UITableViewDataSource, UIViewControllerTransitioningDelegate {
     
     public var mainView = UIView()
-    public var interiorImageBar = UIView()
-    public var interiorImageLabel = Label()
-    public var closeButton = Button()
     public var deleteView = UIView()
     public var deleteLabel = Label()
-    public var deleteUploadStack = UIStackView()
+    public var closeButton = Button()
     public var deleteImage = ImageView()
+    public var interiorImageBar = UIView()
+    public var interiorImageLabel = Label()
+    public var imageTableView = UITableView()
+    public var deleteUploadStack = UIStackView()
+    public var interiorImageUploadButton = Button()
+    
+    public var index = Int()
+    public var imageMultiValue = Bool()
+    public var imageDisplayMode = String()
+    public var selectedImage = [[String]]()
+    public var pickedSingleImg = [[String]]()
     public var selectedIndexPath: Set<Int> = []
+    var saveDelegate: saveImageFieldValue? = nil
     weak var delegate: MultipleImageViewDelegate?
     
     public override func viewDidLoad() {
@@ -31,6 +38,9 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         imageTableView.delegate = self
         imageTableView.dataSource = self
         imageTableView.allowsMultipleSelection = true
+        if #available(iOS 13.0, *) {
+            view.overrideUserInterfaceStyle = .light
+        }
         setupUI()
     }
     
@@ -40,7 +50,7 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         setupUI()
         
         if imageDisplayMode == "readonly" {
-            if pickedImg.count != 0 {
+            if selectedImage[index].count != 0 {
                 deleteView.isHidden = true
                 interiorImageUploadButton.isHidden = true
             } else {
@@ -49,7 +59,7 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
                 imageTableView.isHidden = true
             }
         } else {
-            if pickedImg.count != 0 {
+            if selectedImage[index].count != 0 {
                 deleteView.isHidden = true
                 imageTableView.isHidden = false
             } else {
@@ -86,7 +96,7 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         // Constraint to arrange subviews acc. to imageView
         NSLayoutConstraint.activate([
             // Top View
-            mainView.topAnchor.constraint(equalTo: view.topAnchor, constant: 40),
+            mainView.topAnchor.constraint(equalTo: view.topAnchor, constant: 50),
             mainView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
             mainView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -8),
             mainView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -50),
@@ -181,30 +191,41 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         deleteView.isUserInteractionEnabled = true
         
         // Set UploadButton
+        interiorImageUploadButton.tag = index
         interiorImageUploadButton.image = UIImage(named: "interiorUploadButton")
+        interiorImageUploadButton.addTarget(self, action: #selector(interiorUploadButtonTapped), for: .touchUpInside)
+    }
+    
+    @objc public func interiorUploadButtonTapped(sender: UIButton) {
+        uploadImageTapAction?()
+        imageIndexNo = sender.tag
     }
     
     // MARK: ImageTableView
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if imageMultiValue {
-            return pickedImg.count
+            return selectedImage[index].count
         } else {
-            return pickedSingleImg.count
+            return pickedSingleImg[index].count
         }
     }
     
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MultipleImageTableCell", for: indexPath) as! MultipleImageTableCell
         cell.contentView.backgroundColor = .clear
+        cell.selectedImage = selectedImage
+        cell.index = index
+        cell.checkDisplayMode()
         
         if imageMultiValue {
-            cell.cellImageField.load(urlString: pickedImg[indexPath.row])
+            cell.cellImageField.load(urlString: selectedImage[index][indexPath.row])
         } else {
-            cell.cellImageField.load(urlString: pickedSingleImg[indexPath.row])
+            cell.cellImageField.load(urlString: pickedSingleImg[index][indexPath.row])
         }
         
         tableView.rowHeight = 280
         cell.isSelected = selectedIndexPath.contains(indexPath.row)
+        cell.imageDisplayMode = imageDisplayMode
         
         if selectedIndexPath.contains(indexPath.row) {
             cell.checkboxButton.isChecked = true
@@ -266,8 +287,12 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         willMove(toParent: nil)
         view.removeFromSuperview()
         removeFromParent()
-        delegate?.imagesUpdated()
-        componentTableView.reloadData()
+        
+        if selectedImage[index].count == 0 {
+            delegate?.removeAllImages()
+        } else {
+            delegate?.imagesUpdated()
+        }
     }
     
     // Action for delete button
@@ -275,23 +300,24 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         let sortedIndices = selectedIndexPath.sorted(by: >)
         
         // Delete the selected cells from the data array
-        for index in sortedIndices {
+        for selectedIndex in sortedIndices {
             if imageMultiValue {
-                pickedImg.remove(at: index)
+                selectedImage[index].remove(at: selectedIndex)
             } else {
-                pickedImg.removeAll()
-                pickedSingleImg.removeAll()
+                selectedImage[index].removeAll()
+                pickedSingleImg[index].removeAll()
             }
+            delegate?.imagesDeleted(selectedIndex: selectedIndex)
         }
         selectedIndexPath.removeAll()
-        delegate?.imagesDeleted()
         
         // Update the table view
         imageTableView.beginUpdates()
         imageTableView.deleteRows(at: sortedIndices.map { IndexPath(row: $0, section: 0) }, with: .fade)
+        imageTableView.reloadData()
         imageTableView.endUpdates()
         
-        if pickedImg.count == 0 {
+        if selectedImage[index].count == 0 {
             deleteView.isHidden = true
         } else {
             deleteView.isHidden = false

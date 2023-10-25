@@ -3,11 +3,14 @@ import UIKit
 
 public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFieldCellDelegate {
     
+    public var titleLabel = Label()
     public var graphView = UIView()
+    public let closeButton = Button()
     public var addLineView = UIView()
     public var showHideView = UIView()
     public var showHideLabel = Label()
     public var verticalLabel = Label()
+    public var lineGraph = LineChart()
     public var chartLineLabel = Label()
     public var verticalYView = UIView()
     public var horizontalLabel = Label()
@@ -19,7 +22,6 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
     public var showHideButtonView = UIView()
     public var addGraphLineButton = Button()
     public var performanceGraphBar = UIView()
-    public var performanceGraphLabel = Label()
     public var addLineTableView = UITableView()
     public var showHideButtonImage = ImageView()
     public var verticalMaxTextField = ShortText()
@@ -29,12 +31,20 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
     public var scrollView = UIScrollView()
     public var contentView = UIView()
     
+    var index = Int()
+    var newLineId = String()
+    var labelTitle = String()
+    var saveDelegate: saveChartFieldValue? = nil
+    
     public override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupUI()
         view.hideKeyboardOnTapAnyView()
-        
+        if #available(iOS 13.0, *) {
+            view.overrideUserInterfaceStyle = .light
+        }
+    
         let center: NotificationCenter = NotificationCenter.default
         center.addObserver(self, selector: #selector(keyboardShown(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         center.addObserver(self, selector: #selector(keyboardHidden(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
@@ -78,8 +88,11 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
         horizontalXView.addSubview(horizontalMaxTextField)
         horizontalXView.addSubview(horizontalMinTextField)
         performanceGraphBar.addSubview(addGraphLineButton)
-        performanceGraphBar.addSubview(performanceGraphLabel)
+        performanceGraphBar.addSubview(closeButton)
+        performanceGraphBar.addSubview(titleLabel)
         
+        closeButton.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
         stackView.translatesAutoresizingMaskIntoConstraints = false
         graphView.translatesAutoresizingMaskIntoConstraints = false
         lineGraph.translatesAutoresizingMaskIntoConstraints = false
@@ -101,12 +114,12 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
         performanceGraphBar.translatesAutoresizingMaskIntoConstraints = false
         verticalMaxTextField.translatesAutoresizingMaskIntoConstraints = false
         verticalMinTextField.translatesAutoresizingMaskIntoConstraints = false
-        performanceGraphLabel.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
         horizontalMaxTextField.translatesAutoresizingMaskIntoConstraints = false
         horizontalMinTextField.translatesAutoresizingMaskIntoConstraints = false
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         contentView.translatesAutoresizingMaskIntoConstraints = false
-   
+        
         // Constraint to arrange subviews acc. to chartView
         NSLayoutConstraint.activate([
             // ScrollView Constraint
@@ -129,14 +142,20 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
             performanceGraphBar.heightAnchor.constraint(equalToConstant: 39),
             
             // PerformanceGraphLabel Constraint
-            performanceGraphLabel.topAnchor.constraint(equalTo: performanceGraphBar.topAnchor, constant: 4),
-            performanceGraphLabel.leadingAnchor.constraint(equalTo: performanceGraphBar.leadingAnchor, constant: 0),
-            performanceGraphLabel.widthAnchor.constraint(equalToConstant: 135),
-            performanceGraphLabel.heightAnchor.constraint(equalToConstant: 16),
+            titleLabel.topAnchor.constraint(equalTo: performanceGraphBar.topAnchor, constant: 4),
+            titleLabel.leadingAnchor.constraint(equalTo: performanceGraphBar.leadingAnchor, constant: 0),
+            titleLabel.widthAnchor.constraint(equalToConstant: 135),
+            titleLabel.heightAnchor.constraint(equalToConstant: 16),
+            
+            // CloseButton Constraint
+            closeButton.topAnchor.constraint(equalTo: performanceGraphBar.topAnchor, constant: 0),
+            closeButton.trailingAnchor.constraint(equalTo: performanceGraphBar.trailingAnchor, constant: -5),
+            closeButton.widthAnchor.constraint(equalToConstant: 40),
+            closeButton.heightAnchor.constraint(equalToConstant: 27),
             
             // AddGraphLineButton Constraint
             addGraphLineButton.topAnchor.constraint(equalTo: performanceGraphBar.topAnchor, constant: 0),
-            addGraphLineButton.trailingAnchor.constraint(equalTo: performanceGraphBar.trailingAnchor, constant: -8),
+            addGraphLineButton.trailingAnchor.constraint(equalTo: closeButton.leadingAnchor, constant: -5),
             addGraphLineButton.widthAnchor.constraint(equalToConstant: 100),
             addGraphLineButton.heightAnchor.constraint(equalToConstant: 27),
             
@@ -275,9 +294,6 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
         
         // Set edit fields visiblity on the basis of its display mode
         if chartDisplayMode == "readonly" {
-            yCoordinates = [[0, 50]]
-            xCoordinates = [[0, 60]]
-            graphLabelData = [["", ""]]
             chartLineLabel.isHidden = true
             addGraphLineButton.isHidden = true
             PSITextField.textField.isUserInteractionEnabled = false
@@ -287,11 +303,6 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
             horizontalMinTextField.textField.isUserInteractionEnabled = false
             horizontalMaxTextField.textField.isUserInteractionEnabled = false
         } else {
-            if xCoordinates.isEmpty {
-                yCoordinates = [[0]]
-                xCoordinates = [[0]]
-                graphLabelData = [[""]]
-            }
             chartLineLabel.isHidden = false
             addGraphLineButton.isHidden = false
             PSITextField.textField.isUserInteractionEnabled = true
@@ -331,6 +342,17 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
         showHideButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 14)
         let tap = UITapGestureRecognizer(target: self, action: #selector(showHideButtonTapped))
         showHideButtonView.addGestureRecognizer(tap)
+        
+        // Set system image to closeButton
+        if #available(iOS 13.0, *) {
+            let boldConfig = UIImage.SymbolConfiguration(weight: .bold)
+            let boldSearch = UIImage(systemName: "xmark.circle", withConfiguration: boldConfig)
+            closeButton.setImage(boldSearch, for: .normal)
+        } else {
+            // Fallback on earlier versions
+        }
+        closeButton.tintColor = .black
+        closeButton.addTarget(self, action: #selector(clossTapped), for: .touchUpInside)
         
         // StackView Properties
         stackView.spacing = 10
@@ -395,8 +417,8 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
         horizontalMinTextField.textField.keyboardType = .numberPad
         horizontalMaxTextField.textField.keyboardType = .numberPad
         
-        performanceGraphLabel.labelText = "Performance Graph"
-        performanceGraphLabel.font = UIFont.boldSystemFont(ofSize: 14)
+        titleLabel.labelText = labelTitle
+        titleLabel.font = UIFont.boldSystemFont(ofSize: 14)
         
         // Graph vertical and horizontal label properties
         verticalLabel.fontSize = 12
@@ -416,8 +438,10 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
         addGraphLineButton.borderColor = UIColor(hexString: "#E2E3E7") ?? .lightGray
         addGraphLineButton.addTarget(self, action: #selector(addGraphLineTapped), for: .touchUpInside)
         
-        for i in 0...yCoordinates.count - 1 {
-            lineGraph.addLine(yCoordinates[i], labels: graphLabelData[i])
+        if xCoordinates[index].isEmpty != true {
+            for i in 0...yCoordinates[index].count - 1 {
+                lineGraph.addLine(yCoordinates[index][i], labels: graphLabelData[index][i])
+            }
         }
         
         verticalYView.isHidden = true
@@ -468,18 +492,53 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
         }
     }
     
+    // Action for close button
+    @objc func clossTapped() {
+        var parentResponder: UIResponder? = self
+        while parentResponder != nil {
+            parentResponder = parentResponder?.next
+            if let viewController = parentResponder as? UIViewController {
+                viewController.dismiss(animated: true)
+                break
+            }
+        }
+    }
+    
     // Action function for addGraphButton
     @objc func addGraphLineTapped() {
-        if yCoordinates.count < 12 {
-            yCoordinates.append([0])
-            xCoordinates.append([0])
-            graphLabelData.append([""])
-            addPointButtonIndexPath = xCoordinates.count - 1
-            for i in 0...yCoordinates.count - 1 {
-                lineGraph.addLine(yCoordinates[i], labels: graphLabelData[i])
+        if yCoordinates[index].count < 12 {
+            yCoordinates[index].append([0])
+            xCoordinates[index].append([0])
+            graphLabelData[index].append([""])
+            addPointButtonIndexPath = xCoordinates[index].count - 1
+            for i in 0...yCoordinates[index].count - 1 {
+                lineGraph.addLine(yCoordinates[index][i], labels: graphLabelData[index][i])
                 addLineTableView.scrollToBottom()
                 addLineTableView.reloadData()
             }
+            
+            // Create a new ValueElement instance
+            let lineId = generateObjectId()
+            let pointId = generateObjectId()
+            let newValueElement = ValueElement(
+                id: lineId,
+                url: "",
+                fileName: "",
+                filePath: "",
+                deleted: false,
+                title: "",
+                description: "",
+                points: [
+                    Point(id: pointId,
+                          label: "",
+                          y: 0,
+                          x: 0)
+                ]
+            )
+            newLineId = lineId
+            chartPointsId[index].append([pointId])
+            chartValueElement[index].append(newValueElement)
+            self.saveDelegate?.handleLineCreate(line: index)
         }
     }
     
@@ -491,6 +550,11 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
         lineGraph.yMax = Int(verticalMaxTextField.textField.text ?? "") ?? 0
         lineGraph.xMin = Int(horizontalMinTextField.textField.text ?? "") ?? 0
         lineGraph.xMax = Int(horizontalMaxTextField.textField.text ?? "") ?? 0
+        
+        self.saveDelegate?.handleYMinCoordinates(line: index, newValue: Int(verticalMinTextField.textField.text ?? "") ?? 0)
+        self.saveDelegate?.handleYMaxCoordinates(line: index, newValue: Int(verticalMaxTextField.textField.text ?? "") ?? 0)
+        self.saveDelegate?.handleXMinCoordinates(line: index, newValue: Int(horizontalMinTextField.textField.text ?? "") ?? 0)
+        self.saveDelegate?.handleXMaxCoordinates(line: index, newValue: Int(horizontalMaxTextField.textField.text ?? "") ?? 0)
         lineGraph.setNeedsDisplay()
     }
 }
@@ -504,14 +568,18 @@ extension ChartView: UITableViewDelegate, UITableViewDataSource {
     
     // MARK: TableView delegate method to give tableView rows
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return yCoordinates.count
+        return yCoordinates[index].count
     }
     
     // MARK: TableView delegate function to set cell inside tableView
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ChartLineTableViewCell", for: indexPath) as! ChartLineTableViewCell
         tableView.rowHeight = 360
+        cell.index = self.index
+        cell.newLineId = newLineId
         cell.textFieldDelegate = self
+        cell.lineGraph = self.lineGraph
+        cell.saveDelegate = self.saveDelegate
         cell.contentView.backgroundColor = UIColor(hexString: "#F9F9FB")
         
         cell.label.textColor = lineGraph.colors[indexPath.row]
@@ -564,24 +632,25 @@ extension ChartView: UITableViewDelegate, UITableViewDataSource {
         }
         
         addPointButtonIndexPath = indexPath.row
-        yCoordinates[indexPath.row].append(0)
-        xCoordinates[indexPath.row].append(0)
-        graphLabelData[indexPath.row].append("")
+        yCoordinates[index][indexPath.row].append(0)
+        xCoordinates[index][indexPath.row].append(0)
+        graphLabelData[index][indexPath.row].append("")
         cell.pointsTableView.scrollToBottom()
         updateLineGraphAndCell(cell, at: indexPath)
+        self.saveDelegate?.handlePointCreate(rowId: chartValueElement[index][addPointButtonIndexPath].id ?? "", line: index, indexPath: indexPath.row)
     }
     
     // Action function for removeButton to remove line
     @objc func removeLineTapped(_ sender: UIButton) {
-        if yCoordinates.count > 1 {
+        if yCoordinates[index].count > 1 {
             let indexPath = IndexPath(row: sender.tag, section: 0)
-            yCoordinates.remove(at: sender.tag)
-            xCoordinates.remove(at: sender.tag)
-            graphLabelData.remove(at: sender.tag)
+            yCoordinates[index].remove(at: sender.tag)
+            xCoordinates[index].remove(at: sender.tag)
+            graphLabelData[index].remove(at: sender.tag)
             addLineTableView.deleteRows(at: [indexPath], with: .fade)
             addLineTableView.reloadData()
             
-            if addPointButtonIndexPath == xCoordinates.count {
+            if addPointButtonIndexPath == xCoordinates[index].count {
                 addPointButtonIndexPath -= 1
                 let indexPath2 = IndexPath(row: addPointButtonIndexPath, section: 0)
                 if let cell = addLineTableView.cellForRow(at: indexPath2) as? ChartLineTableViewCell {
@@ -594,16 +663,16 @@ extension ChartView: UITableViewDelegate, UITableViewDataSource {
                     updateLineGraphAndCell(cell, at: indexPath2)
                 }
             }
+            self.saveDelegate?.handleLineDelete(line: index, indexPath: indexPath.row)
         }
     }
     
     // Function to update line of graph and tableViewCell
     func updateLineGraphAndCell(_ cell: ChartLineTableViewCell, at indexPath: IndexPath) {
-        let graphYPointsData = yCoordinates[indexPath.row]
+        let graphYPointsData = yCoordinates[index][indexPath.row]
         cell.configureY(with: graphYPointsData, at: indexPath)
-        let graphXPointsData = xCoordinates[indexPath.row]
+        let graphXPointsData = xCoordinates[index][indexPath.row]
         cell.configureX(with: graphXPointsData, at: indexPath)
-        graphTextData = graphLabelData[indexPath.row]
         lineGraph.setNeedsDisplay()
     }
 }

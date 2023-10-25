@@ -4,24 +4,31 @@ import MobileCoreServices
 import AVFoundation
 import Photos
 
-public var pickedImg = [String]()
-public var pickedSingleImg = [String]()
-public var imageDisplayMode = String()
-public var imageMultiValue = Bool()
+protocol saveImageFieldValue {
+    func handleUpload(indexPath: Int)
+    func handleDelete(indexPath: Int)
+}
 
 open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
-    public var imageFieldAndUploadView = UIView()
     public var uploadButton = Button()
-    public var imageCountView = UIView()
-    public var imageCountButton = Button()
     public var titleButton = UILabel()
-    public var toolTipIconButton = UIButton()
     public var toolTipTitle = String()
-    public var toolTipDescription = String()
     public var imageField = ImageView()
     public var imageCountLabel = Label()
+    public var imageCountView = UIView()
+    public var imageCountButton = Button()
+    public var toolTipDescription = String()
+    public var toolTipIconButton = UIButton()
+    public var imageFieldAndUploadView = UIView()
+
+    public var index = Int()
+    public var imageMultiValue = Bool()
+    public var imageDisplayMode = String()
+    public var selectedImage = [[String]]()
+    public var pickedSingleImg = [[String]]()
     weak var delegate: MultipleImageViewDelegate?
+    var saveDelegate: saveImageFieldValue? = nil
     
     // MARK: Initializer
     public override init(frame: CGRect) {
@@ -66,7 +73,7 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
             toolTipIconButton.isHidden = true
         }
     }
-
+    
     func setupView() {
         // SubViews
         addSubview(imageFieldAndUploadView)
@@ -137,6 +144,8 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
             imageCountLabel.bottomAnchor.constraint(equalTo: imageCountView.bottomAnchor, constant: 0)
         ])
         
+        setGlobalUserInterfaceStyle()
+        
         // ImageCountView
         imageCountView.backgroundColor = .white
         imageCountView.layer.cornerRadius = 6
@@ -165,7 +174,7 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
         imageField.layer.masksToBounds = true
         imageField.isUserInteractionEnabled = true
         titleButton.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
-
+        
         toolTipIconButton.setImage(UIImage(named: "tooltipIcon"), for: .normal)
         toolTipIconButton.addTarget(self, action: #selector(tooltipButtonTapped), for: .touchUpInside)
     }
@@ -174,8 +183,8 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
         toolTipAlertShow(for: self, title: toolTipTitle, message: toolTipDescription)
     }
     
-    // Fuction to set imageField according to pickedImage
-    func setImageField() {
+    // Fuction to set imageField according to selectedImage
+    public func setImageField() {
         if imageDisplayMode == "readonly" {
             imageField.isHidden = true
         } else {
@@ -183,8 +192,8 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
         }
     }
     
-    func checkImageCount() {
-        if pickedImg.count == 0 {
+    public func checkImageCount() {
+        if selectedImage[index].count == 0 {
             imageField.isHidden = true
             uploadButton.isHidden = false
             
@@ -195,19 +204,19 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
         } else {
             imageField.isHidden = false
             uploadButton.isHidden = true
-            
+            setupView()
             imageField.borderWidth = 0
             checkForMulti()
         }
     }
     
-    func checkForMulti() {
+    public func checkForMulti() {
         if imageMultiValue {
-            imageField.load(urlString: pickedImg.first ?? "")
-            imageCountLabel.labelText = "+\(pickedImg.count)"
+            imageField.load(urlString: selectedImage[index].first ?? "")
+            imageCountLabel.labelText = "+\(selectedImage[index].count)"
         } else {
-            imageField.load(urlString: pickedSingleImg.first ?? "")
-            imageCountLabel.labelText = "+\(pickedSingleImg.count)"
+            imageField.load(urlString: pickedSingleImg[index].first ?? "")
+            imageCountLabel.labelText = "+\(pickedSingleImg[index].count)"
         }
     }
     
@@ -215,33 +224,70 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
     @objc func imageCountTapped() {
         if let parentViewController = parentViewController {
             let newViewController = MultipleImageView()
+            newViewController.index = index
             newViewController.delegate = self
+            newViewController.saveDelegate = saveDelegate
+            newViewController.selectedImage = selectedImage
+            newViewController.imageMultiValue = imageMultiValue
+            newViewController.pickedSingleImg = pickedSingleImg
+            newViewController.imageDisplayMode = imageDisplayMode
             newViewController.modalTransitionStyle = .crossDissolve
-            
-            parentViewController.addChild(newViewController)
-            newViewController.view.frame = parentViewController.view.bounds
             parentViewController.view.addSubview(newViewController.view)
+            newViewController.view.frame = parentViewController.view.bounds
+            parentViewController.addChild(newViewController)
             newViewController.didMove(toParent: parentViewController)
         }
     }
     
     // Function to get images back after upload action performed
-    public func onUploadAsync(images: [String], image: [String]) {
-        pickedImg = images
-        pickedSingleImg = image
-        imageTableView.reloadData()
-        componentTableView.reloadData()
-        setImageField()
+    public func onUploadAsync(images: [[String]], image: [[String]]) {
         setupView()
+        imageField.load(urlString: image[index].first ?? "")
+        imageCountLabel.labelText = "+\(image[index].count)"
+        setUploadedImage()
+    }
+    
+    public func setUploadedImage() {
+        if imageDisplayMode == "readonly" {
+            imageField.isHidden = true
+        } else {
+            imageField.isHidden = false
+            uploadButton.isHidden = true
+            imageField.borderWidth = 0
+        }
+    }
+    
+    public func checkForMultiUploadImage() {
+        if imageMultiValue {
+            imageField.load(urlString: selectedImage[index].first ?? "")
+            imageCountLabel.labelText = "+\(selectedImage[index].count)"
+        } else {
+            imageField.load(urlString: pickedSingleImg[index].first ?? "")
+            imageCountLabel.labelText = "+\(pickedSingleImg[index].count)"
+        }
     }
 }
 
 extension Image: MultipleImageViewDelegate {
-    func imagesDeleted() {
+    func imagesDeleted(selectedIndex: Int) {
+        selectedImage[index].remove(at: selectedIndex)
         setImageField()
+        self.saveDelegate?.handleDelete(indexPath: index)
     }
     
     func imagesUpdated() {
         setImageField()
     }
+    
+    func removeAllImages() {
+        selectedImage[index].removeAll()
+        selectedPicture[index].removeAll()
+        pickedSingleImg[index].removeAll()
+        imageSelectionCount[index].removeAll()
+        setImageField()
+        let indexPathsToReload = [IndexPath(row: index, section: 0)]
+        componentTableView.reloadRows(at: indexPathsToReload, with: .fade)
+        self.saveDelegate?.handleDelete(indexPath: index)
+    }
 }
+

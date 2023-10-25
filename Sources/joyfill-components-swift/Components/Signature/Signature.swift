@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 import PencilKit
 
-public var signedImage = String()
+public var signedImage = [String]()
 public var privacyPolicyText = String()
 public var signatureDisplayModes = String()
 
@@ -20,12 +20,12 @@ open class Signature: UIView {
     public var saveView = UIView()
     public var saveText = UILabel()
     public var saveIcon = UIImageView()
-    public var lookIcon = UIImageView()
-    public var lookTitle = UILabel()
-    public var lookView = UIView()
     public var infomText = Label()
     public var signatureMode = Bool()
     public var signatureView = Canvas()
+    
+    var index = Int()
+    var saveDelegate: saveSignatureFieldValue? = nil
     
     // Sets corner radius of signature view
     @IBInspectable
@@ -69,9 +69,6 @@ open class Signature: UIView {
         view.addSubview(saveView)
         saveView.addSubview(saveText)
         saveView.addSubview(saveIcon)
-        view.addSubview(lookView)
-        lookView.addSubview(lookIcon)
-        lookView.addSubview(lookTitle)
         view.addSubview(infomText)
         self.addSubview(view)
         
@@ -84,9 +81,6 @@ open class Signature: UIView {
         saveView.translatesAutoresizingMaskIntoConstraints = false
         saveText.translatesAutoresizingMaskIntoConstraints = false
         saveIcon.translatesAutoresizingMaskIntoConstraints = false
-        lookView.translatesAutoresizingMaskIntoConstraints = false
-        lookIcon.translatesAutoresizingMaskIntoConstraints = false
-        lookTitle.translatesAutoresizingMaskIntoConstraints = false
         infomText.translatesAutoresizingMaskIntoConstraints = false
         
         // Constraint to arrange subviews acc. to signatureView
@@ -134,23 +128,7 @@ open class Signature: UIView {
             saveIcon.topAnchor.constraint(equalTo: saveView.topAnchor, constant: 18),
             saveIcon.leadingAnchor.constraint(equalTo: saveText.trailingAnchor, constant: 10),
             
-            lookView.topAnchor.constraint(equalTo: saveView.bottomAnchor, constant: 10),
-            lookView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -115),
-            lookView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 115),
-            lookView.heightAnchor.constraint(equalToConstant: 30),
-            
-            lookTitle.topAnchor.constraint(equalTo: lookView.topAnchor),
-            lookTitle.bottomAnchor.constraint(equalTo: lookView.bottomAnchor),
-            lookTitle.leadingAnchor.constraint(equalTo: lookIcon.trailingAnchor, constant: 5),
-            lookTitle.trailingAnchor.constraint(equalTo: lookView.trailingAnchor, constant: -5),
-            
-            
-            lookIcon.topAnchor.constraint(equalTo: lookView.topAnchor, constant: 4),
-            lookIcon.leadingAnchor.constraint(equalTo: lookView.leadingAnchor, constant: 15),
-            lookIcon.heightAnchor.constraint(equalToConstant: 20),
-            lookIcon.widthAnchor.constraint(equalToConstant: 20),
-            
-            infomText.topAnchor.constraint(equalTo: lookView.bottomAnchor, constant: 45),
+            infomText.topAnchor.constraint(equalTo: saveView.bottomAnchor, constant: 45),
             infomText.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 9),
             infomText.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -9),
         ])
@@ -158,11 +136,11 @@ open class Signature: UIView {
         signatureView.lineWidth = 3
         signatureView.layer.borderWidth = 1
         signatureView.layer.cornerRadius = 8
+        setGlobalUserInterfaceStyle()
         signatureView.layer.borderColor = UIColor(hexString: "#D1D1D6")?.cgColor
         signatureView.backgroundColor = .white
         
         // MARK: Label Function Call From Package
-        topLabel.labelText = "Signature"
         topLabel.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         topLabel.borderWidth = 0
         topLabel.textColor = .black
@@ -181,11 +159,9 @@ open class Signature: UIView {
         clrButton.imageEdgeInsets = UIEdgeInsets(top: 0, left: 5, bottom: 0, right: 0)
         clrButton.addTarget(self, action: #selector(clrButtonTapped), for: .touchUpInside)
         
-        // Sets image and action to pageButton
         let boldConfig = UIImage.SymbolConfiguration(weight: .bold)
         let boldSearch = UIImage(systemName: "xmark.circle", withConfiguration: boldConfig)
         closeButton.setImage(boldSearch, for: .normal)
-        
         closeButton.tintColor = .black
         closeButton.addTarget(self, action: #selector(clossTapped), for: .touchUpInside)
         
@@ -205,12 +181,6 @@ open class Signature: UIView {
         
         saveIcon.image = UIImage(named: "Edit_alt")
         
-        lookTitle.text = "Save to add timestamp"
-        lookTitle.textColor = UIColor(hexString: "#C0C1CC")
-        lookTitle.font = UIFont.systemFont(ofSize: 14)
-        
-        lookIcon.image = UIImage(named: "Lock")
-        
         infomText.text = privacyPolicyText
         infomText.textAlignment = .center
         infomText.numberOfLines = 0
@@ -226,12 +196,12 @@ open class Signature: UIView {
         clossTapped()
     }
     
-    
     // Function to convert UIImage to data URI
     func convertImageToDataURI(uri: UIImage, signer: String) {
         if let imageData = uri.jpegData(compressionQuality: 1.0) {
             let base64String = imageData.base64EncodedString()
-            signedImage = "data:image/jpeg;base64,\(base64String)"
+            signedImage.insert("data:image/jpeg;base64,\(base64String)", at: index)
+            saveDelegate?.handleSignatureUpload(sign: "data:image/jpeg;base64,\(base64String)", signer: signer, index: index)
         }
     }
     

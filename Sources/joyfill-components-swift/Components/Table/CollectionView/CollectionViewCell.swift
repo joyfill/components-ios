@@ -4,6 +4,8 @@ import UIKit
 // TextView protocol to get the selected indexPath
 protocol TextViewCellDelegate: AnyObject {
     func textViewCellDidSelect(_ cell: UICollectionViewCell)
+    func handleTextCellUpdateValue(_id: String, cellKey: String, cellValue: String, indexRow: Int, indexSection: Int)
+    func handleTextCellSetValue(cellValue: String, indexRow: Int, indexSection: Int)
 }
 
 class CollectionViewCell: UICollectionViewCell, UITextFieldDelegate, UITextViewDelegate {
@@ -17,21 +19,26 @@ class CollectionViewCell: UICollectionViewCell, UITextFieldDelegate, UITextViewD
     let selectionButton = Button()
     let dropdownImage = ImageView()
     let imageandCountView = UIView()
-    let cellTextView = RichDisplayText()
+    let cellTextView = UITextView()
     let verticalSeparatorView = UIView()
     let dropdownTextField = UITextField()
     let horizontalSeparatorView = UIView()
+    
+    var indexRow = Int()
+    var indexSection = Int()
+    var tableIndexNo = Int()
     weak var textViewDelegate: TextViewCellDelegate?
     var cellTapGestureRecognizer: UITapGestureRecognizer?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupSeparator()
-        self.backgroundColor = .white
+        cellTextView.delegate = self
     }
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
+        cellTextView.delegate = self
         setupSeparator()
     }
     
@@ -39,7 +46,6 @@ class CollectionViewCell: UICollectionViewCell, UITextFieldDelegate, UITextViewD
     func setupSeparator() {
         contentView.addSubview(verticalSeparatorView)
         contentView.addSubview(horizontalSeparatorView)
-        
         verticalSeparatorView.translatesAutoresizingMaskIntoConstraints = false
         horizontalSeparatorView.translatesAutoresizingMaskIntoConstraints = false
         
@@ -55,9 +61,9 @@ class CollectionViewCell: UICollectionViewCell, UITextFieldDelegate, UITextViewD
             verticalSeparatorView.widthAnchor.constraint(equalToConstant: 1)
         ])
         
+        setGlobalUserInterfaceStyle()
         verticalSeparatorView.backgroundColor = UIColor(hexString: "#E6E7EA")
         horizontalSeparatorView.backgroundColor = UIColor(hexString: "#E6E7EA")
-        
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(textViewDidTap(_:)))
         cellTextView.addGestureRecognizer(tapGesture)
         selectionButton.setImage(UIImage(named: "unSelectButton"), for: .normal)
@@ -159,10 +165,20 @@ class CollectionViewCell: UICollectionViewCell, UITextFieldDelegate, UITextViewD
     
     func textViewDidEndEditing(_ textView: UITextView) {
         cellTapGestureRecognizer?.isEnabled = true
+        if cellTextView.text != "" {
+            let rowId = tableFieldValue[tableIndexNo][indexSection-1].id ?? ""
+            let cellData = tableFieldValue[tableIndexNo][indexSection-1].cells ?? [:]
+            if let matchData = cellData.first(where: {$0.key == tableColumnOrderId[tableIndexNo][indexRow-2]}) {
+                textViewDelegate?.handleTextCellUpdateValue(_id: rowId, cellKey: matchData.key, cellValue: cellTextView.text, indexRow: indexRow, indexSection: indexSection)
+            } else {
+                textViewDelegate?.handleTextCellSetValue(cellValue: cellTextView.text, indexRow: indexRow, indexSection: indexSection)
+            }
+        }
     }
     
     func textViewShouldEndEditing(_ textView: UITextView) -> Bool {
         textView.resignFirstResponder()
         return true
     }
+    
 }

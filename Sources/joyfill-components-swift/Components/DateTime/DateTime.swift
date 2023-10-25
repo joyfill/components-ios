@@ -1,16 +1,20 @@
 import Foundation
 import UIKit
 
-public class DateTime: UIView {
+public class DateTime: UIView, UITextFieldDelegate {
     
     public var dateLabel = String()
     public var titleLabel = UILabel()
     public var dateTimeView = UIView()
+    public var toolTipTitle = String()
     public var dateTimeField = UITextField()
     public var datePickerButton = UIButton()
-    public var toolTipIconButton = UIButton()
-    public var toolTipTitle = String()
     public var toolTipDescription = String()
+    public var toolTipIconButton = UIButton()
+
+    var index = Int()
+    var format = String()
+    var saveDelegate: SaveTextFieldValue? = nil
     weak var textViewDelegate: TextViewCellDelegate?
     
     // Set cornerRadius
@@ -129,7 +133,6 @@ public class DateTime: UIView {
     
     public func dateTimeDisplayModes(mode : String) {
         if mode != "readonly" {
-            dateTimeField.isUserInteractionEnabled = true
             [dateTimeField, datePickerButton].forEach { Button in
                 Button.addTarget(self, action: #selector(openDatePicker), for: .touchDown)
             }
@@ -163,16 +166,16 @@ public class DateTime: UIView {
             //Title
             titleLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 20),
             titleLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
-            titleLabel.heightAnchor.constraint(equalToConstant: 20),
+            titleLabel.trailingAnchor.constraint(equalTo: toolTipIconButton.leadingAnchor, constant: -5),
             
             //TooltipIconButton
-            toolTipIconButton.topAnchor.constraint(equalTo: self.topAnchor, constant: 23),
-            toolTipIconButton.leadingAnchor.constraint(equalTo: titleLabel.trailingAnchor, constant: 5),
+            toolTipIconButton.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
+            toolTipIconButton.trailingAnchor.constraint(lessThanOrEqualTo: self.trailingAnchor, constant: -10),
             toolTipIconButton.heightAnchor.constraint(equalToConstant: 15),
             toolTipIconButton.widthAnchor.constraint(equalToConstant: 15),
             
             //view
-            dateTimeView.topAnchor.constraint(equalTo: titleLabel.topAnchor, constant: 30),
+            dateTimeView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 13),
             dateTimeView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
             dateTimeView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -10),
             dateTimeView.heightAnchor.constraint(equalToConstant: 50),
@@ -190,8 +193,17 @@ public class DateTime: UIView {
             datePickerButton.widthAnchor.constraint(equalToConstant: 30),
         ])
         
+        setGlobalUserInterfaceStyle()
+        
+        dateTimeField.delegate = self
+        dateTimeField.isUserInteractionEnabled = true
+        [dateTimeField, datePickerButton].forEach { Button in
+            Button.addTarget(self, action: #selector(openDatePicker), for: .touchDown)
+        }
+        
         titleText = "Date Time"
         titleTextColor = .black
+        titleLabel.numberOfLines = 0
         titleLabel.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         
         toolTipIconButton.setImage(UIImage(named: "tooltipIcon"), for: .normal)
@@ -208,6 +220,10 @@ public class DateTime: UIView {
         datePickerButton.setImage(UIImage(named: "Date_today"), for: .normal)
     }
     
+    public func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
+        return false
+    }
+    
     @objc func tooltipButtonTapped(_ sender: UIButton) {
         toolTipAlertShow(for: self, title: toolTipTitle, message: toolTipDescription)
     }
@@ -218,13 +234,31 @@ public class DateTime: UIView {
     }
     
     public func datePickerUI () {
-        RPicker.selectDate(title: "Select Date", cancelText: "Cancel", datePickerMode: .dateAndTime, style: .Inline, didSelectDate: {[weak self] (selectedDate) in
-            self?.selectedDate(date: selectedDate.dateString("MMMM d, yyyy h:mm a"))
-        })
+        if format == "MM/DD/YYYY" {
+            RPicker.selectDate(title: "Select Date", cancelText: "Cancel", datePickerMode: .date, style: .Inline, didSelectDate: {[weak self] (selectedDate) in
+                self?.selectedDate(date: selectedDate.dateString("MMMM d, yyyy"))
+                let timestampMilliseconds = dateToTimestampMilliseconds(date: selectedDate)
+                self?.saveDelegate?.handleFieldChange(text: timestampMilliseconds as Any, isEditingEnd: true, index: self?.index ?? 0)
+            })
+            
+        } else if format == "hh:mma" {
+            RPicker.selectDate(title: "Select Date", cancelText: "Cancel", datePickerMode: .time, style: .Wheel, didSelectDate: {[weak self] (selectedDate) in
+                self?.selectedDate(date: selectedDate.dateString("hh:mm a"))
+                let timestampMilliseconds = dateToTimestampMilliseconds(date: selectedDate)
+                self?.saveDelegate?.handleFieldChange(text: timestampMilliseconds as Any, isEditingEnd: true, index: self?.index ?? 0)
+            })
+            
+        } else {
+            RPicker.selectDate(title: "Select Date", cancelText: "Cancel", datePickerMode: .dateAndTime, style: .Inline, didSelectDate: {[weak self] (selectedDate) in
+                self?.selectedDate(date: selectedDate.dateString("MMMM d, yyyy h:mm a"))
+                let timestampMilliseconds = dateToTimestampMilliseconds(date: selectedDate)
+                self?.saveDelegate?.handleFieldChange(text: timestampMilliseconds as Any, isEditingEnd: true, index: self?.index ?? 0)
+            })
+        }
     }
     
     // Set selected date and time in textField
-    public func selectedDate(date:String) {
+    public func selectedDate(date: String) {
         dateLabel = date
         dateTimeField.text = dateLabel
     }

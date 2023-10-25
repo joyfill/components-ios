@@ -1,17 +1,22 @@
 import Foundation
 import UIKit
 
-public var dropdownOptions = [String]()
-public class Dropdown : UIView, DropDownSelectText, UITextFieldDelegate {
+public var dropdownOptions = [[String]]()
+public class Dropdown: UIView, DropDownSelectText, UITextFieldDelegate {
     
     public var titleLbl = Label()
+    public var button = UIButton()
+    public var toolTipTitle = String()
     public var viewTextField = UIView()
     public var textField = UITextField()
-    public var button = UIButton()
-    public var doneHide = ""
-    public var toolTipIconButton = UIButton()
-    public var toolTipTitle = String()
     public var toolTipDescription = String()
+    public var toolTipIconButton = UIButton()
+    
+    var index = Int()
+    public var doneHide = ""
+    public var buttonTag = Int()
+    var selectedOptionId = String()
+    var saveDelegate: SaveTextFieldValue? = nil
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -53,11 +58,11 @@ public class Dropdown : UIView, DropDownSelectText, UITextFieldDelegate {
             //Title
             titleLbl.topAnchor.constraint(equalTo: self.topAnchor),
             titleLbl.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
-            titleLbl.heightAnchor.constraint(equalToConstant: 15),
+            titleLbl.trailingAnchor.constraint(equalTo: toolTipIconButton.leadingAnchor, constant: -5),
             
             //TooltipIconButton
-            toolTipIconButton.topAnchor.constraint(equalTo: self.topAnchor),
-            toolTipIconButton.leadingAnchor.constraint(equalTo: titleLbl.trailingAnchor, constant: 5),
+            toolTipIconButton.centerYAnchor.constraint(equalTo: titleLbl.centerYAnchor),
+            toolTipIconButton.trailingAnchor.constraint(lessThanOrEqualTo: self.trailingAnchor, constant: -10),
             toolTipIconButton.heightAnchor.constraint(equalToConstant: 15),
             toolTipIconButton.widthAnchor.constraint(equalToConstant: 15),
             
@@ -80,9 +85,12 @@ public class Dropdown : UIView, DropDownSelectText, UITextFieldDelegate {
             button.widthAnchor.constraint(equalToConstant: 30),
         ])
         
+        setGlobalUserInterfaceStyle()
+        
         self.titleLbl.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         self.titleText = "Drop Down"
         self.titleTextColor = .black
+        titleLbl.numberOfLines = 0
         
         toolTipIconButton.setImage(UIImage(named: "tooltipIcon"), for: .normal)
         toolTipIconButton.addTarget(self, action: #selector(tooltipButtonTapped), for: .touchUpInside)
@@ -234,11 +242,20 @@ public class Dropdown : UIView, DropDownSelectText, UITextFieldDelegate {
             viewTextField.layer.cornerRadius = 12
             viewTextField.layer.borderColor = UIColor(hexString: "#4776EE")?.cgColor
             viewTextField.layer.borderWidth = 1
+            
+            for option in 0..<(joyDocFieldData[index].options?.count ?? 0) {
+                if let _ = textField.text?.first(where: { _ in textField.text == joyDocFieldData[index].options?[option].value }) {
+                    selectedOptionId = joyDocFieldData[index].options?[option].id ?? ""
+                }
+            }
+            saveDelegate?.handleFieldChange(text: selectedOptionId, isEditingEnd: true, index: index)
+            
         } else {
             textField.text = "Select \(text)"
             viewTextField.layer.cornerRadius = 12
             viewTextField.layer.borderColor = UIColor(hexString: "#4776EE")?.cgColor
             viewTextField.layer.borderWidth = 1
+            saveDelegate?.handleFieldChange(text: textField.text ?? "", isEditingEnd: true, index: index)
         }
     }
     
@@ -255,17 +272,16 @@ public class Dropdown : UIView, DropDownSelectText, UITextFieldDelegate {
         return nil
     }
     
-    @IBAction func dropdownOpen(_ sender: Any) {
+    @IBAction func dropdownOpen(_ sender: UIButton) {
         guard let viewController = self.findViewController() else {
             return
         }
         let vc = CustomModalViewController()
-        vc.modalPresentationStyle = .overCurrentContext
         vc.delegate = self
+        vc.index = self.index
         vc.hideDoneButtonOnSingleSelect = doneHide
-        vc.dropdownOptionArray = dropdownOptions as NSArray
-        // keep false
-        // modal animation will be handled in VC itself
+        vc.modalPresentationStyle = .overCurrentContext
+        vc.dropdownOptionArray = dropdownOptions[buttonTag]
         viewController.present(vc, animated: false)
     }
 }

@@ -3,9 +3,9 @@ import UIKit
 
 public class MultiChoiceTableViewCell: UITableViewCell {
     
+    var underLine = UIView()
     var cellLabel = UILabel()
     var cellCheckbox = Checkbox()
-    var underLine = UIView()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -38,6 +38,7 @@ public class MultiChoiceTableViewCell: UITableViewCell {
             underLine.heightAnchor.constraint(equalToConstant: 1)
         ])
         
+        setGlobalUserInterfaceStyle()
         cellCheckbox.checkmarkStyle = .tick
         cellCheckbox.borderStyle = .square
         cellCheckbox.borderCornerRadius = 5
@@ -45,7 +46,7 @@ public class MultiChoiceTableViewCell: UITableViewCell {
         cellCheckbox.checkmarkColor = .white
         cellCheckbox.uncheckedBorderColor = .gray
         cellCheckbox.layer.borderColor = UIColor(hexString: "#C0C1C6")?.cgColor
- 
+        
         cellLabel.numberOfLines = 0
         cellLabel.font = UIFont.systemFont(ofSize: 16, weight: .regular)
         underLine.backgroundColor = UIColor(hexString: "#E2E3E7")

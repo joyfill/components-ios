@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-open class LongText: UIView, UITextViewDelegate {
+open class LongText: UIView {
     
     public var view = UIView()
     public var topLabel = Label()
@@ -9,6 +9,9 @@ open class LongText: UIView, UITextViewDelegate {
     public var toolTipIconButton = UIButton()
     public var toolTipTitle = String()
     public var toolTipDescription = String()
+    
+    var index = Int()
+    var saveDelegate: SaveTextFieldValue? = nil
     
     // MARK: Initializer
     public override init(frame: CGRect) {
@@ -35,10 +38,13 @@ open class LongText: UIView, UITextViewDelegate {
     }
     
     func setupView() {
-        topLabel.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         topLabel.borderWidth = 0
+        topLabel.numberOfLines = 0
         topLabel.textColor = .black
         textField.backgroundColor = .clear
+        textField.index = self.index
+        textField.saveDelegate = self.saveDelegate
+        topLabel.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         
         view.translatesAutoresizingMaskIntoConstraints = false
         topLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -60,23 +66,21 @@ open class LongText: UIView, UITextViewDelegate {
             
             topLabel.topAnchor.constraint(equalTo: view.topAnchor),
             topLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 2),
-            topLabel.heightAnchor.constraint(equalToConstant: 15),
+            topLabel.trailingAnchor.constraint(equalTo: toolTipIconButton.leadingAnchor, constant: -5),
             
-            toolTipIconButton.topAnchor.constraint(equalTo: view.topAnchor),
-            toolTipIconButton.leadingAnchor.constraint(equalTo: topLabel.trailingAnchor, constant: 5),
+            toolTipIconButton.centerYAnchor.constraint(equalTo: topLabel.centerYAnchor),
+            toolTipIconButton.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -10),
             toolTipIconButton.heightAnchor.constraint(equalToConstant: 15),
             toolTipIconButton.widthAnchor.constraint(equalToConstant: 15),
             
             textField.topAnchor.constraint(equalTo: topLabel.bottomAnchor, constant: 13),
             textField.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            textField.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+            textField.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            textField.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0)
         ])
         
         toolTipIconButton.setImage(UIImage(named: "tooltipIcon"), for: .normal)
         toolTipIconButton.addTarget(self, action: #selector(tooltipButtonTapped), for: .touchUpInside)
-        
-        textField.delegate = self
-        textField.isScrollEnabled = false
     }
     
     @objc func tooltipButtonTapped(_ sender: UIButton) {
