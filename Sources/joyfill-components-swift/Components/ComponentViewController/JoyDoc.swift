@@ -35,7 +35,7 @@ var joyDocFieldData: [JoyDocField] = []
 var tableFieldValue: [[ValueElement]] = []
 var chartValueElement = [[ValueElement]]()
 var optionsData: [[FieldTableColumn]] = []
-var joyDocFieldPositionData: [FieldPosition]?
+var joyDocFieldPositionData: [FieldPosition] = []
 
 // Variable to save counts
 var fieldCount = Int()
@@ -321,7 +321,7 @@ func fetchDataFromJoyDoc() {
                     componentsYValueForMobileView.append(Int(yFieldValue))
                     componentType.append(joyDocStruct?.files?[0].pages?[indx].fieldPositions?[j].type ?? "")
                     componentId.append(joyDocStruct?.files?[0].pages?[indx].fieldPositions?[j].field ?? "")
-                    joyDocFieldPositionData?.append((joyDocStruct?.files?[0].pages?[indx].fieldPositions?[j])!)
+                    joyDocFieldPositionData.append((joyDocStruct?.files?[0].pages?[indx].fieldPositions?[j])!)
                     zipAndSortComponents()
                 }
             }
@@ -351,7 +351,7 @@ func fetchDataFromJoyDoc() {
                     componentsYValueForMobileView.append(Int(yFieldValue))
                     componentType.append(joyDocStruct?.files?[0].views?[0].pages?[indx].fieldPositions?[j].type ?? "")
                     componentId.append(joyDocStruct?.files?[0].views?[0].pages?[indx].fieldPositions?[j].field ?? "")
-                    joyDocFieldPositionData?.append((joyDocStruct?.files?[0].views?[0].pages?[indx].fieldPositions?[j])!)
+                    joyDocFieldPositionData.append((joyDocStruct?.files?[0].views?[0].pages?[indx].fieldPositions?[j])!)
                     zipAndSortComponents()
                 }
             }
@@ -365,11 +365,11 @@ func fetchDataFromJoyDoc() {
             initializeVariablesWithEmptyValues()
         }
         if componentType[i] == FieldTypes.block {
-            blockTextSize.append(joyDocFieldPositionData?[i].fontSize ?? 18)
-            blockTextStyle.append(joyDocFieldPositionData?[i].fontStyle ?? "")
-            blockTextWeight.append(joyDocFieldPositionData?[i].fontWeight ?? "")
-            blockTextColor.append(joyDocFieldPositionData?[i].fontColor ?? "#000000")
-            blockTextAlignment.append(joyDocFieldPositionData?[i].textAlign ?? "left")
+            blockTextSize.append(joyDocFieldPositionData[i].fontSize ?? 18)
+            blockTextStyle.append(joyDocFieldPositionData[i].fontStyle ?? "")
+            blockTextWeight.append(joyDocFieldPositionData[i].fontWeight ?? "")
+            blockTextColor.append(joyDocFieldPositionData[i].fontColor ?? "#000000")
+            blockTextAlignment.append(joyDocFieldPositionData[i].textAlign ?? "left")
         } else {
             blockTextSize.append(0)
             blockTextStyle.append("")
@@ -384,7 +384,7 @@ func fetchDataFromJoyDoc() {
 func zipAndSortComponents() {
     var componentIdPairedArray = Array(zip(componentsYValueForMobileView, componentId))
     var componentTypePairedArray = Array(zip(componentsYValueForMobileView, componentType))
-    var fieldPositionPairedArray = Array(zip(componentsYValueForMobileView, joyDocFieldPositionData ?? []))
+    var fieldPositionPairedArray = Array(zip(componentsYValueForMobileView, joyDocFieldPositionData))
     componentIdPairedArray.sort { $0.0 < $1.0}
     componentTypePairedArray.sort { $0.0 < $1.0 }
     fieldPositionPairedArray.sort { $0.0 < $1.0 }
@@ -456,6 +456,7 @@ func DeinitializeVariables() {
     tableColumnOrderId.removeAll()
     multiSelectOptions.removeAll()
     multiSelectOptionId.removeAll()
+    joyDocFieldPositionData.removeAll()
     componentTableViewCellHeight.removeAll()
     componentsYValueForMobileView.removeAll()
     selectedDropdownOptionIndexPath.removeAll()

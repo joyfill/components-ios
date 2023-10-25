@@ -444,7 +444,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         datetime.index = i
         datetime.saveDelegate = self
         datetime.dateTimeDisplayModes(mode: "")
-        datetime.format = joyDocFieldPositionData?[i].format ?? ""
+        datetime.format = joyDocFieldPositionData[i].format ?? ""
         
         // DateTime value based on indexPath from JoyDoc
         switch value {
@@ -776,7 +776,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
                           pageId: joyDocPageId[pageIndex],
                           fieldId: joyDocFieldData[index].id ?? "",
                           fieldIdentifier: joyDocFieldData[index].identifier ?? "",
-                          fieldPositionId: joyDocFieldPositionData?[index].id ?? "",
+                          fieldPositionId: joyDocFieldPositionData[index].id ?? "",
                           change: change,
                           createdOn: Int(Date().timeIntervalSince1970))
     }
@@ -791,7 +791,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
                           pageId: joyDocPageId[pageIndex],
                           fieldId: joyDocFieldData[index].id ?? "",
                           fieldIdentifier: joyDocFieldData[index].identifier ?? "",
-                          fieldPositionId: joyDocFieldPositionData?[index].id ?? "",
+                          fieldPositionId: joyDocFieldPositionData[index].id ?? "",
                           change: change,
                           createdOn: Int(Date().timeIntervalSince1970))
     }
@@ -805,7 +805,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
                           pageId: joyDocPageId[pageIndex],
                           fieldId: joyDocFieldData[index].id ?? "",
                           fieldIdentifier: joyDocFieldData[index].identifier ?? "",
-                          fieldPositionId: joyDocFieldPositionData?[index].id ?? "",
+                          fieldPositionId: joyDocFieldPositionData[index].id ?? "",
                           change: change,
                           createdOn: Int(Date().timeIntervalSince1970),
                           target: "field.value.rowDelete")
@@ -819,7 +819,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
                           pageId: joyDocPageId[pageIndex],
                           fieldId: joyDocFieldData[index].id ?? "",
                           fieldIdentifier: joyDocFieldData[index].identifier ?? "",
-                          fieldPositionId: joyDocFieldPositionData?[index].id ?? "",
+                          fieldPositionId: joyDocFieldPositionData[index].id ?? "",
                           change: change,
                           createdOn: Int(Date().timeIntervalSince1970),
                           target: "field.value.rowMove")
@@ -833,7 +833,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
                           pageId: joyDocPageId[pageIndex],
                           fieldId: joyDocFieldData[index].id ?? "",
                           fieldIdentifier: joyDocFieldData[index].identifier ?? "",
-                          fieldPositionId: joyDocFieldPositionData?[index].id ?? "",
+                          fieldPositionId: joyDocFieldPositionData[index].id ?? "",
                           change: change,
                           createdOn: Int(Date().timeIntervalSince1970),
                           target: "field.value.rowMove")
@@ -847,7 +847,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
                           pageId: joyDocPageId[pageIndex],
                           fieldId: joyDocFieldData[index].id ?? "",
                           fieldIdentifier: joyDocFieldData[index].identifier ?? "",
-                          fieldPositionId: joyDocFieldPositionData?[index].id ?? "",
+                          fieldPositionId: joyDocFieldPositionData[index].id ?? "",
                           change: change,
                           createdOn: Int(Date().timeIntervalSince1970),
                           target: "field.value.rowCreate")
@@ -861,7 +861,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
                           pageId: joyDocPageId[pageIndex],
                           fieldId: joyDocFieldData[index].id ?? "",
                           fieldIdentifier: joyDocFieldData[index].identifier ?? "",
-                          fieldPositionId: joyDocFieldPositionData?[index].id ?? "",
+                          fieldPositionId: joyDocFieldPositionData[index].id ?? "",
                           change: change,
                           createdOn: Int(Date().timeIntervalSince1970),
                           target: "field.value.rowCreate")
@@ -875,7 +875,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
                           pageId: joyDocPageId[pageIndex],
                           fieldId: joyDocFieldData[index].id ?? "",
                           fieldIdentifier: joyDocFieldData[index].identifier ?? "",
-                          fieldPositionId: joyDocFieldPositionData?[index].id ?? "",
+                          fieldPositionId: joyDocFieldPositionData[index].id ?? "",
                           change: change,
                           createdOn: Int(Date().timeIntervalSince1970),
                           target: "field.value.rowCreate")
@@ -889,7 +889,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
                           pageId: joyDocPageId[pageIndex],
                           fieldId: joyDocFieldData[index].id ?? "",
                           fieldIdentifier: joyDocFieldData[index].identifier ?? "",
-                          fieldPositionId: joyDocFieldPositionData?[index].id ?? "",
+                          fieldPositionId: joyDocFieldPositionData[index].id ?? "",
                           change: change,
                           createdOn: Int(Date().timeIntervalSince1970),
                           target: "field.value.rowUpdate")
@@ -1157,7 +1157,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
                           pageId: joyDocPageId[pageIndex],
                           fieldId: joyDocFieldData[line].id ?? "",
                           fieldIdentifier: joyDocFieldData[line].identifier ?? "",
-                          fieldPositionId: joyDocFieldPositionData?[line].id ?? "",
+                          fieldPositionId: joyDocFieldPositionData[line].id ?? "",
                           change: elementData,
                           createdOn: Int(Date().timeIntervalSince1970))
     }
@@ -1345,7 +1345,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
                        pageId: joyDocPageId[pageIndex],
                        fieldId: joyDocFieldData[index].id ?? "",
                        fieldIdentifier: joyDocFieldData[index].identifier ?? "",
-                      fieldPositionId: joyDocFieldPositionData?[index].id ?? "",
+                      fieldPositionId: joyDocFieldPositionData[index].id ?? "",
                        target: "fieldPosition.blur")
     }
     
@@ -1356,7 +1356,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
                        pageId: joyDocPageId[pageIndex],
                        fieldId: joyDocFieldData[index].id ?? "",
                        fieldIdentifier: joyDocFieldData[index].identifier ?? "",
-                       fieldPositionId: joyDocFieldPositionData?[index].id ?? "",
+                       fieldPositionId: joyDocFieldPositionData[index].id ?? "",
                        target: "fieldPosition.focus")
     }
     
@@ -1367,7 +1367,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
                             pageId: joyDocPageId[pageIndex],
                             fieldId: joyDocFieldData[index].id ?? "",
                             fieldIdentifier: joyDocFieldData[index].identifier ?? "",
-                            fieldPositionId: joyDocFieldPositionData?[index].id ?? "",
+                            fieldPositionId: joyDocFieldPositionData[index].id ?? "",
                             target: "fieldPosition.focus",
                             columnId: columnId,
                             columnIdentifier: columnIdentifier,
@@ -1381,7 +1381,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
                            pageId: joyDocPageId[pageIndex],
                            fieldId: joyDocFieldData[index].id ?? "",
                            fieldIdentifier: joyDocFieldData[index].identifier ?? "",
-                           fieldPositionId: joyDocFieldPositionData?[index].id ?? "",
+                           fieldPositionId: joyDocFieldPositionData[index].id ?? "",
                            target: "fieldPosition.blur",
                            columnId: columnId,
                            columnIdentifier: columnIdentifier,

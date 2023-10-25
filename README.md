@@ -2,135 +2,132 @@
 
 # joyfill/components-ios
 
-A description of this package.
-## Creating new app:
-1. Create a new Xcode project.
-2. Click on the AppName in the Navigation Area (in the left side).
-
 ## Project Requirements:
-Note userAccessTokens & identifiers will need to be stored on your end (usually on a user and set of existing form field-based data) in order to interact with our API and UI Components effectively.
-- iOS v14+
-- Xcode v13+
+1. Note userAccessTokens & identifiers will need to be stored on your end (usually on a user and set of existing form field-based data) in order to interact with our API and UI Components effectively.
+2. iOS v14+
+3. Xcode v13+
 
 ## Install Dependency:
-1. Under project go to package dependencies click on “+” and add JoyFill package using “ https://github.com/joyfill/components-ios.git ”.
+1. Inside your swift project click on the AppName in the Navigation Area (in the left side).
+2. In the Editor Area (in the centre) under project again click on AppName then go to package dependencies click on “+” and add JoyFill package using “ https://github.com/joyfill/components-ios.git ”.
 
 ## Implement your code:
 Make sure to replace the userAccessToken and documentId. Note that documentId is just for this example, you can call our List all documents endpoint and grab an ID from there.
-    
+
+Inside swift file:
+On the top 1st import joyfill package using
+
 ```swift
 
-import UIKit
 import joyfill_components_swift
+    
+```
 
-class ViewController: UIViewController, onChange, UIImagePickerControllerDelegate & UINavigationControllerDelegate {
-        
-    var apiUrl = "https://api-joy.joyfill.io"
-    var identifier = '<REPLACE_ME>'
-    var userAccessToken = '<REPLACE_ME>'
-        
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        getDocumentAsync()
-        self.overrideUserInterfaceStyle = .light
+Then inside your viewController class add these variables:
+```swift
+
+var apiUrl = "https://api-joy.joyfill.io"
+var identifier = '<REPLACE_ME>'
+var userAccessToken = '<REPLACE_ME>'
+    
+```
+
+Then inside viewController override method viewDidLoad() call JoyDoc using:
+```swift
+
+override func viewDidLoad() {
+    super.viewDidLoad()
+    getDocumentAsync()
+    self.overrideUserInterfaceStyle = .light
+}
+    
+```
+
+Then add these function inside your viewController file:
+```swift
+
+func getDocumentAsync() {
+    let url = URL(string: apiUrl + "/v1/documents/" + identifier)
+    guard url != nil else {
+        print("Error")
+        return
     }
-        
-    func handleOnChange(docChangelog: [String : Any], doc: [String : Any]) {
-        print(">>>>>>>> docChangelog: ", docChangelog)
-        print(">>>>>>>> onChange: ", doc)
-    }
-        
-    func handleOnFocus(blurAndFocusParams: [String : Any]) {
-        print(">>>>>>>> handleFocus: ", blurAndFocusParams)
-    }
-        
-    func handleOnBlur(blurAndFocusParams: [String : Any]) {
-        print(">>>>>>>> handleBlur: ", blurAndFocusParams)
-    }
-        
-    func getDocumentAsync() {
-        let url = URL(string: apiUrl + "/v1/documents/" + identifier)
-        guard url != nil else {
-            print("Error")
-            return
-        }
             
-        var request = URLRequest(url: url!)
-        let verificationToken = ["Authorization": "Bearer \(userAccessToken)"]
-        let header = verificationToken
+    var request = URLRequest(url: url!)
+    let verificationToken = ["Authorization": "Bearer \(userAccessToken)"]
+    let header = verificationToken
             
-        request.httpMethod = "GET"
-        request.allHTTPHeaderFields = header
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        URLSession.shared.dataTask(with: request) {data, _, error in
-            if error == nil && data != nil {
-                do {
-                    jsonData = data!
-                    DispatchQueue.main.async {
-                        let components = Form()
-                        components.saveDelegate = self
-                        components.translatesAutoresizingMaskIntoConstraints = false
-                        self.view.addSubview(components)
-                        NSLayoutConstraint.activate([
-                            components.topAnchor.constraint(equalTo: self.view.topAnchor),
-                            components.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
-                            components.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
-                            components.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
-                        ])
+    request.httpMethod = "GET"
+    request.allHTTPHeaderFields = header
+    request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+    URLSession.shared.dataTask(with: request) {data, _, error in
+        if error == nil && data != nil {
+            do {
+                jsonData = data!
+                DispatchQueue.main.async {
+                    let components = Form()
+                    components.saveDelegate = self
+                    components.translatesAutoresizingMaskIntoConstraints = false
+                    self.view.addSubview(components)
+                    NSLayoutConstraint.activate([
+                        components.topAnchor.constraint(equalTo: self.view.topAnchor),
+                        components.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
+                        components.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
+                        components.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
+                    ])
                             
-                        uploadImageTapAction = {
-                            var alertStyle = UIAlertController.Style.actionSheet
-                            if (UIDevice.current.userInterfaceIdiom == .pad) {
-                                alertStyle = UIAlertController.Style.alert
-                            }
-                            let alert = UIAlertController(title: "Choose Image", message: nil, preferredStyle: alertStyle)
-                            alert.addAction(UIAlertAction(title: "Camera", style: .default, handler: { _ in
-                                self.openMultipleImageCamera()
-                            }))
-                            alert.addAction(UIAlertAction(title: "Gallery", style: .default, handler: { _ in
-                                self.openMultipleImageGallery()
-                            }))
-                            alert.addAction(UIAlertAction.init(title: "Cancel", style: .cancel, handler: nil))
+                    uploadImageTapAction = {
+                        var alertStyle = UIAlertController.Style.actionSheet
+                        if (UIDevice.current.userInterfaceIdiom == .pad) {
+                            alertStyle = UIAlertController.Style.alert
+                        }
+                        let alert = UIAlertController(title: "Choose Image", message: nil, preferredStyle: alertStyle)
+                        alert.addAction(UIAlertAction(title: "Camera", style: .default, handler: { _ in
+                            self.openMultipleImageCamera()
+                        }))
+                        alert.addAction(UIAlertAction(title: "Gallery", style: .default, handler: { _ in
+                            self.openMultipleImageGallery()
+                        }))
+                        alert.addAction(UIAlertAction.init(title: "Cancel", style: .cancel, handler: nil))
                                 
-                            self.present(alert, animated: true, completion: nil)
-                        }
+                        self.present(alert, animated: true, completion: nil)
+                    }
                             
-                        saveButtonTapAction = {
-                            self.updateDocumentChangelogsAsync()
-                        }
+                    saveButtonTapAction = {
+                        self.updateDocumentChangelogsAsync()
                     }
                 }
             }
-        }.resume()
-    }
-        
-    func updateDocumentChangelogsAsync() {
-        do {
-            let jsonData = try JSONSerialization.data(withJSONObject: docChangeLogs, options: [])
-            if let url = URL(string: apiUrl + "/v1/documents/" + identifier + "/changelogs") {
-                var request = URLRequest(url: url)
-                request.httpMethod = "POST"
-                request.httpBody = jsonData
-                    
-                request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-                let verificationToken = ["Authorization": "Bearer \(userAccessToken)"]
-                let header = verificationToken
-                request.allHTTPHeaderFields = header
-                let session = URLSession.shared
-                let task = session.dataTask(with: request) { data, response, error in
-                    if let error = error {
-                        print("Error: \(error)")
-                    } else if let data = data {
-                        let json = try? JSONSerialization.jsonObject(with: data, options: [.fragmentsAllowed])
-                        let _ = json as? NSDictionary
-                        self.getDocumentAsync()
-                    }
-                }
-                task.resume()
-            }
-        } catch {
-            print("Error serializing JSON: \(error)")
         }
+    }.resume()
+}
+        
+func updateDocumentChangelogsAsync() {
+    do {
+        let jsonData = try JSONSerialization.data(withJSONObject: docChangeLogs, options: [])
+        if let url = URL(string: apiUrl + "/v1/documents/" + identifier + "/changelogs") {
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.httpBody = jsonData
+                    
+            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+            let verificationToken = ["Authorization": "Bearer \(userAccessToken)"]
+            let header = verificationToken
+            request.allHTTPHeaderFields = header
+            let session = URLSession.shared
+            let task = session.dataTask(with: request) { data, response, error in
+                if let error = error {
+                    print("Error: \(error)")
+                } else if let data = data {
+                    let json = try? JSONSerialization.jsonObject(with: data, options: [.fragmentsAllowed])
+                    let _ = json as? NSDictionary
+                    self.getDocumentAsync()
+                }
+            }
+            task.resume()
+        }
+    } catch {
+        print("Error serializing JSON: \(error)")
     }
 }
     
