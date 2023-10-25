@@ -59,7 +59,7 @@ open class LongText: UIView {
         
         // Constraint to arrange subviews acc. to LongTextView
         NSLayoutConstraint.activate([
-            view.topAnchor.constraint(equalTo: topAnchor),
+            view.topAnchor.constraint(equalTo: topAnchor, constant: 5),
             view.leadingAnchor.constraint(equalTo: leadingAnchor),
             view.trailingAnchor.constraint(equalTo: trailingAnchor),
             view.bottomAnchor.constraint(equalTo: bottomAnchor),
@@ -76,7 +76,7 @@ open class LongText: UIView {
             textField.topAnchor.constraint(equalTo: topLabel.bottomAnchor, constant: 13),
             textField.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             textField.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            textField.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0)
+            textField.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -10)
         ])
         
         toolTipIconButton.setImage(UIImage(named: "tooltipIcon"), for: .normal)

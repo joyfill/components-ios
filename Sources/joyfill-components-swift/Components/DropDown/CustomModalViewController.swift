@@ -1,11 +1,11 @@
 import Foundation
 import UIKit
 
-protocol DropDownSelectText {
-    func setDropdownSelectedValue(text:String)
-}
-
 public var selectedDropdownOptionIndexPath: [Int?] = []
+protocol DropDownSelectText {
+    func setDropdownSelectedValue(text: String)
+    func updateFieldBorder(borderColor: UIColor, borderWidth: CGFloat)
+}
 
 class CustomModalViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
@@ -60,7 +60,7 @@ class CustomModalViewController: UIViewController, UITableViewDelegate, UITableV
     }()
     
     // Constants
-    let defaultHeight: CGFloat = 450
+    let defaultHeight: CGFloat = 500
     
     // Dynamic container constraint
     var containerViewHeightConstraint: NSLayoutConstraint?
@@ -164,6 +164,7 @@ class CustomModalViewController: UIViewController, UITableViewDelegate, UITableV
     }
     
     func dismissBackgroundView() {
+        self.delegate?.updateFieldBorder(borderColor: UIColor(hexString: "#D1D1D6") ?? .lightGray, borderWidth: 1)
         backgroundView.alpha = 0.6
         UIView.animate(withDuration: 0.4) {
             self.backgroundView.alpha = 0
@@ -181,7 +182,6 @@ class CustomModalViewController: UIViewController, UITableViewDelegate, UITableV
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Tablecell", for: indexPath as IndexPath) as! Tablecell
-        
         
         if hideDoneButtonOnSingleSelect == "singleSelect" {
             if selectedDropdownOptionIndexPath[index] == indexPath.row {

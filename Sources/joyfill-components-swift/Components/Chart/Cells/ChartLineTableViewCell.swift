@@ -86,13 +86,13 @@ public class ChartLineTableViewCell: UITableViewCell, ChartViewTextFieldCellDele
         
         NSLayoutConstraint.activate([
             // View Constraints
-            view.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
+            view.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
             view.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             view.widthAnchor.constraint(equalToConstant: 90),
             view.heightAnchor.constraint(equalToConstant: 30),
             
             // RemoveView Constraints
-            removeView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
+            removeView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
             removeView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             removeView.widthAnchor.constraint(equalToConstant: 95),
             removeView.heightAnchor.constraint(equalToConstant: 30),
@@ -122,10 +122,10 @@ public class ChartLineTableViewCell: UITableViewCell, ChartViewTextFieldCellDele
             removeImage.bottomAnchor.constraint(equalTo: removeView.bottomAnchor, constant: -7),
             
             // TypeTitleTextField Constraints
-            typeTitleTextField.topAnchor.constraint(equalTo: view.bottomAnchor, constant: 20),
+            typeTitleTextField.topAnchor.constraint(equalTo: view.bottomAnchor, constant: 15),
             typeTitleTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
             typeTitleTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
-            typeTitleTextField.heightAnchor.constraint(equalToConstant: 80),
+            typeTitleTextField.heightAnchor.constraint(equalToConstant: 95),
             
             // TypedescriptionTextField Constraints
             typeDescriptionTextField.topAnchor.constraint(equalTo: typeTitleTextField.bottomAnchor, constant: 7),
@@ -134,13 +134,13 @@ public class ChartLineTableViewCell: UITableViewCell, ChartViewTextFieldCellDele
             typeDescriptionTextField.heightAnchor.constraint(equalToConstant: 50),
             
             // PointsLabel Constraints
-            pointsLabel.topAnchor.constraint(equalTo: typeDescriptionTextField.bottomAnchor, constant: 23),
+            pointsLabel.topAnchor.constraint(equalTo: typeDescriptionTextField.bottomAnchor, constant: 20),
             pointsLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
             pointsLabel.widthAnchor.constraint(equalToConstant: 50),
             pointsLabel.heightAnchor.constraint(equalToConstant: 20),
             
             // AddPointButton Constraints
-            addPointButton.topAnchor.constraint(equalTo: typeDescriptionTextField.bottomAnchor, constant: 23),
+            addPointButton.topAnchor.constraint(equalTo: typeDescriptionTextField.bottomAnchor, constant: 20),
             addPointButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
             addPointButton.widthAnchor.constraint(equalToConstant: 80),
             addPointButton.heightAnchor.constraint(equalToConstant: 20),
@@ -343,6 +343,33 @@ extension ChartLineTableViewCell: UITableViewDelegate, UITableViewDataSource {
             )
             
             chartValueElement[self.index][addPointButtonIndexPath].points?[indexPath.row] = updatedValueElement
+            
+            // Update updated value in the joyDoc
+            let value = joyDocFieldData[self.index].value
+            switch value {
+            case .string: break
+            case .integer: break
+            case .valueElementArray:
+                joyDocFieldData[self.index].value = ValueUnion.valueElementArray(chartValueElement[self.index])
+            case .array(_): break
+            case .none:
+                joyDocFieldData[self.index].value = ValueUnion.valueElementArray(chartValueElement[self.index])
+            case .some(.null): break
+            }
+            
+            if let index = joyDocStruct?.fields?.firstIndex(where: {$0.id == joyDocFieldData[self.index].id}) {
+                let modelValue = joyDocStruct?.fields?[index].value
+                switch modelValue {
+                case .string: break
+                case .integer: break
+                case .valueElementArray:
+                    joyDocStruct?.fields?[index].value = ValueUnion.valueElementArray(chartValueElement[self.index])
+                case .array(_): break
+                case .none:
+                    joyDocStruct?.fields?[index].value = ValueUnion.valueElementArray(chartValueElement[self.index])
+                case .some(.null): break
+                }
+            }
             
             self.saveDelegate?.handleLineData(rowId: chartPointsId[self.index][addPointButtonIndexPath][indexPath.row], line: self.index, indexPath: indexPath.row, newYValue: Int(tableCell?.verticalValueTF.text ?? "") ?? 0, newXValue: Int(tableCell?.horizontalValueTF.text ?? "") ?? 0, newLabelValue: tableCell?.labelTF.text ?? "")
         }

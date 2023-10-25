@@ -41,6 +41,12 @@ public class Dropdown: UIView, DropDownSelectText, UITextFieldDelegate {
         }
     }
     
+    func updateFieldBorder(borderColor: UIColor, borderWidth: CGFloat) {
+        viewTextField.layer.borderColor = borderColor.cgColor
+        viewTextField.layer.borderWidth = borderWidth
+        saveDelegate?.handleBlur(index: index)
+    }
+    
     func setupUI () {
         addSubview(titleLbl)
         addSubview(toolTipIconButton)
@@ -56,7 +62,7 @@ public class Dropdown: UIView, DropDownSelectText, UITextFieldDelegate {
         
         NSLayoutConstraint.activate([
             //Title
-            titleLbl.topAnchor.constraint(equalTo: self.topAnchor),
+            titleLbl.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
             titleLbl.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
             titleLbl.trailingAnchor.constraint(equalTo: toolTipIconButton.leadingAnchor, constant: -5),
             
@@ -86,7 +92,6 @@ public class Dropdown: UIView, DropDownSelectText, UITextFieldDelegate {
         ])
         
         setGlobalUserInterfaceStyle()
-        
         self.titleLbl.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         self.titleText = "Drop Down"
         self.titleTextColor = .black
@@ -240,7 +245,7 @@ public class Dropdown: UIView, DropDownSelectText, UITextFieldDelegate {
         if doneHide == "singleSelect" {
             textField.text = text
             viewTextField.layer.cornerRadius = 12
-            viewTextField.layer.borderColor = UIColor(hexString: "#4776EE")?.cgColor
+            viewTextField.layer.borderColor = UIColor(hexString: "#D1D1D6")?.cgColor
             viewTextField.layer.borderWidth = 1
             
             for option in 0..<(joyDocFieldData[index].options?.count ?? 0) {
@@ -248,14 +253,44 @@ public class Dropdown: UIView, DropDownSelectText, UITextFieldDelegate {
                     selectedOptionId = joyDocFieldData[index].options?[option].id ?? ""
                 }
             }
+            dropDownValueUpadte(valueId: selectedOptionId)
             saveDelegate?.handleFieldChange(text: selectedOptionId, isEditingEnd: true, index: index)
             
         } else {
             textField.text = "Select \(text)"
             viewTextField.layer.cornerRadius = 12
-            viewTextField.layer.borderColor = UIColor(hexString: "#4776EE")?.cgColor
+            viewTextField.layer.borderColor = UIColor(hexString: "#D1D1D6")?.cgColor
             viewTextField.layer.borderWidth = 1
             saveDelegate?.handleFieldChange(text: textField.text ?? "", isEditingEnd: true, index: index)
+        }
+    }
+    
+    // Update updated value in the joyDoc
+    func dropDownValueUpadte(valueId: String) {
+        let value = joyDocFieldData[self.index].value
+        switch value {
+        case .string:
+            joyDocFieldData[self.index].value = ValueUnion.string(valueId)
+        case .integer: break
+        case .valueElementArray(_): break
+        case .array(_): break
+        case .none:
+            joyDocFieldData[self.index].value = ValueUnion.string(valueId)
+        case .some(.null): break
+        }
+        
+        if let index = joyDocStruct?.fields?.firstIndex(where: {$0.id == joyDocFieldData[index].id}) {
+            let modelValue = joyDocStruct?.fields?[index].value
+            switch modelValue {
+            case .string:
+                joyDocStruct?.fields?[index].value = ValueUnion.string(valueId)
+            case .integer: break
+            case .valueElementArray(_): break
+            case .array(_): break
+            case .none:
+                joyDocStruct?.fields?[index].value = ValueUnion.string(valueId)
+            case .some(.null): break
+            }
         }
     }
     
@@ -273,12 +308,15 @@ public class Dropdown: UIView, DropDownSelectText, UITextFieldDelegate {
     }
     
     @IBAction func dropdownOpen(_ sender: UIButton) {
+        viewTextField.layer.borderWidth = 2
+        viewTextField.layer.borderColor = UIColor.darkGray.cgColor
         guard let viewController = self.findViewController() else {
             return
         }
         let vc = CustomModalViewController()
         vc.delegate = self
         vc.index = self.index
+        saveDelegate?.handleFocus(index: self.index)
         vc.hideDoneButtonOnSingleSelect = doneHide
         vc.modalPresentationStyle = .overCurrentContext
         vc.dropdownOptionArray = dropdownOptions[buttonTag]

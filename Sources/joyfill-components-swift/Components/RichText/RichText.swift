@@ -5,6 +5,7 @@ public var richTextIndexPath = Int()
 open class RichText: UIView {
     
     public var textLabel = Label()
+    public var labelTextData = String()
     
     // MARK: Initializer
     public override init(frame: CGRect) {
@@ -29,8 +30,8 @@ open class RichText: UIView {
         
         NSLayoutConstraint.activate([
             textLabel.topAnchor.constraint(equalTo: topAnchor),
-            textLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
-            textLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
+            textLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8),
+            textLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
             textLabel.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
         
@@ -43,7 +44,6 @@ open class RichText: UIView {
             let attributedTextArray = NSMutableAttributedString()
             var inlineStyleValue = String()
             var inlineStyleKey = String()
-            
             
             for block in blocks {
                 if let text = block.text as NSString? {
@@ -101,6 +101,7 @@ open class RichText: UIView {
             }
             textLabel.numberOfLines = 0
             textLabel.attributedText = attributedTextArray
+            labelTextData = textLabel.text ?? ""
             
         } catch {
             print("Error parsing JSON: \(error)")

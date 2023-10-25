@@ -1,35 +1,48 @@
 import Foundation
 import UIKit
 
+var cellHeight = [CGFloat]()
 public var imageIndexNo = Int()
 public var cellView = [UIView]()
 public var chartIndexPath = Int()
 public var tableIndexPath = Int()
 public var doc: [String: Any] = [:]
 public var viewForDataSource = UIView()
+public var docChangeLogs: [String: Any] = [:]
 public var componentTableView = UITableView()
+public var blurAndFocusParams: [String: Any] = [:]
 public var componentTableViewCellHeight = [CGFloat]()
 
 public var selectedPicture = [[String]]()
 public var pickedSinglePicture = [[String]]()
 public var imageSelectionCount = [[String]]()
+public var saveButtonTapAction: (() -> Void)?
+public var blurButtonTapAction: (() -> Void)?
 public var uploadImageTapAction: (() -> Void)?
 
 public protocol onChange {
-    func handleOnChange(doc: [[String: Any]], isEditingEnd: Bool)
+    func handleOnChange(docChangelog: [String: Any], doc: [String: Any])
+    func handleOnFocus(blurAndFocusParams: [String: Any])
+    func handleOnBlur(blurAndFocusParams: [String: Any])
 }
 
-public class Form: UIView, SaveTableFieldValue, saveImageFieldValue, saveSignatureFieldValue {
+public class Form: UIView, SaveTableFieldValue, saveImageFieldValue, saveSignatureFieldValue, SavePageNavigationChange {
+    
+    public var saveButton = Button()
+    public var blurButton = Button()
+    public var pageNavigationView = UIView()
+    public var pageNavigationLabel = Label()
+    public var pageNavigationArrow = ImageView()
     
     var joyFillStruct: JoyDoc?
     var imageIndexPath = Int()
     var tableHeight = CGFloat()
-    var cellHeight = [CGFloat]()
     var shortTextHeight = CGFloat()
+    var changelogs = [[String: Any]]()
     public var saveDelegate: onChange? = nil
     var dropdownOptionSubArray: [String] = []
+    var fieldDelegate: SaveTextFieldValue? = nil
     var multiselectOptionSubArray: [String] = []
-    public var docChangelogs: [[String: Any]] = []
     
     // MARK: Initializer
     public override init(frame: CGRect) {
@@ -51,24 +64,88 @@ public class Form: UIView, SaveTableFieldValue, saveImageFieldValue, saveSignatu
     }
     
     public func setupUI() {
-        setGlobalUserInterfaceStyle()
         _ = JoyDoc.loadFromJSON()
+        self.fieldDelegate = self
+        setGlobalUserInterfaceStyle()
         
         // SubViews
+        addSubview(pageNavigationView)
         addSubview(componentTableView)
+        addSubview(saveButton)
+        addSubview(blurButton)
+        pageNavigationView.addSubview(pageNavigationArrow)
+        pageNavigationView.addSubview(pageNavigationLabel)
+        
+        saveButton.translatesAutoresizingMaskIntoConstraints = false
+        blurButton.translatesAutoresizingMaskIntoConstraints = false
         componentTableView.translatesAutoresizingMaskIntoConstraints = false
+        pageNavigationView.translatesAutoresizingMaskIntoConstraints = false
+        pageNavigationArrow.translatesAutoresizingMaskIntoConstraints = false
+        pageNavigationLabel.translatesAutoresizingMaskIntoConstraints = false
         
         // Constraint to arrange subviews acc. to components
         NSLayoutConstraint.activate([
+            // PageNavigationView Constraint
+            pageNavigationView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 20),
+            pageNavigationView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            pageNavigationView.heightAnchor.constraint(equalToConstant: 40),
+            pageNavigationView.widthAnchor.constraint(equalToConstant: 150),
+            
+            // PageNavigationArrow Constraint
+            pageNavigationArrow.centerYAnchor.constraint(equalTo: pageNavigationView.centerYAnchor),
+            pageNavigationArrow.leadingAnchor.constraint(equalTo: pageNavigationView.leadingAnchor, constant: 30),
+            pageNavigationArrow.widthAnchor.constraint(equalToConstant: 14),
+            pageNavigationArrow.heightAnchor.constraint(equalToConstant: 18),
+            
+            // PageNavigationLabel Constraint
+            pageNavigationLabel.centerYAnchor.constraint(equalTo: pageNavigationView.centerYAnchor),
+            pageNavigationLabel.leadingAnchor.constraint(equalTo: pageNavigationArrow.trailingAnchor, constant: 5),
+            pageNavigationLabel.trailingAnchor.constraint(equalTo: pageNavigationView.trailingAnchor, constant: -5),
+            
             // TableView Constraint
-            componentTableView.topAnchor.constraint(equalTo: topAnchor, constant: 20),
+            componentTableView.topAnchor.constraint(equalTo: pageNavigationView.bottomAnchor, constant: 10),
             componentTableView.leadingAnchor.constraint(equalTo: leadingAnchor),
             componentTableView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            componentTableView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -20)
+            componentTableView.bottomAnchor.constraint(equalTo: saveButton.topAnchor, constant: -5),
+            
+            // SaveButton Constraint
+            saveButton.topAnchor.constraint(equalTo: componentTableView.bottomAnchor, constant: 5),
+            saveButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            saveButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            saveButton.bottomAnchor.constraint(equalTo: blurButton.topAnchor, constant: -5),
+            
+            // Blur Constraint
+            blurButton.topAnchor.constraint(equalTo: saveButton.bottomAnchor, constant: 5),
+            blurButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            blurButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            blurButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -20)
         ])
         
         // Set cornerRadius and shadow to view.
         backgroundColor = .white
+        
+        saveButton.title = "Save"
+        saveButton.cornerRadius = 20
+        saveButton.titleColor = UIColor.blue
+        saveButton.backgroundColor = UIColor(hexString: "#F5F5F5")
+        saveButton.addTarget(self, action: #selector(saveButtonTapped), for: .touchUpInside)
+        
+        blurButton.title = "Blur"
+        blurButton.cornerRadius = 20
+        blurButton.titleColor = UIColor.blue
+        blurButton.backgroundColor = UIColor(hexString: "#F5F5F5")
+        blurButton.addTarget(self, action: #selector(blurButtonTapped), for: .touchUpInside)
+        
+        pageNavigationLabel.fontSize = 14
+        pageNavigationView.layer.cornerRadius = 20
+        if #available(iOS 13.0, *) {
+            pageNavigationArrow.image = UIImage(systemName: "chevron.down")
+        } else {
+            // Fallback on earlier versions
+        }
+        pageNavigationArrow.tintColor = .black
+        pageNavigationLabel.labelText = "Page #\(pageIndex + 1)"
+        pageNavigationView.backgroundColor = UIColor(hexString: "#F5F5F5")
         
         // Set tableView Properties
         componentTableView.bounces = false
@@ -79,6 +156,42 @@ public class Form: UIView, SaveTableFieldValue, saveImageFieldValue, saveSignatu
         componentTableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
         
         viewForDataSource = self
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(openPageNavigationModal))
+        pageNavigationView.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc public func saveButtonTapped(sender: UIButton) {
+        saveButtonTapAction?()
+        docChangeLogs.removeAll()
+        changelogs.removeAll()
+    }
+    
+    @objc public func blurButtonTapped(sender: UIButton) {
+        blurButtonTapAction?()
+    }
+    
+    private func findViewController() -> UIViewController? {
+        var responder: UIResponder? = self
+        
+        while let currentResponder = responder {
+            if let viewController = currentResponder as? UIViewController {
+                return viewController
+            }
+            responder = currentResponder.next
+        }
+        
+        return nil
+    }
+    
+    @objc func openPageNavigationModal() {
+        guard let viewController = findViewController() else {
+            return
+        }
+        let vc = PageNavigationViewController()
+        vc.saveDelegate = self
+        vc.modalPresentationStyle = .overCurrentContext
+        viewController.present(vc, animated: false)
     }
 }
 
@@ -91,9 +204,9 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
     
     // MARK: TableView delegate method for cell for row at
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        // cellView.removeAll()
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
         componentTableView.separatorStyle = .none
+        pageNavigationLabel.labelText = "Page #\(pageIndex + 1)"
         
         // Configure the cell
         let value = joyDocFieldData[indexPath.row].value
@@ -133,31 +246,26 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         return cell
     }
     
-    
     // MARK: TableView delegate method to adjust cell height
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        cellHeight.removeAll()
-        for i in 0..<componentType.count {
-            switch componentType[i] {
-            case FieldTypes.image:
-                if imageSelectionCount[i].count == 0 {
-                    if selectedPicture[i].count == 0 {
-                        cellHeight.append(150)
-                    } else {
-                        cellHeight.append(270)
-                    }
+        let fieldType = joyDocFieldData[indexPath.row].type
+        switch fieldType {
+        case FieldTypes.image:
+            if imageSelectionCount[indexPath.row].count == 0 {
+                if selectedPicture[indexPath.row].count == 0 {
+                    cellHeight.insert(150, at: indexPath.row)
                 } else {
-                    cellHeight.append(270)
+                    cellHeight.insert(270, at: indexPath.row)
                 }
-            case FieldTypes.text, FieldTypes.multiSelect, FieldTypes.dropdown, FieldTypes.textarea, FieldTypes.date, FieldTypes.signature, FieldTypes.number, FieldTypes.chart, FieldTypes.table:
-                cellHeight.append(componentTableViewCellHeight[i] + 10)
-            case FieldTypes.block:
-                cellHeight.append(50)
-            case FieldTypes.richText:
-                cellHeight.append(componentTableViewCellHeight[i])
-            default:
-                break
+            } else {
+                cellHeight.insert(270, at: indexPath.row)
             }
+        case FieldTypes.text, FieldTypes.multiSelect, FieldTypes.dropdown, FieldTypes.textarea, FieldTypes.date, FieldTypes.signature, FieldTypes.number, FieldTypes.chart, FieldTypes.table, FieldTypes.block:
+            cellHeight.insert(componentTableViewCellHeight[indexPath.row] + 10, at: indexPath.row)
+        case FieldTypes.richText:
+            cellHeight.insert(componentTableViewCellHeight[indexPath.row], at: indexPath.row)
+        default:
+            break
         }
         return cellHeight[indexPath.row]
     }
@@ -167,6 +275,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         let image = Image()
         image.index = i
         image.saveDelegate = self
+        image.fieldDelegate = self
         image.uploadButton.tag = i
         image.selectedImage = selectedPicture
         image.pickedSingleImg = pickedSinglePicture
@@ -215,19 +324,20 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         
         image.titleButton.text = joyDocFieldData[i].title
         image.allowMultipleImages(value: joyDocFieldData[i].multi ?? false)
-        image.uploadButton.addTarget(self, action: #selector(interiorUploadButtonTapped), for: .touchUpInside)
-        image.frame = CGRect(x: 10, y: 10, width: tableView.bounds.width - 20, height: tableView.rowHeight)
+        image.uploadButton.addTarget(self, action: #selector(uploadButtonTapped), for: .touchUpInside)
+        image.frame = CGRect(x: 10, y: 5, width: tableView.bounds.width - 20, height: tableView.rowHeight)
         cellView.insert(image, at: i)
     }
-    @objc public func interiorUploadButtonTapped(sender: UIButton) {
+    @objc public func uploadButtonTapped(sender: UIButton) {
         uploadImageTapAction?()
         imageIndexNo = sender.tag
+        fieldDelegate?.handleFocus(index: sender.tag)
     }
     
     //MARK: - Block Field
     func configureBlockFieldCell(tableView: UITableView, i: Int, value: ValueUnion?) {
         let displayText = Label()
-        tableView.rowHeight = 50
+        displayText.numberOfLines = 0
         displayText.fontSize = CGFloat(blockTextSize[i])
         displayText.textColor = UIColor(hexString: blockTextColor[i])
         displayText.isTextBold = blockTextWeight[i] == "bold" ? true : false
@@ -245,7 +355,11 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         case .some(.null): break
         }
         
-        displayText.frame = CGRect(x: 20, y: 10, width: tableView.bounds.width - 40, height: tableView.rowHeight)
+        let height = (displayText.labelText?.height(withConstrainedWidth: tableView.bounds.width - 40, font: displayText.font))
+        tableView.rowHeight = height ?? 0 + 10
+        componentTableViewCellHeight[i] = tableView.rowHeight
+        
+        displayText.frame = CGRect(x: 20, y: 5, width: tableView.bounds.width - 40, height: tableView.rowHeight)
         cellView.insert(displayText, at: i)
     }
     
@@ -277,7 +391,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         tableView.rowHeight = 80 + (height ?? 0)
         componentTableViewCellHeight[i] = tableView.rowHeight
         
-        shortText.frame = CGRect(x: 20, y: 10, width: tableView.bounds.width - 40, height: tableView.rowHeight)
+        shortText.frame = CGRect(x: 20, y: 5, width: tableView.bounds.width - 40, height: tableView.rowHeight)
         cellView.insert(shortText, at: i)
     }
     //MARK: - TextArea Field
@@ -306,10 +420,10 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         }
         
         let height = (joyDocFieldData[i].title?.height(withConstrainedWidth: tableView.bounds.width - 40, font: longText.topLabel.font))
-        tableView.rowHeight = 220 + (height ?? 0)
+        tableView.rowHeight = 210 + (height ?? 0)
         componentTableViewCellHeight[i] = tableView.rowHeight
         
-        longText.frame = CGRect(x: 20, y: 10, width: tableView.bounds.width - 40, height: tableView.rowHeight)
+        longText.frame = CGRect(x: 20, y: 5, width: tableView.bounds.width - 40, height: tableView.rowHeight)
         cellView.insert(longText, at: i)
     }
     
@@ -318,13 +432,13 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         let number = NumberField()
         number.index = i
         number.saveDelegate = self
-        number.currentPage = numberFieldString ?? 0
         
         // Number value based on indexPath from JoyDoc
         switch value {
         case .string(let string):
             number.numberField.text = string
-        case .integer(_): break
+        case .integer(let integer):
+            number.numberField.text = "\(integer)"
         case .valueElementArray(_): break
         case .array(_): break
         case .none: break
@@ -340,7 +454,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         tableView.rowHeight = 80 + (height ?? 0)
         componentTableViewCellHeight[i] = tableView.rowHeight
         
-        number.frame = CGRect(x: 10, y: 10, width: tableView.bounds.width - 20, height: tableView.rowHeight)
+        number.frame = CGRect(x: 10, y: 5, width: tableView.bounds.width - 20, height: tableView.rowHeight)
         cellView.insert(number, at: i)
     }
     
@@ -349,7 +463,8 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         let datetime = DateTime()
         datetime.index = i
         datetime.saveDelegate = self
-        datetime.format = joyDocFieldPositionData[i].format ?? ""
+        datetime.dateTimeDisplayModes(mode: "")
+        datetime.format = joyDocFieldPositionData?[i].format ?? ""
         
         // DateTime value based on indexPath from JoyDoc
         switch value {
@@ -372,7 +487,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         tableView.rowHeight = 80 + (height ?? 0)
         componentTableViewCellHeight[i] = tableView.rowHeight
         
-        datetime.frame = CGRect(x: 10, y: 0, width: tableView.bounds.width - 20, height: tableView.rowHeight)
+        datetime.frame = CGRect(x: 10, y: 5, width: tableView.bounds.width - 20, height: tableView.rowHeight)
         cellView.insert(datetime, at: i)
     }
     
@@ -415,7 +530,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         dropDownText.buttonTag = i
         dropdownOptions.insert(dropdownOptionSubArray, at: i)
         dropDownText.dropdownPlaceholder = dropdownOptions[i].first ?? ""
-        dropDownText.frame = CGRect(x: 10, y: 15, width: tableView.bounds.width - 20, height: tableView.rowHeight)
+        dropDownText.frame = CGRect(x: 10, y: 5, width: tableView.bounds.width - 20, height: tableView.rowHeight)
         cellView.insert(dropDownText, at: i)
     }
     
@@ -446,7 +561,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
             case .string(let string):
                 if joyDocFieldData[i].multi == false {
                     if string == multiSelectOptionId[i][optionValue] {
-                        singleChoiseSelectedIndexPath[i] = optionValue
+                        multiChoiseSelectedOptionIndexPath[i].add(optionValue)
                     }
                 }
             case .integer(_): break
@@ -454,11 +569,11 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
             case .array(let array):
                 if joyDocFieldData[i].multi == true {
                     if array.first(where: { $0 == multiSelectOptionId[i][optionValue] }) != nil {
-                        multiChoiseSelectedIndexPath[i].add(optionValue)
+                        multiChoiseSelectedOptionIndexPath[i].add(optionValue)
                     }
                 } else {
                     if array.first(where: { $0 == multiSelectOptionId[i][optionValue] }) != nil {
-                        singleChoiseSelectedIndexPath[i] = optionValue
+                        multiChoiseSelectedOptionIndexPath[i].add(optionValue)
                     }
                 }
             case .none: break
@@ -481,8 +596,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         tableView.rowHeight = totalHeight + (height ?? 0)
         componentTableViewCellHeight[i] = tableView.rowHeight
         
-        multipleChoice.multiSelectOptionsIndex = i
-        multipleChoice.frame = CGRect(x: 20, y: 10, width: tableView.bounds.width - 40, height: tableView.rowHeight)
+        multipleChoice.frame = CGRect(x: 20, y: 5, width: tableView.bounds.width - 40, height: tableView.rowHeight)
         cellView.insert(multipleChoice, at: i)
     }
     
@@ -502,6 +616,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         let sign = SignatureView()
         sign.index = i
         sign.saveDelegate = self
+        sign.fieldDelegate = self
         
         sign.titleLabel.labelText = joyDocFieldData[i].title
         let height = (joyDocFieldData[i].title?.height(withConstrainedWidth: tableView.bounds.width - 40, font: sign.titleLabel.font))
@@ -512,7 +627,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         sign.toolTipDescription = joyDocFieldData[i].tipDescription ?? ""
         sign.tooltipVisible(bool: joyDocFieldData[i].tipVisible ?? false)
         
-        sign.frame = CGRect(x: 20, y: 0, width: tableView.bounds.width - 40, height: tableView.rowHeight)
+        sign.frame = CGRect(x: 20, y: 5, width: tableView.bounds.width - 40, height: tableView.rowHeight)
         cellView.insert(sign, at: i)
     }
     
@@ -564,6 +679,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         let table = Table()
         table.tableIndexNo(indexPath: i)
         table.saveDelegate = self
+        table.fieldDelegate = self
         table.index = i
         table.numberRows(number: tableRowOrder[i].count)
         table.numberColumns(number: tableColumnType[i].count)
@@ -576,7 +692,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         let height = (joyDocFieldData[i].title?.height(withConstrainedWidth: tableView.bounds.width - 140, font: table.titleLabel.font))
         tableView.rowHeight = 210 + (height ?? 0)
         componentTableViewCellHeight[i] = tableView.rowHeight
-        table.frame = CGRect(x: 10, y: 0, width: tableView.bounds.width - 20, height: tableView.rowHeight)
+        table.frame = CGRect(x: 10, y: 5, width: tableView.bounds.width - 20, height: tableView.rowHeight)
         cellView.insert(table, at: i)
     }
     
@@ -632,6 +748,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         chart.index = i
         chart.lineGraph.index = i
         chart.saveDelegate = self
+        chart.fieldDelegate = self
         
         chart.titleLabel.labelText = joyDocFieldData[i].title
         let height = (joyDocFieldData[i].title?.height(withConstrainedWidth: tableView.bounds.width - 40, font: chart.titleLabel.font))
@@ -642,7 +759,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         chart.toolTipDescription = joyDocFieldData[i].tipDescription ?? ""
         chart.tooltipVisible(bool: joyDocFieldData[i].tipVisible ?? false)
         
-        chart.frame = CGRect(x: 10, y: 0, width: tableView.bounds.width - 20, height: tableView.rowHeight)
+        chart.frame = CGRect(x: 10, y: 5, width: tableView.bounds.width - 20, height: tableView.rowHeight)
         cellView.insert(chart, at: i)
     }
     
@@ -662,13 +779,11 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         }
         
         let richText = RichText()
-        let maxSize = CGSize(width: tableView.bounds.width, height: CGFloat.greatestFiniteMagnitude)
-        let requiredSize = richText.textLabel.sizeThatFits(maxSize)
-        let calculatedHeight = requiredSize.height + 10
+        let height = (richText.labelTextData.height(withConstrainedWidth: tableView.bounds.width - 40, font: richText.textLabel.font))
+        tableView.rowHeight = height
         componentTableViewCellHeight[i] = tableView.rowHeight
         
-        tableView.rowHeight = calculatedHeight
-        richText.frame = CGRect(x: 10, y: 0, width: tableView.bounds.width - 20, height: tableView.rowHeight)
+        richText.frame = CGRect(x: 10, y: 5, width: tableView.bounds.width - 20, height: tableView.rowHeight)
         cellView.insert(richText, at: i)
     }
     
@@ -676,12 +791,12 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
     func handleFieldChange(text: Any, isEditingEnd: Bool, index: Int) {
         let change = ["value": text]
         _ = fieldOnChange(id: joyDocId,
-                          identifier: joyDocFieldData[index].identifier ?? "",
+                          identifier: joyDocIdentifier,
                           fileId: joyDocFieldData[index].file ?? "",
-                          pageId: joyDocPageId[0],
+                          pageId: joyDocPageId[pageIndex],
                           fieldId: joyDocFieldData[index].id ?? "",
                           fieldIdentifier: joyDocFieldData[index].identifier ?? "",
-                          fieldPositionId: joyDocFieldPositionData[index].id ?? "",
+                          fieldPositionId: joyDocFieldPositionData?[index].id ?? "",
                           change: change,
                           createdOn: Int(Date().timeIntervalSince1970))
     }
@@ -691,12 +806,12 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         let change = ["value": sign,
                       "signer": signer]
         _ = fieldOnChange(id: joyDocId,
-                          identifier: joyDocFieldData[index].identifier ?? "",
+                          identifier: joyDocIdentifier,
                           fileId: joyDocFieldData[index].file ?? "",
-                          pageId: joyDocPageId[0],
+                          pageId: joyDocPageId[pageIndex],
                           fieldId: joyDocFieldData[index].id ?? "",
                           fieldIdentifier: joyDocFieldData[index].identifier ?? "",
-                          fieldPositionId: joyDocFieldPositionData[index].id ?? "",
+                          fieldPositionId: joyDocFieldPositionData?[index].id ?? "",
                           change: change,
                           createdOn: Int(Date().timeIntervalSince1970))
     }
@@ -705,12 +820,12 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
     func handleDeleteRow(rowId: String, rowIndex: Int, isEditingEnd: Bool, index: Int) {
         let change = ["rowId": rowId, "targetRowIndex": rowIndex] as [String : Any]
         _ = tableOnChange(id: joyDocId,
-                          identifier: joyDocFieldData[index].identifier ?? "",
+                          identifier: joyDocIdentifier,
                           fileId: joyDocFieldData[index].file ?? "",
-                          pageId: joyDocPageId[0],
+                          pageId: joyDocPageId[pageIndex],
                           fieldId: joyDocFieldData[index].id ?? "",
                           fieldIdentifier: joyDocFieldData[index].identifier ?? "",
-                          fieldPositionId: joyDocFieldPositionData[index].id ?? "",
+                          fieldPositionId: joyDocFieldPositionData?[index].id ?? "",
                           change: change,
                           createdOn: Int(Date().timeIntervalSince1970),
                           target: "field.value.rowDelete")
@@ -719,12 +834,12 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
     func handleMoveRowUp(rowId: String, rowIndex: Int, isEditingEnd: Bool, index: Int) {
         let change = ["rowId": rowId, "targetRowIndex": rowIndex] as [String : Any]
         _ = tableOnChange(id: joyDocId,
-                          identifier: joyDocFieldData[index].identifier ?? "",
+                          identifier: joyDocIdentifier,
                           fileId: joyDocFieldData[index].file ?? "",
-                          pageId: joyDocPageId[0],
+                          pageId: joyDocPageId[pageIndex],
                           fieldId: joyDocFieldData[index].id ?? "",
                           fieldIdentifier: joyDocFieldData[index].identifier ?? "",
-                          fieldPositionId: joyDocFieldPositionData[index].id ?? "",
+                          fieldPositionId: joyDocFieldPositionData?[index].id ?? "",
                           change: change,
                           createdOn: Int(Date().timeIntervalSince1970),
                           target: "field.value.rowMove")
@@ -733,12 +848,12 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
     func handleMoveRowDown(rowId: String, rowIndex: Int, isEditigEnd: Bool, index: Int) {
         let change = ["rowId": rowId, "targetRowIndex": rowIndex] as [String : Any]
         _ = tableOnChange(id: joyDocId,
-                          identifier: joyDocFieldData[index].identifier ?? "",
+                          identifier: joyDocIdentifier,
                           fileId: joyDocFieldData[index].file ?? "",
-                          pageId: joyDocPageId[0],
+                          pageId: joyDocPageId[pageIndex],
                           fieldId: joyDocFieldData[index].id ?? "",
                           fieldIdentifier: joyDocFieldData[index].identifier ?? "",
-                          fieldPositionId: joyDocFieldPositionData[index].id ?? "",
+                          fieldPositionId: joyDocFieldPositionData?[index].id ?? "",
                           change: change,
                           createdOn: Int(Date().timeIntervalSince1970),
                           target: "field.value.rowMove")
@@ -747,12 +862,12 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
     func handleDuplicateRow(row: [String : Any], rowIndex: Int, isEditingEnd: Bool, index: Int) {
         let change = row
         _ = tableOnChange(id: joyDocId,
-                          identifier: joyDocFieldData[index].identifier ?? "",
+                          identifier: joyDocIdentifier,
                           fileId: joyDocFieldData[index].file ?? "",
-                          pageId: joyDocPageId[0],
+                          pageId: joyDocPageId[pageIndex],
                           fieldId: joyDocFieldData[index].id ?? "",
                           fieldIdentifier: joyDocFieldData[index].identifier ?? "",
-                          fieldPositionId: joyDocFieldPositionData[index].id ?? "",
+                          fieldPositionId: joyDocFieldPositionData?[index].id ?? "",
                           change: change,
                           createdOn: Int(Date().timeIntervalSince1970),
                           target: "field.value.rowCreate")
@@ -761,12 +876,12 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
     func handleAddBelowRow(row: [String : Any], rowIndex: Int, isEditingEnd: Bool, index: Int) {
         let change = ["row": row, "targetRowIndex": rowIndex] as [String : Any]
         _ = tableOnChange(id: joyDocId,
-                          identifier: joyDocFieldData[index].identifier ?? "",
+                          identifier: joyDocIdentifier,
                           fileId: joyDocFieldData[index].file ?? "",
-                          pageId: joyDocPageId[0],
+                          pageId: joyDocPageId[pageIndex],
                           fieldId: joyDocFieldData[index].id ?? "",
                           fieldIdentifier: joyDocFieldData[index].identifier ?? "",
-                          fieldPositionId: joyDocFieldPositionData[index].id ?? "",
+                          fieldPositionId: joyDocFieldPositionData?[index].id ?? "",
                           change: change,
                           createdOn: Int(Date().timeIntervalSince1970),
                           target: "field.value.rowCreate")
@@ -775,12 +890,12 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
     func handleCreateRow(row: [String : Any], rowIndex: Int, isEditingEnd: Bool, index: Int) {
         let change = ["row": row, "targetRowIndex": rowIndex] as [String : Any]
         _ = tableOnChange(id: joyDocId,
-                          identifier: joyDocFieldData[index].identifier ?? "",
+                          identifier: joyDocIdentifier,
                           fileId: joyDocFieldData[index].file ?? "",
-                          pageId: joyDocPageId[0],
+                          pageId: joyDocPageId[pageIndex],
                           fieldId: joyDocFieldData[index].id ?? "",
                           fieldIdentifier: joyDocFieldData[index].identifier ?? "",
-                          fieldPositionId: joyDocFieldPositionData[index].id ?? "",
+                          fieldPositionId: joyDocFieldPositionData?[index].id ?? "",
                           change: change,
                           createdOn: Int(Date().timeIntervalSince1970),
                           target: "field.value.rowCreate")
@@ -789,12 +904,12 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
     func handleTextCellChangeValue(row: [String : Any], rowId: String, isEditingEnd: Bool, index: Int) {
         let change = ["row": row, "rowId": rowId] as [String : Any]
         _ = tableOnChange(id: joyDocId,
-                          identifier: joyDocFieldData[index].identifier ?? "",
+                          identifier: joyDocIdentifier,
                           fileId: joyDocFieldData[index].file ?? "",
-                          pageId: joyDocPageId[0],
+                          pageId: joyDocPageId[pageIndex],
                           fieldId: joyDocFieldData[index].id ?? "",
                           fieldIdentifier: joyDocFieldData[index].identifier ?? "",
-                          fieldPositionId: joyDocFieldPositionData[index].id ?? "",
+                          fieldPositionId: joyDocFieldPositionData?[index].id ?? "",
                           change: change,
                           createdOn: Int(Date().timeIntervalSince1970),
                           target: "field.value.rowUpdate")
@@ -1057,14 +1172,34 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
     
     func onChangeFunctionCall(line: Int, elementData: [String: Any]) {
         _ = chartOnChange(id: joyDocId,
-                          identifier: joyDocFieldData[line].identifier ?? "",
+                          identifier: joyDocIdentifier,
                           fileId: joyDocFieldData[line].file ?? "",
-                          pageId: joyDocPageId[0],
+                          pageId: joyDocPageId[pageIndex],
                           fieldId: joyDocFieldData[line].id ?? "",
                           fieldIdentifier: joyDocFieldData[line].identifier ?? "",
-                          fieldPositionId: joyDocFieldPositionData[line].id ?? "",
+                          fieldPositionId: joyDocFieldPositionData?[line].id ?? "",
                           change: elementData,
                           createdOn: Int(Date().timeIntervalSince1970))
+    }
+    
+    // MARK: - Page onChange methods
+    func handlePageDuplicate(change: [String: Any], fieldChange: [[String: Any]]) {
+        _ = pageDuplicateOnChange(id: joyDocId,
+                                  identifier: joyDocIdentifier,
+                                  fileId: joyDocFileId,
+                                  createdOn: Int(Date().timeIntervalSince1970),
+                                  target: "page.create",
+                                  change: change,
+                                  fieldChange: fieldChange)
+    }
+    
+    func handlePageDelete(pageId: String) {
+        _ = pageDeleteOnChange(id: joyDocId,
+                               identifier: joyDocIdentifier,
+                               fileId: joyDocFileId,
+                               pageId: pageId,
+                               createdOn: Int(Date().timeIntervalSince1970),
+                               target: "page.delete")
     }
     
     // MARK: - onChange function
@@ -1085,9 +1220,10 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
             "createdOn": createdOn
         ] as [String : Any]
         
-        docChangelogs.append(dict)
-        doc = ["changelogs": docChangelogs]
-        saveDelegate?.handleOnChange(doc: docChangelogs, isEditingEnd: true)
+        convertDocToJson()
+        changelogs.append(dict)
+        docChangeLogs = ["changelogs": changelogs]
+        saveDelegate?.handleOnChange(docChangelog: dict, doc: doc)
         return dict
     }
     
@@ -1108,9 +1244,10 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
             "createdOn": createdOn
         ] as [String : Any]
         
-        docChangelogs.append(dict)
-        doc = ["changelogs" : docChangelogs]
-        saveDelegate?.handleOnChange(doc: docChangelogs, isEditingEnd: true)
+        convertDocToJson()
+        changelogs.append(dict)
+        docChangeLogs = ["changelogs" : changelogs]
+        saveDelegate?.handleOnChange(docChangelog: dict, doc: doc)
         return dict
     }
     
@@ -1131,9 +1268,238 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
             "createdOn": createdOn
         ] as [String: Any]
         
-        docChangelogs.append(dict)
-        doc = ["changelogs": docChangelogs]
-        saveDelegate?.handleOnChange(doc: docChangelogs, isEditingEnd: true)
+        convertDocToJson()
+        changelogs.append(dict)
+        docChangeLogs = ["changelogs": changelogs]
+        saveDelegate?.handleOnChange(docChangelog: dict, doc: doc)
         return dict
+    }
+    
+    // MARK: - Page onChange Method
+    func pageDeleteOnChange(id: String, identifier: String, fileId: String, pageId: String, createdOn: Int, target: String) -> [String: Any] {
+        let dict = [
+            "_id": id,
+            "sdk": "swift",
+            "v": 1,
+            "createdOn": createdOn,
+            "fileId": fileId,
+            "identifier": identifier,
+            "pageId": pageId,
+            "target": target
+        ] as [String: Any]
+        changelogs.append(dict)
+        
+        let mobileView = [
+            "_id": id,
+            "sdk": "swift",
+            "v": 1,
+            "createdOn": createdOn,
+            "fileId": fileId,
+            "identifier": identifier,
+            "pageId": pageId,
+            "target": target,
+            "view": "mobile"
+        ] as [String: Any]
+        changelogs.append(mobileView)
+        
+        convertDocToJson()
+        docChangeLogs = ["changelogs": changelogs]
+        saveDelegate?.handleOnChange(docChangelog: dict, doc: doc)
+        return dict
+    }
+    
+    func pageDuplicateOnChange(id: String, identifier: String, fileId: String, createdOn: Int, target: String, change: [String: Any], fieldChange: [[String: Any]]) -> [[String: Any]] {
+        let primaryPages = [
+            "_id": id,
+            "sdk": "swift",
+            "v": 1,
+            "createdOn": createdOn,
+            "fileId": fileId,
+            "identifier": identifier,
+            "target": target,
+            "change": change
+        ] as [String: Any]
+        changelogs.append(primaryPages)
+        
+        if joyDocStruct?.files?[0].views?.count != 0 {
+            let mobileView = [
+                "_id": id,
+                "sdk": "swift",
+                "v": 1,
+                "createdOn": createdOn,
+                "fileId": fileId,
+                "identifier": identifier,
+                "target": target,
+                "change": change,
+                "view": "mobile",
+                "viewId": mobileViewId
+            ] as [String: Any]
+            changelogs.append(mobileView)
+        }
+        
+        for i in 0..<fieldChange.count {
+            let fields = [
+                "_id": id,
+                "sdk": "swift",
+                "v": 1,
+                "createdOn": createdOn,
+                "fileId": fileId,
+                "identifier": identifier,
+                "target": "field.create",
+                "change": fieldChange[i]
+            ] as [String: Any]
+            changelogs.append(fields)
+        }
+        
+        convertDocToJson()
+        docChangeLogs = ["changelogs": changelogs]
+        saveDelegate?.handleOnChange(docChangelog: docChangeLogs, doc: doc)
+        return changelogs
+    }
+    
+    // MARK: - Field Focus and Blur Method
+    func handleBlur(index: Int) {
+        _ = fieldBlur(id: joyDocId,
+                       identifier: joyDocIdentifier,
+                       fileId: joyDocFieldData[index].file ?? "",
+                       pageId: joyDocPageId[pageIndex],
+                       fieldId: joyDocFieldData[index].id ?? "",
+                       fieldIdentifier: joyDocFieldData[index].identifier ?? "",
+                      fieldPositionId: joyDocFieldPositionData?[index].id ?? "",
+                       target: "fieldPosition.blur")
+    }
+    
+    func handleFocus(index: Int) {
+        _ = fieldFocus(id: joyDocId,
+                       identifier: joyDocIdentifier,
+                       fileId: joyDocFieldData[index].file ?? "",
+                       pageId: joyDocPageId[pageIndex],
+                       fieldId: joyDocFieldData[index].id ?? "",
+                       fieldIdentifier: joyDocFieldData[index].identifier ?? "",
+                       fieldPositionId: joyDocFieldPositionData?[index].id ?? "",
+                       target: "fieldPosition.focus")
+    }
+    
+    func handleTableOnFocus(rowId: String, columnId: String, columnIdentifier: String, index: Int) {
+        _ = tableFieldFocus(id: joyDocId,
+                            identifier: joyDocIdentifier,
+                            fileId: joyDocFieldData[index].file ?? "",
+                            pageId: joyDocPageId[pageIndex],
+                            fieldId: joyDocFieldData[index].id ?? "",
+                            fieldIdentifier: joyDocFieldData[index].identifier ?? "",
+                            fieldPositionId: joyDocFieldPositionData?[index].id ?? "",
+                            target: "fieldPosition.focus",
+                            columnId: columnId,
+                            columnIdentifier: columnIdentifier,
+                            rowId: rowId)
+    }
+    
+    func handleTableOnBlur(rowId: String, columnId: String, columnIdentifier: String, index: Int) {
+        _ = tableFieldBlur(id: joyDocId,
+                           identifier: joyDocIdentifier,
+                           fileId: joyDocFieldData[index].file ?? "",
+                           pageId: joyDocPageId[pageIndex],
+                           fieldId: joyDocFieldData[index].id ?? "",
+                           fieldIdentifier: joyDocFieldData[index].identifier ?? "",
+                           fieldPositionId: joyDocFieldPositionData?[index].id ?? "",
+                           target: "fieldPosition.blur",
+                           columnId: columnId,
+                           columnIdentifier: columnIdentifier,
+                           rowId: rowId)
+    }
+    
+    func fieldBlur(id: String, identifier: String, fileId: String, pageId: String, fieldId: String, fieldIdentifier: String, fieldPositionId: String, target: String) -> [String: Any] {
+        let dict = [
+            "sdk": "swift",
+            "v": 1,
+            "target": target,
+            "_id": id,
+            "identifier": identifier,
+            "fileId": fileId,
+            "pageId": pageId,
+            "fieldId": fieldId,
+            "fieldIdentifier": fieldIdentifier,
+            "fieldPositionId": fieldPositionId
+        ] as [String : Any]
+        
+        blurAndFocusParams = dict
+        saveDelegate?.handleOnBlur(blurAndFocusParams: blurAndFocusParams)
+        return dict
+    }
+    
+    func fieldFocus(id: String, identifier: String, fileId: String, pageId: String, fieldId: String, fieldIdentifier: String, fieldPositionId: String, target: String) -> [String: Any] {
+        let dict = [
+            "sdk": "swift",
+            "v": 1,
+            "target": target,
+            "_id": id,
+            "identifier": identifier,
+            "fileId": fileId,
+            "pageId": pageId,
+            "fieldId": fieldId,
+            "fieldIdentifier": fieldIdentifier,
+            "fieldPositionId": fieldPositionId
+        ] as [String : Any]
+        
+        blurAndFocusParams = dict
+        saveDelegate?.handleOnFocus(blurAndFocusParams: blurAndFocusParams)
+        return dict
+    }
+    
+    func tableFieldFocus(id: String, identifier: String, fileId: String, pageId: String, fieldId: String, fieldIdentifier: String, fieldPositionId: String, target: String, columnId: String, columnIdentifier: String, rowId: String) -> [String: Any] {
+        let dict = [
+            "sdk": "swift",
+            "v": 1,
+            "target": target,
+            "_id": id,
+            "identifier": identifier,
+            "fileId": fileId,
+            "pageId": pageId,
+            "fieldId": fieldId,
+            "fieldIdentifier": fieldIdentifier,
+            "fieldPositionId": fieldPositionId,
+            "fieldRowId": rowId,
+            "fieldColumnId": columnId,
+            "fieldColumnIdentifier": columnIdentifier
+        ] as [String : Any]
+        
+        blurAndFocusParams = dict
+        saveDelegate?.handleOnFocus(blurAndFocusParams: blurAndFocusParams)
+        return dict
+    }
+    
+    func tableFieldBlur(id: String, identifier: String, fileId: String, pageId: String, fieldId: String, fieldIdentifier: String, fieldPositionId: String, target: String, columnId: String, columnIdentifier: String, rowId: String) -> [String: Any] {
+        let dict = [
+            "sdk": "swift",
+            "v": 1,
+            "target": target,
+            "_id": id,
+            "identifier": identifier,
+            "fileId": fileId,
+            "pageId": pageId,
+            "fieldId": fieldId,
+            "fieldIdentifier": fieldIdentifier,
+            "fieldPositionId": fieldPositionId,
+            "fieldRowId": rowId,
+            "fieldColumnId": columnId,
+            "fieldColumnIdentifier": columnIdentifier
+        ] as [String : Any]
+        
+        blurAndFocusParams = dict
+        saveDelegate?.handleOnBlur(blurAndFocusParams: blurAndFocusParams)
+        return dict
+    }
+    
+    func convertDocToJson() {
+        do {
+            let jsonEncoder = JSONEncoder()
+            jsonEncoder.outputFormatting = .prettyPrinted
+            let docToJson = try jsonEncoder.encode(joyDocStruct)
+            if let jsonObject = try JSONSerialization.jsonObject(with: docToJson, options: []) as? [String: Any] {
+                doc = jsonObject
+            }
+        } catch {
+            print("Error encoding the Page struct to JSON: \(error)")
+        }
     }
 }

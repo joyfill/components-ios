@@ -19,6 +19,7 @@ open class SignatureView : UIView {
     
     var index = Int()
     var saveDelegate: saveSignatureFieldValue? = nil
+    var fieldDelegate: SaveTextFieldValue? = nil
     
     // MARK: - Initializer
     required public init?(coder aDecoder: NSCoder) {
@@ -102,9 +103,8 @@ open class SignatureView : UIView {
             signIconBt.topAnchor.constraint(equalTo: signViewBt.topAnchor, constant: 10),
             signIconBt.leadingAnchor.constraint(equalTo: signLbBt.trailingAnchor, constant: 2),
             signIconBt.trailingAnchor.constraint(equalTo: signViewBt.trailingAnchor,constant: -10),
-            signIconBt.bottomAnchor.constraint(equalTo: signViewBt.bottomAnchor, constant: -7)
+            signIconBt.bottomAnchor.constraint(equalTo: signViewBt.bottomAnchor, constant: -10)
         ])
-        
         setGlobalUserInterfaceStyle()
         titleLabel.numberOfLines = 0
         titleLabel.textColor = .black
@@ -149,7 +149,9 @@ open class SignatureView : UIView {
             if let viewController = parentResponder as? UIViewController {
                 let newViewController = SignatureViewController()
                 newViewController.index = index
+                fieldDelegate?.handleFocus(index: index)
                 newViewController.saveDelegate = self.saveDelegate
+                newViewController.fieldDelegate = self.fieldDelegate
                 newViewController.modalPresentationStyle = .fullScreen
                 newViewController.modalTransitionStyle = .crossDissolve
                 viewController.present(newViewController, animated: true, completion: nil)

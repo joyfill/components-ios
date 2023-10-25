@@ -37,7 +37,6 @@ public class MultiChoiceTableViewCell: UITableViewCell {
             underLine.trailingAnchor.constraint(equalTo: self.trailingAnchor),
             underLine.heightAnchor.constraint(equalToConstant: 1)
         ])
-        
         setGlobalUserInterfaceStyle()
         cellCheckbox.checkmarkStyle = .tick
         cellCheckbox.borderStyle = .square

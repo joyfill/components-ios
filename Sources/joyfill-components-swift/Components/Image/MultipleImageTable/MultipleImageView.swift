@@ -27,6 +27,7 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
     public var pickedSingleImg = [[String]]()
     public var selectedIndexPath: Set<Int> = []
     var saveDelegate: saveImageFieldValue? = nil
+    var fieldDelegate: SaveTextFieldValue? = nil
     weak var delegate: MultipleImageViewDelegate?
     
     public override func viewDidLoad() {
@@ -168,7 +169,7 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
             // Fallback on earlier versions
         }
         closeButton.tintColor = .black
-        closeButton.addTarget(self, action: #selector(clossTapped), for: .touchUpInside)
+        closeButton.addTarget(self, action: #selector(closeTapped), for: .touchUpInside)
         
         // Set DeleteView
         deleteView.layer.borderWidth = 1
@@ -283,7 +284,8 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
     }
     
     // Action for close button
-    @objc func clossTapped() {
+    @objc func closeTapped() {
+        fieldDelegate?.handleBlur(index: index)
         willMove(toParent: nil)
         view.removeFromSuperview()
         removeFromParent()

@@ -29,6 +29,7 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
     public var pickedSingleImg = [[String]]()
     weak var delegate: MultipleImageViewDelegate?
     var saveDelegate: saveImageFieldValue? = nil
+    var fieldDelegate: SaveTextFieldValue? = nil
     
     // MARK: Initializer
     public override init(frame: CGRect) {
@@ -97,13 +98,13 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
         
         NSLayoutConstraint.activate([
             // ImageView Constraint
-            imageFieldAndUploadView.topAnchor.constraint(equalTo: topAnchor, constant: 6),
+            imageFieldAndUploadView.topAnchor.constraint(equalTo: topAnchor, constant: 5),
             imageFieldAndUploadView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8),
             imageFieldAndUploadView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
-            imageFieldAndUploadView.heightAnchor.constraint(equalToConstant: 250),
+            imageFieldAndUploadView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
             // TitleButton Constraint
-            titleButton.topAnchor.constraint(equalTo: imageFieldAndUploadView.topAnchor, constant: 12),
+            titleButton.topAnchor.constraint(equalTo: imageFieldAndUploadView.topAnchor),
             titleButton.leadingAnchor.constraint(equalTo: imageFieldAndUploadView.leadingAnchor),
             titleButton.heightAnchor.constraint(equalToConstant: 15),
             
@@ -117,13 +118,13 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
             uploadButton.topAnchor.constraint(equalTo: titleButton.bottomAnchor, constant: 13),
             uploadButton.leadingAnchor.constraint(equalTo: imageFieldAndUploadView.leadingAnchor),
             uploadButton.trailingAnchor.constraint(equalTo: imageFieldAndUploadView.trailingAnchor),
-            uploadButton.heightAnchor.constraint(equalToConstant: 86),
+            uploadButton.bottomAnchor.constraint(equalTo: imageFieldAndUploadView.bottomAnchor, constant: -10),
             
             // Image Constraint
             imageField.topAnchor.constraint(equalTo: titleButton.bottomAnchor, constant: 13),
             imageField.leadingAnchor.constraint(equalTo: imageFieldAndUploadView.leadingAnchor),
             imageField.trailingAnchor.constraint(equalTo: imageFieldAndUploadView.trailingAnchor),
-            imageField.heightAnchor.constraint(equalToConstant: 212),
+            imageField.bottomAnchor.constraint(equalTo: imageFieldAndUploadView.bottomAnchor, constant: -10),
             
             // MoreView Constraint
             imageCountView.bottomAnchor.constraint(equalTo: imageField.bottomAnchor, constant: -9),
@@ -222,11 +223,13 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
     
     // Action function for imageCountButton
     @objc func imageCountTapped() {
+        fieldDelegate?.handleFocus(index: index)
         if let parentViewController = parentViewController {
             let newViewController = MultipleImageView()
             newViewController.index = index
             newViewController.delegate = self
             newViewController.saveDelegate = saveDelegate
+            newViewController.fieldDelegate = fieldDelegate
             newViewController.selectedImage = selectedImage
             newViewController.imageMultiValue = imageMultiValue
             newViewController.pickedSingleImg = pickedSingleImg

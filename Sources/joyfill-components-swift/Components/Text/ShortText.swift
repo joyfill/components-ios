@@ -64,10 +64,10 @@ open class ShortText: UIView {
         
         // Constraint to arrange subviews acc. to ShortTextView
         NSLayoutConstraint.activate([
-            view.topAnchor.constraint(equalTo: topAnchor),
+            view.topAnchor.constraint(equalTo: topAnchor, constant: 5),
             view.leadingAnchor.constraint(equalTo: leadingAnchor),
             view.trailingAnchor.constraint(equalTo: trailingAnchor),
-            view.bottomAnchor.constraint(equalTo: bottomAnchor),
+            view.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             
             topLabel.topAnchor.constraint(equalTo: view.topAnchor),
             topLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 2),
@@ -81,7 +81,7 @@ open class ShortText: UIView {
             textField.topAnchor.constraint(equalTo: topLabel.bottomAnchor, constant: 13),
             textField.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             textField.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            textField.heightAnchor.constraint(equalToConstant: 50)
+            textField.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
 
         toolTipIconButton.setImage(UIImage(named: "tooltipIcon"), for: .normal)

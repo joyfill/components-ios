@@ -133,9 +133,10 @@ public class DateTime: UIView, UITextFieldDelegate {
     
     public func dateTimeDisplayModes(mode : String) {
         if mode != "readonly" {
-            [dateTimeField, datePickerButton].forEach { Button in
-                Button.addTarget(self, action: #selector(openDatePicker), for: .touchDown)
-            }
+            dateTimeField.isUserInteractionEnabled = true
+            datePickerButton.addTarget(self, action: #selector(openDatePicker), for: .touchDown)
+            let tap = UIGestureRecognizer(target: self, action: #selector(openDatePicker))
+            dateTimeField.addGestureRecognizer(tap)
         } else {
             dateTimeField.isUserInteractionEnabled = false
         }
@@ -164,7 +165,7 @@ public class DateTime: UIView, UITextFieldDelegate {
         
         NSLayoutConstraint.activate([
             //Title
-            titleLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 20),
+            titleLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
             titleLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
             titleLabel.trailingAnchor.constraint(equalTo: toolTipIconButton.leadingAnchor, constant: -5),
             
@@ -196,11 +197,6 @@ public class DateTime: UIView, UITextFieldDelegate {
         setGlobalUserInterfaceStyle()
         
         dateTimeField.delegate = self
-        dateTimeField.isUserInteractionEnabled = true
-        [dateTimeField, datePickerButton].forEach { Button in
-            Button.addTarget(self, action: #selector(openDatePicker), for: .touchDown)
-        }
-        
         titleText = "Date Time"
         titleTextColor = .black
         titleLabel.numberOfLines = 0
@@ -231,6 +227,9 @@ public class DateTime: UIView, UITextFieldDelegate {
     // Function to open datePicker
     @objc func openDatePicker() {
         datePickerUI()
+        saveDelegate?.handleFocus(index: index)
+        dateTimeView.layer.borderWidth = 2
+        dateTimeView.layer.borderColor = UIColor.darkGray.cgColor
     }
     
     public func datePickerUI () {
@@ -238,28 +237,78 @@ public class DateTime: UIView, UITextFieldDelegate {
             RPicker.selectDate(title: "Select Date", cancelText: "Cancel", datePickerMode: .date, style: .Inline, didSelectDate: {[weak self] (selectedDate) in
                 self?.selectedDate(date: selectedDate.dateString("MMMM d, yyyy"))
                 let timestampMilliseconds = dateToTimestampMilliseconds(date: selectedDate)
+                self?.dateTimeUpadte(timestampMilliseconds: timestampMilliseconds)
                 self?.saveDelegate?.handleFieldChange(text: timestampMilliseconds as Any, isEditingEnd: true, index: self?.index ?? 0)
+                self?.saveDelegate?.handleBlur(index: self?.index ?? 0)
             })
             
         } else if format == "hh:mma" {
             RPicker.selectDate(title: "Select Date", cancelText: "Cancel", datePickerMode: .time, style: .Wheel, didSelectDate: {[weak self] (selectedDate) in
                 self?.selectedDate(date: selectedDate.dateString("hh:mm a"))
                 let timestampMilliseconds = dateToTimestampMilliseconds(date: selectedDate)
+                self?.dateTimeUpadte(timestampMilliseconds: timestampMilliseconds)
                 self?.saveDelegate?.handleFieldChange(text: timestampMilliseconds as Any, isEditingEnd: true, index: self?.index ?? 0)
+                self?.saveDelegate?.handleBlur(index: self?.index ?? 0)
             })
             
         } else {
             RPicker.selectDate(title: "Select Date", cancelText: "Cancel", datePickerMode: .dateAndTime, style: .Inline, didSelectDate: {[weak self] (selectedDate) in
                 self?.selectedDate(date: selectedDate.dateString("MMMM d, yyyy h:mm a"))
                 let timestampMilliseconds = dateToTimestampMilliseconds(date: selectedDate)
+                self?.dateTimeUpadte(timestampMilliseconds: timestampMilliseconds)
                 self?.saveDelegate?.handleFieldChange(text: timestampMilliseconds as Any, isEditingEnd: true, index: self?.index ?? 0)
+                self?.saveDelegate?.handleBlur(index: self?.index ?? 0)
             })
         }
     }
+    
+    // Update updated value in the joyDoc
+    func dateTimeUpadte(timestampMilliseconds: Int) {
+        let value = joyDocFieldData[self.index].value
+        switch value {
+        case .string: break
+        case .integer:
+            joyDocFieldData[self.index].value = ValueUnion.integer(timestampMilliseconds)
+        case .valueElementArray(_): break
+        case .array(_): break
+        case .none:
+            joyDocFieldData[self.index].value = ValueUnion.integer(timestampMilliseconds)
+        case .some(.null): break
+        }
+        
+        if let index = joyDocStruct?.fields?.firstIndex(where: {$0.id == joyDocFieldData[index].id}) {
+            let modelValue = joyDocStruct?.fields?[index].value
+            switch modelValue {
+            case .string: break
+            case .integer:
+                joyDocStruct?.fields?[index].value = ValueUnion.integer(timestampMilliseconds)
+            case .valueElementArray(_): break
+            case .array(_): break
+            case .none:
+                joyDocStruct?.fields?[index].value = ValueUnion.integer(timestampMilliseconds)
+            case .some(.null): break
+            }
+        }
+    }
+    
+    public func textFieldDidBeginEditing(_ textField: UITextField) {
+        dateTimeView.layer.borderWidth = 2
+        dateTimeView.layer.borderColor = UIColor.darkGray.cgColor
+    }
+    
+    public func textFieldDidEndEditing(_ textField: UITextField) {
+        dateTimeView.layer.borderWidth = 1
+        dateTimeView.layer.borderColor = UIColor(hexString: "#D1D1D6")?.cgColor
+        saveDelegate?.handleFieldChange(text: textField.text ?? "", isEditingEnd: true, index: index)
+    }
+    
+    
     
     // Set selected date and time in textField
     public func selectedDate(date: String) {
         dateLabel = date
         dateTimeField.text = dateLabel
+        dateTimeView.layer.borderWidth = 1
+        dateTimeView.layer.borderColor = UIColor(hexString: "#D1D1D6")?.cgColor
     }
 }

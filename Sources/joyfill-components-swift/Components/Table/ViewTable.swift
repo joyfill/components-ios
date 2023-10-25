@@ -33,6 +33,8 @@ protocol SaveTableFieldValue {
     func handleAddBelowRow(row: [String:Any], rowIndex: Int, isEditingEnd: Bool, index: Int)
     func handleCreateRow(row: [String:Any], rowIndex: Int, isEditingEnd: Bool, index: Int)
     func handleTextCellChangeValue(row: [String:Any], rowId: String, isEditingEnd: Bool, index: Int)
+    func handleTableOnFocus(rowId: String, columnId: String, columnIdentifier: String, index: Int)
+    func handleTableOnBlur(rowId: String, columnId: String, columnIdentifier: String, index: Int)
 }
 
 public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectText {
@@ -71,6 +73,7 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
     let topAndBottomSubviewborderColor: UIColor = UIColor(hexString: "#1F6BFF") ?? .blue
     var index = Int()
     var saveDelegate: SaveTableFieldValue? = nil
+    var fieldDelegate: SaveTextFieldValue? = nil
     var dropDownId = String()
     
     public override func viewDidLoad() {
@@ -90,6 +93,10 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
         collectionView.backgroundColor = .clear
         layout.stickyRowsCount = 1
         setupUI()
+    }
+    
+    func updateFieldBorder(borderColor: UIColor, borderWidth: CGFloat) {
+        print("protocol called")
     }
     
     public override func viewWillAppear(_ animated: Bool) {
@@ -418,6 +425,7 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
         tableColumnType[tableIndexNo].removeFirst(2)
         viewType = "field"
         
+        fieldDelegate?.handleBlur(index: index)
         if tableRowOrder[tableIndexNo].count == 1 {
             tableFieldValue[tableIndexNo].append(emptyValueElement)
             tableFieldValue[tableIndexNo].append(emptyValueElement)
@@ -530,6 +538,36 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
             tableCellsData[tableIndexNo].append(data)
             collectionView.scrollToItem(at: lastIndexPath, at: .bottom, animated: true)
             collectionView.insertSections(IndexSet(integer: lastSection))
+            
+            joyDocFieldData[index].rowOrder?.append(tableFieldValue[tableIndexNo][lastIndexPath.section].id ?? "")
+            let value = joyDocFieldData[index].value
+            switch value {
+            case .string: break
+            case .integer: break
+            case .valueElementArray:
+                joyDocFieldData[index].value = ValueUnion.valueElementArray(tableFieldValue[tableIndexNo])
+            case .array(_): break
+            case .none:
+                joyDocFieldData[index].value = ValueUnion.valueElementArray(tableFieldValue[tableIndexNo])
+            case .some(.null): break
+            }
+            
+            if let index = joyDocStruct?.fields?.firstIndex(where: {$0.id == joyDocFieldData[index].id}) {
+                joyDocStruct?.fields?[index].rowOrder?.append(tableFieldValue[tableIndexNo][lastIndexPath.section].id ?? "")
+                let modelValue = joyDocStruct?.fields?[index].value
+                switch modelValue {
+                case .string: break
+                case .integer: break
+                case .valueElementArray:
+                    joyDocStruct?.fields?[index].value = ValueUnion.valueElementArray(tableFieldValue[tableIndexNo])
+                case .array(_): break
+                case .none:
+                    joyDocStruct?.fields?[index].value = ValueUnion.valueElementArray(tableFieldValue[tableIndexNo])
+                case .some(.null): break
+                }
+            }
+            
+            
             let dict = tableFieldValue[tableIndexNo][lastIndexPath.section].cells
             var cells : [String:Any] = [:]
             for (key, value) in dict ?? [:] {
@@ -576,6 +614,35 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
             tableFieldValue[tableIndexNo].insert(valueElement, at: cellSelectedIndexPath?.section ?? 0)
             tableCellsData[tableIndexNo].insert(data, at: cellSelectedIndexPath?.section ?? 0)
             collectionView.insertSections(IndexSet(integer: cellSelectedIndexPath?.section ?? 0))
+            
+            joyDocFieldData[index].rowOrder?.insert(tableFieldValue[tableIndexNo][(cellSelectedIndexPath?.section ?? 0)].id ?? "", at: cellSelectedIndexPath?.section ?? 0)
+            let value = joyDocFieldData[index].value
+            switch value {
+            case .string: break
+            case .integer: break
+            case .valueElementArray:
+                joyDocFieldData[index].value = ValueUnion.valueElementArray(tableFieldValue[tableIndexNo])
+            case .array(_): break
+            case .none:
+                joyDocFieldData[index].value = ValueUnion.valueElementArray(tableFieldValue[tableIndexNo])
+            case .some(.null): break
+            }
+            
+            if let index = joyDocStruct?.fields?.firstIndex(where: {$0.id == joyDocFieldData[index].id}) {
+                joyDocStruct?.fields?[index].rowOrder?.insert(tableFieldValue[tableIndexNo][(cellSelectedIndexPath?.section ?? 0)].id ?? "", at: cellSelectedIndexPath?.section ?? 0)
+                let modelValue = joyDocStruct?.fields?[index].value
+                switch modelValue {
+                case .string: break
+                case .integer: break
+                case .valueElementArray:
+                    joyDocStruct?.fields?[index].value = ValueUnion.valueElementArray(tableFieldValue[tableIndexNo])
+                case .array(_): break
+                case .none:
+                    joyDocStruct?.fields?[index].value = ValueUnion.valueElementArray(tableFieldValue[tableIndexNo])
+                case .some(.null): break
+                }
+            }
+            
             let dict = tableFieldValue[tableIndexNo][lastSection - 2].cells
             var cells : [String:Any] = [:]
             for (key, _) in dict ?? [:] {
@@ -622,6 +689,34 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
             tableCellsData[tableIndexNo].insert(cellItemToDuplicate, at: cellSelectedIndexPath?.section ?? 0)
             collectionView.insertSections(IndexSet(integer: cellSelectedIndexPath?.section ?? 0))
             
+            joyDocFieldData[index].rowOrder?.insert(tableFieldValue[tableIndexNo][(cellSelectedIndexPath?.section ?? 0)].id ?? "", at: cellSelectedIndexPath?.section ?? 0)
+            let value = joyDocFieldData[index].value
+            switch value {
+            case .string: break
+            case .integer: break
+            case .valueElementArray:
+                joyDocFieldData[index].value = ValueUnion.valueElementArray(tableFieldValue[tableIndexNo])
+            case .array(_): break
+            case .none:
+                joyDocFieldData[index].value = ValueUnion.valueElementArray(tableFieldValue[tableIndexNo])
+            case .some(.null): break
+            }
+            
+            if let index = joyDocStruct?.fields?.firstIndex(where: {$0.id == joyDocFieldData[index].id}) {
+                joyDocStruct?.fields?[index].rowOrder?.insert(tableFieldValue[tableIndexNo][(cellSelectedIndexPath?.section ?? 0)].id ?? "", at: cellSelectedIndexPath?.section ?? 0)
+                let modelValue = joyDocStruct?.fields?[index].value
+                switch modelValue {
+                case .string: break
+                case .integer: break
+                case .valueElementArray:
+                    joyDocStruct?.fields?[index].value = ValueUnion.valueElementArray(tableFieldValue[tableIndexNo])
+                case .array(_): break
+                case .none:
+                    joyDocStruct?.fields?[index].value = ValueUnion.valueElementArray(tableFieldValue[tableIndexNo])
+                case .some(.null): break
+                }
+            }
+            
             let dict = tableFieldValue[tableIndexNo][cellSelectedIndexPath?.section ?? 0].cells
             var cells: [String: Any] = [:]
             for (key, value) in dict ?? [:] {
@@ -631,8 +726,8 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
                        "deleted" : false,
                        "cells" : cells
             ] as [String: Any]
-            doc = ["row": row, "targetRowIndex": cellSelectedIndexPath?.section ?? 0]
-            saveDelegate?.handleDuplicateRow(row: doc, rowIndex: cellSelectedIndexPath?.section ?? 0, isEditingEnd: true, index: index)
+            docChangeLogs = ["row": row, "targetRowIndex": cellSelectedIndexPath?.section ?? 0]
+            saveDelegate?.handleDuplicateRow(row: docChangeLogs, rowIndex: cellSelectedIndexPath?.section ?? 0, isEditingEnd: true, index: index)
             selectedIndexPath = nil
             updateCellSubviewBorder(at: 0)
             updateCellSubviewBorder(at: 1)
@@ -661,6 +756,35 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
             collectionView.moveSection(cellSelectedIndexPath?.section ?? 0, toSection: (cellSelectedIndexPath?.section ?? 0) - 1)
             tableFieldValue[tableIndexNo].swapAt((cellSelectedIndexPath?.section ?? 0) - 1, (cellSelectedIndexPath?.section ?? 0) - 2)
             tableCellsData[tableIndexNo].swapAt((cellSelectedIndexPath?.section ?? 0) - 1, (cellSelectedIndexPath?.section ?? 0) - 2)
+            
+            joyDocFieldData[index].rowOrder?.swapAt((cellSelectedIndexPath?.section ?? 0) - 1, (cellSelectedIndexPath?.section ?? 0) - 2)
+            let value = joyDocFieldData[index].value
+            switch value {
+            case .string: break
+            case .integer: break
+            case .valueElementArray:
+                joyDocFieldData[index].value = ValueUnion.valueElementArray(tableFieldValue[tableIndexNo])
+            case .array(_): break
+            case .none:
+                joyDocFieldData[index].value = ValueUnion.valueElementArray(tableFieldValue[tableIndexNo])
+            case .some(.null): break
+            }
+            
+            if let index = joyDocStruct?.fields?.firstIndex(where: {$0.id == joyDocFieldData[index].id}) {
+                joyDocStruct?.fields?[index].rowOrder?.swapAt((cellSelectedIndexPath?.section ?? 0) - 1, (cellSelectedIndexPath?.section ?? 0) - 2)
+                let modelValue = joyDocStruct?.fields?[index].value
+                switch modelValue {
+                case .string: break
+                case .integer: break
+                case .valueElementArray:
+                    joyDocStruct?.fields?[index].value = ValueUnion.valueElementArray(tableFieldValue[tableIndexNo])
+                case .array(_): break
+                case .none:
+                    joyDocStruct?.fields?[index].value = ValueUnion.valueElementArray(tableFieldValue[tableIndexNo])
+                case .some(.null): break
+                }
+            }
+            
             let rowMoveUpId = tableRowOrder[tableIndexNo][(cellSelectedIndexPath?.section ?? 0) - 1]
             saveDelegate?.handleMoveRowUp(rowId: rowMoveUpId, rowIndex: (cellSelectedIndexPath?.section ?? 0) - 2, isEditingEnd: true, index: index)
             selectedIndexPath = nil
@@ -680,6 +804,35 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
             collectionView.moveSection(cellSelectedIndexPath?.section ?? 0, toSection: (cellSelectedIndexPath?.section ?? 0) + 1)
             tableFieldValue[tableIndexNo].swapAt((cellSelectedIndexPath?.section ?? 0) - 1, cellSelectedIndexPath?.section ?? 0)
             tableCellsData[tableIndexNo].swapAt((cellSelectedIndexPath?.section ?? 0) - 1, cellSelectedIndexPath?.section ?? 0)
+            
+            joyDocFieldData[index].rowOrder?.swapAt((cellSelectedIndexPath?.section ?? 0) - 1, cellSelectedIndexPath?.section ?? 0)
+            let value = joyDocFieldData[index].value
+            switch value {
+            case .string: break
+            case .integer: break
+            case .valueElementArray:
+                joyDocFieldData[index].value = ValueUnion.valueElementArray(tableFieldValue[tableIndexNo])
+            case .array(_): break
+            case .none:
+                joyDocFieldData[index].value = ValueUnion.valueElementArray(tableFieldValue[tableIndexNo])
+            case .some(.null): break
+            }
+            
+            if let index = joyDocStruct?.fields?.firstIndex(where: {$0.id == joyDocFieldData[index].id}) {
+                joyDocStruct?.fields?[index].rowOrder?.swapAt((cellSelectedIndexPath?.section ?? 0) - 1, cellSelectedIndexPath?.section ?? 0)
+                let modelValue = joyDocStruct?.fields?[index].value
+                switch modelValue {
+                case .string: break
+                case .integer: break
+                case .valueElementArray:
+                    joyDocStruct?.fields?[index].value = ValueUnion.valueElementArray(tableFieldValue[tableIndexNo])
+                case .array(_): break
+                case .none:
+                    joyDocStruct?.fields?[index].value = ValueUnion.valueElementArray(tableFieldValue[tableIndexNo])
+                case .some(.null): break
+                }
+            }
+            
             let rowMoveDownId = tableRowOrder[tableIndexNo][(cellSelectedIndexPath?.section ?? 0) - 1]
             saveDelegate?.handleMoveRowDown(rowId: rowMoveDownId, rowIndex: (cellSelectedIndexPath?.section ?? 0), isEditigEnd: true, index: index)
             selectedIndexPath = nil
@@ -697,6 +850,33 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
             tableFieldValue[tableIndexNo].remove(at: (cellSelectedIndexPath?.section ?? 0) - 1)
             tableCellsData[tableIndexNo].remove(at: (cellSelectedIndexPath?.section ?? 0) - 1)
             collectionView.deleteSections(IndexSet(integer: cellSelectedIndexPath?.section ?? 0))
+            joyDocFieldData[index].rowOrder?.remove(at: (cellSelectedIndexPath?.section ?? 0) - 1)
+            let value = joyDocFieldData[index].value
+            switch value {
+            case .string: break
+            case .integer: break
+            case .valueElementArray:
+                joyDocFieldData[index].value = ValueUnion.valueElementArray(tableFieldValue[tableIndexNo])
+            case .array(_): break
+            case .none:
+                joyDocFieldData[index].value = ValueUnion.valueElementArray(tableFieldValue[tableIndexNo])
+            case .some(.null): break
+            }
+            
+            if let index = joyDocStruct?.fields?.firstIndex(where: {$0.id == joyDocFieldData[index].id}) {
+                joyDocStruct?.fields?[index].rowOrder?.remove(at: (cellSelectedIndexPath?.section ?? 0) - 1)
+                let modelValue = joyDocStruct?.fields?[index].value
+                switch modelValue {
+                case .string: break
+                case .integer: break
+                case .valueElementArray:
+                    joyDocStruct?.fields?[index].value = ValueUnion.valueElementArray(tableFieldValue[tableIndexNo])
+                case .array(_): break
+                case .none:
+                    joyDocStruct?.fields?[index].value = ValueUnion.valueElementArray(tableFieldValue[tableIndexNo])
+                case .some(.null): break
+                }
+            }
             let deleteRowId = tableRowOrder[tableIndexNo][(cellSelectedIndexPath?.section ?? 0) - 1]
             tableRowOrder[tableIndexNo].remove(at: (cellSelectedIndexPath?.section ?? 0) - 1)
             saveDelegate?.handleDeleteRow(rowId: deleteRowId, rowIndex: (cellSelectedIndexPath?.section ?? 0) - 1, isEditingEnd: true, index: index)
@@ -785,8 +965,8 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
     // MARK: CollectionView delegate method for cell for item at
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! CollectionViewCell
-        cell.contentView.backgroundColor = .clear
         cell.textViewDelegate = self
+        cell.contentView.backgroundColor = .clear
         
         tableViewDispalyMode(at: cell)
         viewTablePopUpModal(cell: cell, indexPath: indexPath)
@@ -848,8 +1028,13 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
             vc.delegate = self
             vc.dropdownOptionArray = dropdownOptionArray
             
+            let rowId = tableRowOrder[tableIndexNo][indexPath.section-1]
+            let columnId = optionsData[tableIndexNo][indexPath.row-2].id ?? ""
+            let columnIdentifier = optionsData[tableIndexNo][indexPath.row-2].identifier ?? ""
+            saveDelegate?.handleTableOnFocus(rowId: rowId, columnId: columnId, columnIdentifier: columnIdentifier, index: index)
+            
             // To find and highlight the selected option in the dropdown
-            for i in 0..<optionsData[tableIndexNo].count {
+            for i in 0..<(optionsData[tableIndexNo][indexPath.row-2].options?.count ?? 0) {
                 let cellData = tableFieldValue[tableIndexNo][indexPath.section-1].cells ?? [:]
                 if let matchData = cellData.first(where: {$0.key == tableColumnOrderId[tableIndexNo][indexPath.row-2]}) {
                     let tableColumnsData = optionsData[tableIndexNo][indexPath.row-2].options
@@ -927,21 +1112,27 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
     
     // MARK: TextView delegate method for textView selection
     func textViewCellDidSelect(_ cell: UICollectionViewCell) {
-        if let previousCell = collectionView.cellForItem(at: selectedTextFieldIndexPath) as? CollectionViewCell {
-            previousCell.cellTextView.layer.borderWidth = 0
-        }
         let indexPath = collectionView.indexPath(for: cell)
-        if let cell = collectionView.cellForItem(at: indexPath ?? IndexPath(row: 0, section: 0)) as? CollectionViewCell {
-            cell.cellTextView.layer.borderWidth = 1.0
-            cell.cellTextView.layer.cornerRadius = 1.0
-            cell.cellTextView.layer.borderColor = UIColor(hexString: "#1F6BFF")?.cgColor
-            cell.cellTextView.selectedRange = NSRange(location: cell.cellTextView.text.count, length: 0)
-            cell.indexRow = indexPath?.row ?? 0
-            cell.indexSection = indexPath?.section ?? 0
-            cell.tableIndexNo = tableIndexNo
+        if indexPath?.section != 0 {
+            if let previousCell = collectionView.cellForItem(at: selectedTextFieldIndexPath) as? CollectionViewCell {
+                previousCell.cellTextView.layer.borderWidth = 0
+            }
+            if let cell = collectionView.cellForItem(at: indexPath ?? IndexPath(row: 0, section: 0)) as? CollectionViewCell {
+                cell.cellTextView.layer.borderWidth = 1.0
+                cell.cellTextView.layer.cornerRadius = 1.0
+                cell.cellTextView.layer.borderColor = UIColor(hexString: "#1F6BFF")?.cgColor
+                cell.cellTextView.selectedRange = NSRange(location: cell.cellTextView.text.count, length: 0)
+                cell.indexRow = indexPath?.row ?? 0
+                cell.indexSection = indexPath?.section ?? 0
+                cell.tableIndexNo = tableIndexNo
+                selectedTextFieldIndexPath = indexPath ?? IndexPath(row: 0, section: 0)
+            }
+            
+            let rowId = tableRowOrder[tableIndexNo][(indexPath?.section ?? 0)-1]
+            let columnId = optionsData[tableIndexNo][(indexPath?.row ?? 0)-2].id ?? ""
+            let columnIdentifier = optionsData[tableIndexNo][(indexPath?.row ?? 0)-2].identifier ?? ""
+            saveDelegate?.handleTableOnFocus(rowId: rowId, columnId: columnId, columnIdentifier: columnIdentifier, index: index)
         }
-        
-        selectedTextFieldIndexPath = indexPath ?? IndexPath(row: 0, section: 0)
     }
     
     // Function to add top & bottom border only to collectionView cell
@@ -1077,6 +1268,8 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
             }
             
             let rowId = tableRowOrder[tableIndexNo][indexPathSection-1]
+            let columnId = optionsData[tableIndexNo][indexPathRow-2].id ?? ""
+            let columnIdentifier = optionsData[tableIndexNo][indexPathRow-2].identifier ?? ""
             let dict = tableFieldValue[tableIndexNo][indexPathSection-1].cells
             for (key, value) in dict ?? [:] {
                 if key == optionsData[tableIndexNo][indexPathRow-2].id {
@@ -1100,17 +1293,22 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
                 if (tableFieldValue[tableIndexNo].first(where: {$0.id == valueElement.id}) != nil) {
                     tableFieldValue[tableIndexNo][indexPathSection - 1] = valueElement
                 }
+                
+                tableValueUpdate()
                 let row = ["_id":  tableFieldValue[tableIndexNo][indexPathSection - 1].id ?? "",
                            "deleted": false,
                            "cells": cells
                 ] as [String: Any]
                 saveDelegate?.handleTextCellChangeValue(row: row, rowId: rowId, isEditingEnd: true, index: index)
+                saveDelegate?.handleTableOnBlur(rowId: rowId, columnId: columnId, columnIdentifier: columnIdentifier, index: index)
             }
         }
     }
     
     func handleTextCellUpdateValue(_id: String, cellKey: String, cellValue: String, indexRow: Int, indexSection: Int) {
         let rowId = tableRowOrder[tableIndexNo][indexSection-1]
+        let columnId = optionsData[tableIndexNo][indexRow-2].id ?? ""
+        let columnIdentifier = optionsData[tableIndexNo][indexRow-2].identifier ?? ""
         let dict = tableFieldValue[tableIndexNo][indexSection-1].cells
         var cells = [String:String]()
         for (key, value) in dict ?? [:] {
@@ -1135,16 +1333,21 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
             if (tableFieldValue[tableIndexNo].first(where: {$0.id == valueElement.id}) != nil) {
                 tableFieldValue[tableIndexNo][indexSection - 1] = valueElement
             }
+            
+            tableValueUpdate()
             let row = ["_id":  tableFieldValue[tableIndexNo][indexSection - 1].id ?? "",
                        "deleted": false,
                        "cells": cells
             ] as [String: Any]
             saveDelegate?.handleTextCellChangeValue(row: row, rowId: rowId, isEditingEnd: true, index: index)
+            saveDelegate?.handleTableOnBlur(rowId: rowId, columnId: columnId, columnIdentifier: columnIdentifier, index: index)
         }
     }
     
     func handleTextCellSetValue(cellValue: String, indexRow: Int, indexSection: Int) {
         let rowId = tableRowOrder[tableIndexNo][indexSection-1]
+        let columnId = optionsData[tableIndexNo][indexRow-2].id ?? ""
+        let columnIdentifier = optionsData[tableIndexNo][indexRow-2].identifier ?? ""
         let dict = tableFieldValue[tableIndexNo][indexSection-1].cells
         var cells = [String:String]()
         var textCellId = String()
@@ -1170,11 +1373,43 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
             if (tableFieldValue[tableIndexNo].first(where: {$0.id == valueElement.id}) != nil) {
                 tableFieldValue[tableIndexNo][indexSection - 1] = valueElement
             }
+            
+            tableValueUpdate()
             let row = ["_id":  tableFieldValue[tableIndexNo][indexSection - 1].id ?? "",
                        "deleted": false,
                        "cells": cells
             ] as [String: Any]
             saveDelegate?.handleTextCellChangeValue(row: row, rowId: rowId, isEditingEnd: true, index: index)
+            saveDelegate?.handleTableOnBlur(rowId: rowId, columnId: columnId, columnIdentifier: columnIdentifier, index: index)
+        }
+    }
+    
+    // Update updated value in the joyDoc
+    func tableValueUpdate() {
+        let value = joyDocFieldData[index].value
+        switch value {
+        case .string: break
+        case .integer: break
+        case .valueElementArray:
+            joyDocFieldData[index].value = ValueUnion.valueElementArray(tableFieldValue[tableIndexNo])
+        case .array(_): break
+        case .none:
+            joyDocFieldData[index].value = ValueUnion.valueElementArray(tableFieldValue[tableIndexNo])
+        case .some(.null): break
+        }
+        
+        if let index = joyDocStruct?.fields?.firstIndex(where: {$0.id == joyDocFieldData[index].id}) {
+            let modelValue = joyDocStruct?.fields?[index].value
+            switch modelValue {
+            case .string: break
+            case .integer: break
+            case .valueElementArray:
+                joyDocStruct?.fields?[index].value = ValueUnion.valueElementArray(tableFieldValue[tableIndexNo])
+            case .array(_): break
+            case .none:
+                joyDocStruct?.fields?[index].value = ValueUnion.valueElementArray(tableFieldValue[tableIndexNo])
+            case .some(.null): break
+            }
         }
     }
 }

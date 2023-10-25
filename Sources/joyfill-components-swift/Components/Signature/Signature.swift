@@ -26,6 +26,7 @@ open class Signature: UIView {
     
     var index = Int()
     var saveDelegate: saveSignatureFieldValue? = nil
+    var fieldDelegate: SaveTextFieldValue? = nil
     
     // Sets corner radius of signature view
     @IBInspectable
@@ -201,12 +202,43 @@ open class Signature: UIView {
         if let imageData = uri.jpegData(compressionQuality: 1.0) {
             let base64String = imageData.base64EncodedString()
             signedImage.insert("data:image/jpeg;base64,\(base64String)", at: index)
+            signValueUpdate(base64: "data:image/jpeg;base64,\(base64String)")
             saveDelegate?.handleSignatureUpload(sign: "data:image/jpeg;base64,\(base64String)", signer: signer, index: index)
+        }
+    }
+    
+    // Update updated value in the joyDoc
+    func signValueUpdate(base64: String) {
+        let value = joyDocFieldData[index].value
+        switch value {
+        case .string:
+            joyDocFieldData[index].value = ValueUnion.string(base64)
+        case .integer(_): break
+        case .valueElementArray(_): break
+        case .array(_): break
+        case .none:
+            joyDocFieldData[index].value = ValueUnion.string(base64)
+        case .some(.null): break
+        }
+        
+        if let index = joyDocStruct?.fields?.firstIndex(where: {$0.id == joyDocFieldData[index].id}) {
+            let modelValue = joyDocStruct?.fields?[index].value
+            switch modelValue {
+            case .string:
+                joyDocStruct?.fields?[index].value = ValueUnion.string(base64)
+            case .integer(_): break
+            case .valueElementArray(_): break
+            case .array(_): break
+            case .none:
+                joyDocStruct?.fields?[index].value = ValueUnion.string(base64)
+            case .some(.null): break
+            }
         }
     }
     
     // Action for close button
     @objc func clossTapped() {
+        fieldDelegate?.handleBlur(index: index)
         var parentResponder: UIResponder? = self
         while parentResponder != nil {
             parentResponder = parentResponder?.next

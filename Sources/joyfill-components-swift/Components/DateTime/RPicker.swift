@@ -309,13 +309,9 @@ class RPickerController: UIViewController {
         dismiss(animated: true, completion: nil)
     }
     
-    @objc func handleTap() { dismissVC() }
-    
     //MARK:- Private properties
     private lazy var transView: UIView = {
         let vw = UIView()
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.handleTap))
-        vw.addGestureRecognizer(tapGesture)
         vw.isUserInteractionEnabled = true
         return vw
     }()

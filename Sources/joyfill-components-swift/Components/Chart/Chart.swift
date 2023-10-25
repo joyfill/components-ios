@@ -40,6 +40,7 @@ public class Chart: UIView, UIViewControllerTransitioningDelegate {
     
     var index = Int()
     var saveDelegate: saveChartFieldValue? = nil
+    var fieldDelegate: SaveTextFieldValue? = nil
     
     // MARK: Initializer
     public override init(frame: CGRect) {
@@ -148,7 +149,7 @@ public class Chart: UIView, UIViewControllerTransitioningDelegate {
             viewMoreArrow.topAnchor.constraint(equalTo: viewMore.topAnchor, constant: 7),
             viewMoreArrow.leadingAnchor.constraint(equalTo: viewMoreLabel.trailingAnchor, constant: 10),
             viewMoreArrow.trailingAnchor.constraint(equalTo: viewMore.trailingAnchor,constant: -10),
-            viewMoreArrow.bottomAnchor.constraint(equalTo: viewMore.bottomAnchor, constant: -7)
+            viewMoreArrow.bottomAnchor.constraint(equalTo: viewMore.bottomAnchor, constant: -10)
         ])
         
         // graphView Properties
@@ -205,6 +206,7 @@ public class Chart: UIView, UIViewControllerTransitioningDelegate {
     
     // Action function for viewMore
     @objc func viewMoreTapped() {
+        fieldDelegate?.handleFocus(index: index)
         var parentResponder: UIResponder? = self
         while parentResponder != nil {
             parentResponder = parentResponder?.next
@@ -213,6 +215,7 @@ public class Chart: UIView, UIViewControllerTransitioningDelegate {
                 newViewController.index = self.index
                 newViewController.lineGraph.index = self.index
                 newViewController.saveDelegate = self.saveDelegate
+                newViewController.fieldDelegate = self.fieldDelegate
                 newViewController.transitioningDelegate = self
                 newViewController.modalPresentationStyle = .fullScreen
                 newViewController.modalTransitionStyle = .crossDissolve

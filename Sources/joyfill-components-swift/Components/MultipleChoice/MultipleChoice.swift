@@ -4,8 +4,7 @@ import Photos
 
 public var multiSelect = [Bool]()
 public var multiSelectOptions = [[String]]()
-public var singleChoiseSelectedIndexPath = [Int]()
-public var multiChoiseSelectedIndexPath = [NSMutableArray]()
+public var multiChoiseSelectedOptionIndexPath = [NSMutableArray]()
 
 public class MultipleChoice: UIView {
 
@@ -14,10 +13,10 @@ public class MultipleChoice: UIView {
     public var tableView = UITableView()
     public var toolTipDescription = String()
     public var toolTipIconButton = UIButton()
-    public var multiSelectOptionsIndex = Int()
     public var multipleChoiceDspMode = String()
     
     var index = Int()
+    var selectedId = [String]()
     var saveDelegate: SaveTextFieldValue? = nil
     
     public override init(frame: CGRect) {
@@ -131,7 +130,7 @@ public class MultipleChoice: UIView {
         // Constraint to arrange subviews acc. to ShortTextView
         NSLayoutConstraint.activate([
             // TitleLabel Constraints
-            titleLabel.topAnchor.constraint(equalTo: self.topAnchor),
+            titleLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
             titleLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 2),
             titleLabel.trailingAnchor.constraint(equalTo: toolTipIconButton.leadingAnchor, constant: -5),
             
@@ -145,7 +144,7 @@ public class MultipleChoice: UIView {
             tableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
             tableView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
+            tableView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -10)
         ])
         
         setGlobalUserInterfaceStyle()
@@ -179,14 +178,14 @@ public class MultipleChoice: UIView {
 extension MultipleChoice: UITableViewDelegate, UITableViewDataSource {
     // MARK: TableView delegate method for number of rows in section
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return multiSelectOptions[multiSelectOptionsIndex].count
+        return multiSelectOptions[index].count
     }
     
     // MARK: TableView delegate method for cell for row at
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MultiChoiceTableViewCell", for: indexPath as IndexPath) as! MultiChoiceTableViewCell
-        if multiSelect[multiSelectOptionsIndex] == true {
-            if multiChoiseSelectedIndexPath[multiSelectOptionsIndex].contains(indexPath.row) {
+        if multiSelect[index] == true {
+            if multiChoiseSelectedOptionIndexPath[index].contains(indexPath.row) {
                 cell.cellCheckbox.isChecked = true
                 cell.cellCheckbox.checkboxFillColor = UIColor(hexString: "#3767ED") ?? .lightGray
             } else {
@@ -194,14 +193,14 @@ extension MultipleChoice: UITableViewDelegate, UITableViewDataSource {
                 cell.cellCheckbox.checkboxFillColor = .white
             }
         } else {
-            if singleChoiseSelectedIndexPath[multiSelectOptionsIndex] == indexPath.row {
+            if multiChoiseSelectedOptionIndexPath[index].contains(indexPath.row) {
                 cell.cellCheckbox.isChecked = true
                 cell.cellCheckbox.checkmarkStyle = .circle
                 cell.cellCheckbox.borderStyle = .circle
                 cell.cellCheckbox.checkmarkSize = 0.4
                 cell.cellCheckbox.checkboxFillColor = UIColor(hexString: "#256FFF") ?? .blue
                 cell.cellCheckbox.checkmarkColor = .white
-                
+                multiChoiseSelectedOptionIndexPath[index].remove(indexPath.row)
             } else {
                 cell.cellCheckbox.isChecked = false
                 cell.cellCheckbox.checkboxFillColor = .white
@@ -212,7 +211,7 @@ extension MultipleChoice: UITableViewDelegate, UITableViewDataSource {
         }
         cell.selectionStyle = .none
         cell.cellCheckbox.isUserInteractionEnabled = false
-        cell.cellLabel.text = multiSelectOptions[multiSelectOptionsIndex][indexPath.row]
+        cell.cellLabel.text = multiSelectOptions[index][indexPath.row]
         return cell
     }
     
@@ -220,14 +219,13 @@ extension MultipleChoice: UITableViewDelegate, UITableViewDataSource {
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if multipleChoiceDspMode != "readonly" {
             checkForMultiSelectOrSingleSelect(at: indexPath)
-           
         }
     }
     
     // MARK: TableView delegate method to adjust cell height
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         // Calculate the required height for the text in the cell
-        let text = multiSelectOptions[multiSelectOptionsIndex][indexPath.row]
+        let text = multiSelectOptions[index][indexPath.row]
         let font = UIFont.systemFont(ofSize: 16)
         let width = tableView.frame.width - 10
         let height = heightForText(text , font: font, width: width)
@@ -236,30 +234,70 @@ extension MultipleChoice: UITableViewDelegate, UITableViewDataSource {
     
     // Function to check multiSelect or singleSelect
     func checkForMultiSelectOrSingleSelect(at indexPath: IndexPath) {
-        if multiSelect[multiSelectOptionsIndex] == true {
+        if multiSelect[index] == true {
             workAsMultipleSelection(at: indexPath)
         } else {
-            singleChoiseSelectedIndexPath[multiSelectOptionsIndex] = indexPath.row
-            saveDelegate?.handleFieldChange(text: [multiSelectOptionId[multiSelectOptionsIndex][indexPath.row]], isEditingEnd: true, index: index)
+            multiChoiseSelectedOptionIndexPath[index].add(indexPath.row)
+            saveDelegate?.handleFocus(index: index)
+            multiSelectOrSingleSelectValueUpadte(valueId: [multiSelectOptionId[index][indexPath.row]])
+            saveDelegate?.handleFieldChange(text: [multiSelectOptionId[index][indexPath.row]], isEditingEnd: true, index: index)
             tableView.reloadData()
+        }
+    }
+    
+    // Update updated value in the joyDoc
+    func multiSelectOrSingleSelectValueUpadte(valueId: [String]) {
+        let value = joyDocFieldData[index].value
+        switch value {
+        case .string: break
+        case .integer: break
+        case .valueElementArray(_):
+            joyDocFieldData[index].value = ValueUnion.array(valueId)
+        case .array:
+            joyDocFieldData[index].value = ValueUnion.array(valueId)
+        case .none:
+            joyDocFieldData[index].value = ValueUnion.array(valueId)
+        case .some(.null): break
+        }
+        
+        if let index = joyDocStruct?.fields?.firstIndex(where: {$0.id == joyDocFieldData[index].id}) {
+            let modelValue = joyDocStruct?.fields?[index].value
+            switch modelValue {
+            case .string: break
+            case .integer: break
+            case .valueElementArray(_):
+                joyDocStruct?.fields?[index].value = ValueUnion.array(valueId)
+            case .array:
+                joyDocStruct?.fields?[index].value = ValueUnion.array(valueId)
+            case .none:
+                joyDocStruct?.fields?[index].value = ValueUnion.array(valueId)
+            case .some(.null): break
+            }
         }
     }
     
     // Function called when multiSelect == true
     func workAsMultipleSelection(at indexPath: IndexPath) {
-        var selectedId = [String]()
-        if multiChoiseSelectedIndexPath[multiSelectOptionsIndex].contains(indexPath.row) {
-            multiChoiseSelectedIndexPath[multiSelectOptionsIndex].remove(indexPath.row)
+        if multiChoiseSelectedOptionIndexPath[index].contains(indexPath.row) {
+            multiChoiseSelectedOptionIndexPath[index].remove(indexPath.row)
+            updateSelectedValue()
             tableView.reloadData()
         } else {
-            multiChoiseSelectedIndexPath[multiSelectOptionsIndex].add(indexPath.row)
-            for i in 0..<multiSelectOptionId[multiSelectOptionsIndex].count {
-                if multiChoiseSelectedIndexPath[multiSelectOptionsIndex].contains(i) {
-                    selectedId.append(multiSelectOptionId[multiSelectOptionsIndex][i])
-                    saveDelegate?.handleFieldChange(text: selectedId, isEditingEnd: true, index: index)
-                }
-            }
+            multiChoiseSelectedOptionIndexPath[index].add(indexPath.row)
+            updateSelectedValue()
             tableView.reloadData()
         }
+    }
+    
+    func updateSelectedValue() {
+        for i in 0..<multiSelectOptionId[index].count {
+            if multiChoiseSelectedOptionIndexPath[index].contains(i) {
+                selectedId.append(multiSelectOptionId[index][i])
+                saveDelegate?.handleFocus(index: index)
+                multiSelectOrSingleSelectValueUpadte(valueId: selectedId)
+                saveDelegate?.handleFieldChange(text: selectedId, isEditingEnd: true, index: index)
+            }
+        }
+        selectedId.removeAll()
     }
 }
