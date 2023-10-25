@@ -11,7 +11,6 @@ public class NumberField: UIView, UITextFieldDelegate {
     public var toolTipIconButton = UIButton()
     
     var index = Int()
-    public var currentPage : Int = 0
     var saveDelegate: SaveTextFieldValue? = nil
     
     // MARK: - Initializer
@@ -168,7 +167,7 @@ public class NumberField: UIView, UITextFieldDelegate {
         
         NSLayoutConstraint.activate([
             // Title
-            titleLbl.topAnchor.constraint(equalTo: self.topAnchor),
+            titleLbl.topAnchor.constraint(equalTo: self.topAnchor, constant: 5),
             titleLbl.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
             titleLbl.trailingAnchor.constraint(equalTo: toolTipIconButton.leadingAnchor, constant: -5),
             
@@ -182,7 +181,7 @@ public class NumberField: UIView, UITextFieldDelegate {
             view.topAnchor.constraint(equalTo: titleLbl.bottomAnchor, constant: 13),
             view.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 10),
             view.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -10),
-            view.heightAnchor.constraint(equalToConstant: 50),
+            view.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -10),
             
             // NumberFiield
             numberField.topAnchor.constraint(equalTo: view.topAnchor, constant: 0),
@@ -190,8 +189,8 @@ public class NumberField: UIView, UITextFieldDelegate {
             numberField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -15),
             numberField.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0),
         ])
-        
         setGlobalUserInterfaceStyle()
+        
         // Title label properties
         titleLbl.numberOfLines = 0
         titleLbl.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
@@ -205,11 +204,78 @@ public class NumberField: UIView, UITextFieldDelegate {
         numberViewCornerRadius = 12
         
         numberFieldTextSize = 14
+        numberField.tintColor = .blue
         numberField.keyboardType = .numberPad
     }
     
+    public func textFieldDidBeginEditing(_ textField: UITextField) {
+        view.layer.borderWidth = 2
+        view.layer.borderColor = UIColor.darkGray.cgColor
+        saveDelegate?.handleFocus(index: index)
+    }
+    
+    public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        conditionToCallOnChange(textField: textField)
+        return true
+    }
+    
     public func textFieldDidEndEditing(_ textField: UITextField) {
-        saveDelegate?.handleFieldChange(text: textField.text ?? "", isEditingEnd: true, index: index)
+        view.layer.borderWidth = 1
+        view.layer.borderColor = UIColor(hexString: "#D1D1D6")?.cgColor
+        conditionToCallOnChange(textField: textField)
+        saveDelegate?.handleBlur(index: index)
+    }
+    
+    func conditionToCallOnChange(textField: UITextField) {
+        let valueUnion = joyDocFieldData[index].value
+        switch valueUnion {
+        case .string(let stringValue):
+            if let textFieldText = textField.text, stringValue != textFieldText {
+                saveDelegate?.handleFieldChange(text: textField.text ?? "", isEditingEnd: true, index: index)
+            }
+        case .none:
+            saveDelegate?.handleFieldChange(text: textField.text ?? "", isEditingEnd: true, index: index)
+        default:
+            break
+        }
+        numberTextValueUpdate(textField: textField.text ?? "")
+    }
+    
+    // Update updated value in the joyDoc
+    func numberTextValueUpdate(textField: String) {
+        let value = joyDocFieldData[index].value
+        switch value {
+        case .string:
+            joyDocFieldData[index].value = ValueUnion.string(textField)
+        case .integer:
+            let text = textField
+            if let integer = Int(text) {
+                joyDocFieldData[index].value = ValueUnion.string(String(integer))
+            }
+        case .valueElementArray(_): break
+        case .array(_): break
+        case .none:
+            joyDocFieldData[index].value = ValueUnion.string(textField)
+        case .some(.null): break
+        }
+        
+        if let index = joyDocStruct?.fields?.firstIndex(where: {$0.id == joyDocFieldData[index].id}) {
+            let modelValue = joyDocStruct?.fields?[index].value
+            switch modelValue {
+            case .string:
+                joyDocStruct?.fields?[index].value = ValueUnion.string(textField)
+            case .integer:
+                let text = textField
+                if let integer = Int(text) {
+                    joyDocStruct?.fields?[index].value = ValueUnion.string(String(integer))
+                }
+            case .valueElementArray(_): break
+            case .array(_): break
+            case .none:
+                joyDocStruct?.fields?[index].value = ValueUnion.string(textField)
+            case .some(.null): break
+            }
+        }
     }
     
     @objc func tooltipButtonTapped(_ sender: UIButton) {

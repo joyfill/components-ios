@@ -3,23 +3,19 @@ import UIKit
 
 // Global variables
 var joyDocStruct: JoyDoc?
+public var pageIndex: Int = 0
 public var componentType = [String]()
 public var componentsYValueForMobileView = [Int]()
 
-// Variables to save input values
-public var numberFieldString: Int?
-public var textAreaString: String?
-public var textFieldString: String?
-public var blockFieldString: String?
-public var richTextValue = [String]()
-
 // Variable to save block field custom style values
 public var blockTextSize = [Int]()
+public var richTextValue = [String]()
 public var blockTextColor = [String]()
 public var blockTextStyle = [String]()
 public var blockTextWeight = [String]()
 public var blockTextAlignment = [String]()
 
+public var columnId = [String]()
 public var componentId = [String]()
 public var tableRowOrder = [[String]]()
 public var tableColumnType = [[String]]()
@@ -29,20 +25,24 @@ public var tableColumnOrderId = [[String]]()
 public var multiSelectOptionId: [[String]] = []
 
 var joyDocId = String()
+var joyDocFileId = String()
+var joyDocPageData: [Page]?
+var joyDocPageId = [String]()
+var joyDocPageOrderId = [String]()
+var joyDocIdentifier = String()
 var valueUnion: [ValueUnion] = []
 var joyDocFieldData: [JoyDocField] = []
 var tableFieldValue: [[ValueElement]] = []
 var chartValueElement = [[ValueElement]]()
 var optionsData: [[FieldTableColumn]] = []
 var joyDocFieldPositionData: [FieldPosition] = []
-var joyDocPageId = [String]()
 
 // Variable to save counts
-var pageCount = Int()
 var fieldCount = Int()
 var optionCount = Int()
+public var pageCount = Int()
 var tableColumnsCount = Int()
-var componentTypeValue = String()
+public var mobileViewId = String()
 
 // MARK: - JoyDoc
 struct JoyDoc: Codable {
@@ -50,8 +50,8 @@ struct JoyDoc: Codable {
     let metadata: Metadata?
     let identifier, name: String?
     let createdOn: Int?
-    let files: [File]?
-    let fields: [JoyDocField]?
+    var files: [File]?
+    var fields: [JoyDocField]?
     let categories: [JSONAny]?
     
     enum CodingKeys: String, CodingKey {
@@ -62,8 +62,8 @@ struct JoyDoc: Codable {
 
 // MARK: - JoyDocField
 struct JoyDocField: Codable {
-    let type, id, identifier, title: String?
-    let value: ValueUnion?
+    var type, id, identifier, title: String?
+    var value: ValueUnion?
     let fieldRequired: Bool?
     let metadata: Metadata?
     let file: String?
@@ -72,12 +72,12 @@ struct JoyDocField: Codable {
     let tipVisible: Bool?
     let multi: Bool?
     let yTitle: String?
-    let yMax, yMin: Int?
+    var yMax, yMin: Int?
     let xTitle: String?
-    let xMax, xMin: Int?
-    let rowOrder: [String]?
-    let tableColumns: [FieldTableColumn]?
-    let tableColumnOrder: [String]?
+    var xMax, xMin: Int?
+    var rowOrder: [String]?
+    var tableColumns: [FieldTableColumn]?
+    var tableColumnOrder: [String]?
     
     enum CodingKeys: String, CodingKey {
         case type
@@ -150,7 +150,7 @@ enum ValueUnion: Codable {
             return
         }
         if container.decodeNil() {
-            self = .null
+            self = .string("")
             return
         }
         throw DecodingError.typeMismatch(ValueUnion.self, DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Wrong type for ValueUnion"))
@@ -187,7 +187,7 @@ struct ValueElement: Codable {
         case id = "_id"
         case url, fileName, filePath, deleted, title, description, points, cells
     }
- 
+    
 }
 
 // MARK: - Point
@@ -208,9 +208,9 @@ struct File: Codable {
     let name: String?
     let version: Int?
     let styles: Metadata?
-    let pages: [Page]?
-    let pageOrder: [String]?
-    let views: [View]?
+    var pages: [Page]?
+    var pageOrder: [String]?
+    var views: [View]?
     
     enum CodingKeys: String, CodingKey {
         case id = "_id"
@@ -221,12 +221,12 @@ struct File: Codable {
 // MARK: - Page
 struct Page: Codable {
     let name: String?
-    let fieldPositions: [FieldPosition]?
+    var fieldPositions: [FieldPosition]?
     let metadata: Metadata?
     let width, height, cols, rowHeight: Int?
     let layout, presentation: String?
     let margin, padding, borderWidth: Int?
-    let id: String?
+    var id: String?
     
     enum CodingKeys: String, CodingKey {
         case name, fieldPositions, metadata, width, height, cols, rowHeight, layout, presentation, margin, padding, borderWidth
@@ -236,13 +236,13 @@ struct Page: Codable {
 
 // MARK: - FieldPosition
 struct FieldPosition: Codable {
-    let field: String?
+    var field: String?
     let displayType: String?
     let width: Double?
     let height: Double?
     let x: Double?
-    let y: Double?
-    let id, type, targetValue: String?
+    var y: Double?
+    var id, type, targetValue: String?
     let fontSize: Int?
     let fontColor, fontStyle, fontWeight, textAlign: String?
     let primaryDisplayOnly: Bool?
@@ -259,8 +259,8 @@ struct FieldPosition: Codable {
 // MARK: - View
 struct View: Codable {
     let type: String?
-    let pageOrder: [String]?
-    let pages: [Page]?
+    var pageOrder: [String]?
+    var pages: [Page]?
     let id: String?
     
     enum CodingKeys: String, CodingKey {
@@ -278,37 +278,6 @@ extension JoyDoc {
             
             // It will prevent tasks to perform on main thread
             DispatchQueue.main.async {
-                // Deinitialize arrays to protect memory leakage
-                cellView.removeAll()
-                yPointsData.removeAll()
-                xPointsData.removeAll()
-                optionsData.removeAll()
-                componentId.removeAll()
-                signedImage.removeAll()
-                yCoordinates.removeAll()
-                xCoordinates.removeAll()
-                joyDocPageId.removeAll()
-                chartPointsId.removeAll()
-                richTextValue.removeAll()
-                tableRowOrder.removeAll()
-                componentType.removeAll()
-                graphLabelData.removeAll()
-                tableCellsData.removeAll()
-                dropdownOptions.removeAll()
-                tableColumnType.removeAll()
-                joyDocFieldData.removeAll()
-                tableFieldValue.removeAll()
-                tableColumnTitle.removeAll()
-                chartValueElement.removeAll()
-                tableColumnOrderId.removeAll()
-                multiSelectOptions.removeAll()
-                multiSelectOptionId.removeAll()
-                joyDocFieldPositionData.removeAll()
-                componentTableViewCellHeight.removeAll()
-                multiChoiseSelectedIndexPath.removeAll()
-                componentsYValueForMobileView.removeAll()
-                selectedDropdownOptionIndexPath.removeAll()
-                
                 fetchDataFromJoyDoc()
                 
                 componentTableView.delegate = viewForDataSource as? any UITableViewDelegate
@@ -324,99 +293,92 @@ extension JoyDoc {
 
 // MARK: - Function to get data from API
 func fetchDataFromJoyDoc() {
+    DeinitializeVariables()
+    
     joyDocId = joyDocStruct?.id ?? ""
+    joyDocFileId = joyDocStruct?.files?[0].id ?? ""
+    joyDocIdentifier = joyDocStruct?.identifier ?? ""
     if joyDocStruct?.files?[0].views?.count == 0 {
         // Fetch data for primary view
-        pageCount = joyDocStruct?.files?[0].pages?.count ?? 0
+        joyDocPageData = joyDocStruct?.files?[0].pages
         
+        pageCount = joyDocStruct?.files?[0].pages?.count ?? 0
         for i in 0..<pageCount {
             joyDocPageId.append(joyDocStruct?.files?[0].pages?[i].id ?? "")
-            fieldCount = joyDocStruct?.files?[0].pages?[i].fieldPositions?.count ?? 0
-            joyDocPageId.append(joyDocStruct?.files?[0].pages?[i].id ?? "")
+        }
+        
+        for i in 0..<(joyDocStruct?.files?[0].pageOrder?.count ?? 0) {
+            joyDocPageOrderId.append(joyDocStruct?.files?[0].pageOrder?[i] ?? "")
+        }
+        
+        if let indx = joyDocStruct?.files?[0].pages?.firstIndex(where: {$0.id == (joyDocStruct?.files?[0].pageOrder?[pageIndex])}) {
+            fieldCount = joyDocStruct?.files?[0].pages?[indx].fieldPositions?.count ?? 0
             for j in 0..<fieldCount {
                 // Get y value of all components
-                let displayType = joyDocStruct?.files?[0].pages?[i].fieldPositions?[j].displayType
-                if displayType == "original" || displayType == "inputGroup" {
-                    let yFieldValue = joyDocStruct?.files?[0].pages?[i].fieldPositions?[j].y ?? 0.0
+                let displayType = joyDocStruct?.files?[0].pages?[indx].fieldPositions?[j].displayType
+                if displayType == "original" || displayType == "inputGroup" || displayType == "horizontal" {
+                    let yFieldValue = joyDocStruct?.files?[0].pages?[indx].fieldPositions?[j].y ?? 0.0
                     componentsYValueForMobileView.append(Int(yFieldValue))
-                    componentTypeValue = joyDocStruct?.files?[0].pages?[i].fieldPositions?[j].type ?? ""
-                    componentId.append(joyDocStruct?.files?[0].pages?[i].fieldPositions?[j].field ?? "")
-                    componentType.append(joyDocStruct?.files?[0].pages?[i].fieldPositions?[j].type ?? "")
-                    joyDocFieldPositionData.append((joyDocStruct?.files?[0].pages?[0].fieldPositions?[j])!)
+                    componentType.append(joyDocStruct?.files?[0].pages?[indx].fieldPositions?[j].type ?? "")
+                    componentId.append(joyDocStruct?.files?[0].pages?[indx].fieldPositions?[j].field ?? "")
+                    joyDocFieldPositionData.append((joyDocStruct?.files?[0].pages?[indx].fieldPositions?[j])!)
                     zipAndSortComponents()
-                }
-                if joyDocStruct?.files?[0].pages?[i].fieldPositions?[j].type == FieldTypes.block {
-                    blockTextSize.append(joyDocStruct?.files?[0].pages?[i].fieldPositions?[j].fontSize ?? 18)
-                    blockTextStyle.append(joyDocStruct?.files?[0].pages?[i].fieldPositions?[j].fontStyle ?? "")
-                    blockTextWeight.append(joyDocStruct?.files?[0].pages?[i].fieldPositions?[j].fontWeight ?? "")
-                    blockTextColor.append(joyDocStruct?.files?[0].pages?[i].fieldPositions?[j].fontColor ?? "#000000")
-                    blockTextAlignment.append(joyDocStruct?.files?[0].pages?[i].fieldPositions?[j].textAlign ?? "left")
-                } else {
-                    blockTextSize.append(0)
-                    blockTextStyle.append("")
-                    blockTextWeight.append("")
-                    blockTextColor.append("")
-                    blockTextAlignment.append("")
-                }
-            }
-            
-            // Save field data from JoyDoc
-            for k in 0..<componentId.count {
-                if let field = joyDocStruct?.fields?.first(where: { $0.id == componentId[k] }){
-                    joyDocFieldData.append(field)
-                    initializeVariablesWithEmptyValues()
                 }
             }
         }
+        
     } else {
         // Fetch data for mobile view
+        mobileViewId = joyDocStruct?.files?[0].views?[0].id ?? ""
+        joyDocPageData = joyDocStruct?.files?[0].views?[0].pages
+        
         pageCount = joyDocStruct?.files?[0].views?[0].pages?.count ?? 0
         for i in 0..<pageCount {
-            joyDocPageId.append(joyDocStruct?.files?[0].pages?[i].id ?? "")
-            fieldCount = joyDocStruct?.files?[0].views?[0].pages?[i].fieldPositions?.count ?? 0
-            for j in 0..<fieldCount {
-                // Get y value of all components
-                let displayType = joyDocStruct?.files?[0].pages?[i].fieldPositions?[j].displayType
-                if displayType == "original" || displayType == "inputGroup" {
-                    let yFieldValue = joyDocStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].y ?? 0.0
-                    componentsYValueForMobileView.append(Int(yFieldValue))
-                    componentType.append(joyDocStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].type ?? "")
-                    componentId.append(joyDocStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].field ?? "")
-                    joyDocFieldPositionData.append((joyDocStruct?.files?[0].views?[0].pages?[0].fieldPositions?[i])!)
-                    zipAndSortComponents()
-                }
-                if joyDocStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].type == FieldTypes.block {
-                    blockTextSize.append(joyDocStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].fontSize ?? 18)
-                    blockTextStyle.append(joyDocStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].fontStyle ?? "")
-                    blockTextWeight.append(joyDocStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].fontWeight ?? "")
-                    blockTextColor.append(joyDocStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].fontColor ?? "#000000")
-                    blockTextAlignment.append(joyDocStruct?.files?[0].views?[0].pages?[i].fieldPositions?[j].textAlign ?? "left")
-                } else {
-                    blockTextSize.append(0)
-                    blockTextStyle.append("")
-                    blockTextWeight.append("")
-                    blockTextColor.append("")
-                    blockTextAlignment.append("")
-                }
-            }
-            
-            // Get values of the components from the fields
-            for k in 0..<componentId.count {
-                componentTypeValue = joyDocStruct?.fields?[k].type ?? ""
-            }
+            joyDocPageId.append(joyDocStruct?.files?[0].views?[0].pages?[i].id ?? "")
         }
         
-        // Get the title of the components
-        for i in 0..<componentType.count {
-            if let field = joyDocStruct?.fields?.first(where: { $0.id == componentId[i] }) {
-                joyDocFieldData.append(field)
-                initializeVariablesWithEmptyValues()
+        for i in 0..<(joyDocStruct?.files?[0].views?[0].pageOrder?.count ?? 0) {
+            joyDocPageOrderId.append(joyDocStruct?.files?[0].views?[0].pageOrder?[i] ?? "")
+        }
+        
+        if let indx = joyDocStruct?.files?[0].views?[0].pages?.firstIndex(where: {$0.id == (joyDocStruct?.files?[0].views?[0].pageOrder?[pageIndex])}) {
+            fieldCount = joyDocStruct?.files?[0].views?[0].pages?[indx].fieldPositions?.count ?? 0
+            for j in 0..<fieldCount {
+                // Get y value of all components
+                let displayType = joyDocStruct?.files?[0].views?[0].pages?[indx].fieldPositions?[j].displayType
+                if displayType == "original" || displayType == "inputGroup" {
+                    let yFieldValue = joyDocStruct?.files?[0].views?[0].pages?[indx].fieldPositions?[j].y ?? 0.0
+                    componentsYValueForMobileView.append(Int(yFieldValue))
+                    componentType.append(joyDocStruct?.files?[0].views?[0].pages?[indx].fieldPositions?[j].type ?? "")
+                    componentId.append(joyDocStruct?.files?[0].views?[0].pages?[indx].fieldPositions?[j].field ?? "")
+                    joyDocFieldPositionData.append((joyDocStruct?.files?[0].views?[0].pages?[indx].fieldPositions?[j])!)
+                    zipAndSortComponents()
+                }
             }
         }
     }
+    
+    // Get the title of the components
+    for i in 0..<componentType.count {
+        if let field = joyDocStruct?.fields?.first(where: { $0.id == componentId[i] }) {
+            joyDocFieldData.append(field)
+            initializeVariablesWithEmptyValues()
+        }
+        if componentType[i] == FieldTypes.block {
+            blockTextSize.append(joyDocFieldPositionData[i].fontSize ?? 18)
+            blockTextStyle.append(joyDocFieldPositionData[i].fontStyle ?? "")
+            blockTextWeight.append(joyDocFieldPositionData[i].fontWeight ?? "")
+            blockTextColor.append(joyDocFieldPositionData[i].fontColor ?? "#000000")
+            blockTextAlignment.append(joyDocFieldPositionData[i].textAlign ?? "left")
+        } else {
+            blockTextSize.append(0)
+            blockTextStyle.append("")
+            blockTextWeight.append("")
+            blockTextColor.append("")
+            blockTextAlignment.append("")
+        }
+    }
 }
-
-
 
 // Zip and sort componentType and ComponentHeaderText with componentsYValueForMobileView
 func zipAndSortComponents() {
@@ -435,6 +397,7 @@ func zipAndSortComponents() {
 }
 
 func initializeVariablesWithEmptyValues() {
+    cellHeight.append(0)
     yPointsData.append([])
     xPointsData.append([])
     signedImage.append("")
@@ -460,7 +423,42 @@ func initializeVariablesWithEmptyValues() {
     imageSelectionCount.append([])
     pickedSinglePicture.append([])
     componentTableViewCellHeight.append(0)
-    singleChoiseSelectedIndexPath.append(0)
-    multiChoiseSelectedIndexPath.append([])
     selectedDropdownOptionIndexPath.append(0)
+    multiChoiseSelectedOptionIndexPath.append([])
+}
+
+func DeinitializeVariables() {
+    // Deinitialize arrays to protect memory leakage
+    cellView.removeAll()
+    cellHeight.removeAll()
+    yPointsData.removeAll()
+    xPointsData.removeAll()
+    optionsData.removeAll()
+    componentId.removeAll()
+    signedImage.removeAll()
+    yCoordinates.removeAll()
+    xCoordinates.removeAll()
+    joyDocPageId.removeAll()
+    chartPointsId.removeAll()
+    richTextValue.removeAll()
+    tableRowOrder.removeAll()
+    componentType.removeAll()
+    graphLabelData.removeAll()
+    tableCellsData.removeAll()
+    joyDocPageData?.removeAll()
+    dropdownOptions.removeAll()
+    tableColumnType.removeAll()
+    joyDocFieldData.removeAll()
+    tableFieldValue.removeAll()
+    tableColumnTitle.removeAll()
+    joyDocPageOrderId.removeAll()
+    chartValueElement.removeAll()
+    tableColumnOrderId.removeAll()
+    multiSelectOptions.removeAll()
+    multiSelectOptionId.removeAll()
+    joyDocFieldPositionData.removeAll()
+    componentTableViewCellHeight.removeAll()
+    componentsYValueForMobileView.removeAll()
+    selectedDropdownOptionIndexPath.removeAll()
+    multiChoiseSelectedOptionIndexPath.removeAll()
 }

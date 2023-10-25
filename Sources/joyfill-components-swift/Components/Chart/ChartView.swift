@@ -35,6 +35,7 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
     var newLineId = String()
     var labelTitle = String()
     var saveDelegate: saveChartFieldValue? = nil
+    var fieldDelegate: SaveTextFieldValue? = nil
     
     public override func viewDidLoad() {
         super.viewDidLoad()
@@ -136,7 +137,7 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
             contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
             
             // PerformanceGraphBar Constraint
-            performanceGraphBar.topAnchor.constraint(equalTo: contentView.topAnchor ,constant: 20),
+            performanceGraphBar.topAnchor.constraint(equalTo: contentView.topAnchor ,constant: 60),
             performanceGraphBar.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             performanceGraphBar.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             performanceGraphBar.heightAnchor.constraint(equalToConstant: 39),
@@ -352,7 +353,7 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
             // Fallback on earlier versions
         }
         closeButton.tintColor = .black
-        closeButton.addTarget(self, action: #selector(clossTapped), for: .touchUpInside)
+        closeButton.addTarget(self, action: #selector(closeTapped), for: .touchUpInside)
         
         // StackView Properties
         stackView.spacing = 10
@@ -493,7 +494,8 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
     }
     
     // Action for close button
-    @objc func clossTapped() {
+    @objc func closeTapped() {
+        fieldDelegate?.handleBlur(index: index)
         var parentResponder: UIResponder? = self
         while parentResponder != nil {
             parentResponder = parentResponder?.next
@@ -538,6 +540,34 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
             newLineId = lineId
             chartPointsId[index].append([pointId])
             chartValueElement[index].append(newValueElement)
+            
+            // Update updated value in the joyDoc
+            let value = joyDocFieldData[index].value
+            switch value {
+            case .string: break
+            case .integer: break
+            case .valueElementArray:
+                joyDocFieldData[index].value = ValueUnion.valueElementArray(chartValueElement[index])
+            case .array(_): break
+            case .none:
+                joyDocFieldData[index].value = ValueUnion.valueElementArray(chartValueElement[index])
+            case .some(.null): break
+            }
+            
+            if let index = joyDocStruct?.fields?.firstIndex(where: {$0.id == joyDocFieldData[index].id}) {
+                let modelValue = joyDocStruct?.fields?[index].value
+                switch modelValue {
+                case .string: break
+                case .integer: break
+                case .valueElementArray:
+                    joyDocStruct?.fields?[index].value = ValueUnion.valueElementArray(chartValueElement[self.index])
+                case .array(_): break
+                case .none:
+                    joyDocStruct?.fields?[index].value = ValueUnion.valueElementArray(chartValueElement[self.index])
+                case .some(.null): break
+                }
+            }
+            
             self.saveDelegate?.handleLineCreate(line: index)
         }
     }
@@ -550,6 +580,18 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
         lineGraph.yMax = Int(verticalMaxTextField.textField.text ?? "") ?? 0
         lineGraph.xMin = Int(horizontalMinTextField.textField.text ?? "") ?? 0
         lineGraph.xMax = Int(horizontalMaxTextField.textField.text ?? "") ?? 0
+        
+        // Update updated value in the joyDoc
+        joyDocFieldData[index].yMax = Int(horizontalMaxTextField.textField.text ?? "") ?? 0
+        joyDocFieldData[index].yMin = Int(verticalMinTextField.textField.text ?? "") ?? 0
+        joyDocFieldData[index].xMax = Int(horizontalMaxTextField.textField.text ?? "") ?? 0
+        joyDocFieldData[index].xMin = Int(horizontalMinTextField.textField.text ?? "") ?? 0
+        if let index = joyDocStruct?.fields?.firstIndex(where: {$0.id == joyDocFieldData[index].id}) {
+            joyDocStruct?.fields?[index].yMax = Int(horizontalMaxTextField.textField.text ?? "") ?? 0
+            joyDocStruct?.fields?[index].yMin = Int(verticalMinTextField.textField.text ?? "") ?? 0
+            joyDocStruct?.fields?[index].xMax = Int(horizontalMaxTextField.textField.text ?? "") ?? 0
+            joyDocStruct?.fields?[index].xMin = Int(horizontalMinTextField.textField.text ?? "") ?? 0
+        }
         
         self.saveDelegate?.handleYMinCoordinates(line: index, newValue: Int(verticalMinTextField.textField.text ?? "") ?? 0)
         self.saveDelegate?.handleYMaxCoordinates(line: index, newValue: Int(verticalMaxTextField.textField.text ?? "") ?? 0)

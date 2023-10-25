@@ -159,6 +159,7 @@ class CollectionViewCell: UICollectionViewCell, UITextFieldDelegate, UITextViewD
     
     // Action function for textView
     @objc private func textViewDidTap(_ gesture: UITapGestureRecognizer) {
+        cellTextView.tintColor = .blue
         cellTextView.becomeFirstResponder()
         textViewDelegate?.textViewCellDidSelect(self)
     }
@@ -175,10 +176,4 @@ class CollectionViewCell: UICollectionViewCell, UITextFieldDelegate, UITextViewD
             }
         }
     }
-    
-    func textViewShouldEndEditing(_ textView: UITextView) -> Bool {
-        textView.resignFirstResponder()
-        return true
-    }
-    
 }

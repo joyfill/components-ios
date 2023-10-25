@@ -3,6 +3,8 @@ import UIKit
 
 protocol SaveTextFieldValue {
     func handleFieldChange(text: Any, isEditingEnd: Bool, index: Int)
+    func handleBlur(index: Int)
+    func handleFocus(index: Int)
 }
 
 public class TextField: UITextField, UITextFieldDelegate {
@@ -140,17 +142,67 @@ public class TextField: UITextField, UITextFieldDelegate {
     }
     
     public func textFieldDidBeginEditing(_ textField: UITextField) {
-        layer.cornerRadius = selectedCornerRadius ?? 12
-        layer.borderWidth = selectedBorderWidth ?? 1.0
-        layer.borderColor = selectedBorderColor?.cgColor ?? UIColor(hexString: "#D1D1D6")?.cgColor
+        textField.layer.borderWidth = 2
+        textField.layer.borderColor = UIColor.darkGray.cgColor
+        saveDelegate?.handleFocus(index: index)
+    }
+    
+    public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        conditionToCallOnChange(textField: textField)
+        return true
     }
     
     public func textFieldDidEndEditing(_ textField: UITextField) {
-        layer.cornerRadius = deselectedCornerRadius ?? 12
-        layer.borderWidth = deselectedBorderWidth ?? 1.0
-        layer.borderColor = deselectedBorderColor?.cgColor ?? UIColor(hexString: "#D1D1D6")?.cgColor
-        saveDelegate?.handleFieldChange(text: textField.text ?? "", isEditingEnd: true, index: index)
+        textField.layer.borderWidth = 1
+        textField.layer.borderColor = UIColor(hexString: "#D1D1D6")?.cgColor
+        conditionToCallOnChange(textField: textField)
+        saveDelegate?.handleBlur(index: index)
     }
+    
+    func conditionToCallOnChange(textField: UITextField) {
+        let valueUnion = joyDocFieldData[index].value
+        switch valueUnion {
+        case .string(let stringValue):
+            if let textFieldText = textField.text, stringValue != textFieldText {
+                saveDelegate?.handleFieldChange(text: textField.text ?? "", isEditingEnd: true, index: index)
+            }
+        case .none:
+            saveDelegate?.handleFieldChange(text: textField.text ?? "", isEditingEnd: true, index: index)
+        default:
+            break
+        }
+        textValueUpdate(textField: textField.text ?? "")
+    }
+    
+    // Update updated value in the joyDoc
+    func textValueUpdate(textField: String) {
+        let value = joyDocFieldData[index].value
+        switch value {
+        case .string:
+            joyDocFieldData[index].value = ValueUnion.string(textField)
+        case .integer(_): break
+        case .valueElementArray(_): break
+        case .array(_): break
+        case .none:
+            joyDocFieldData[index].value = ValueUnion.string(textField)
+        case .some(.null): break
+        }
+        
+        if let index = joyDocStruct?.fields?.firstIndex(where: {$0.id == joyDocFieldData[index].id}) {
+            let modelValue = joyDocStruct?.fields?[index].value
+            switch modelValue {
+            case .string:
+                joyDocStruct?.fields?[index].value = ValueUnion.string(textField)
+            case .integer(_): break
+            case .valueElementArray(_): break
+            case .array(_): break
+            case .none:
+                joyDocStruct?.fields?[index].value = ValueUnion.string(textField)
+            case .some(.null): break
+            }
+        }
+    }
+    
 
     private func initTextField() {
         setUpOutlineSublayer()

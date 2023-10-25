@@ -23,9 +23,68 @@ open class RichDisplayText: UITextView, UITextViewDelegate {
         self.delegate = self
     }
     
-    public func textViewDidEndEditing(_ textView: UITextView) {
-        saveDelegate?.handleFieldChange(text: textView.text ?? "", isEditingEnd: true, index: index)
+    public func textViewDidBeginEditing(_ textView: UITextView) {
+        textView.layer.borderWidth = 2
+        textView.layer.borderColor = UIColor.darkGray.cgColor
+        saveDelegate?.handleFocus(index: index)
     }
+    
+    public func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        conditionToCallOnChange(textView: textView)
+        return true
+    }
+    
+    public func textViewDidEndEditing(_ textView: UITextView) {
+        textView.layer.borderWidth = 1
+        textView.layer.borderColor = UIColor(hexString: "#D1D1D6")?.cgColor
+        conditionToCallOnChange(textView: textView)
+        saveDelegate?.handleBlur(index: index)
+    }
+    
+    func conditionToCallOnChange(textView: UITextView) {
+        let valueUnion = joyDocFieldData[index].value
+        switch valueUnion {
+        case .string(let stringValue):
+            if let textFieldText = textView.text, stringValue != textFieldText {
+                saveDelegate?.handleFieldChange(text: textView.text ?? "", isEditingEnd: true, index: index)
+            }
+        case .none:
+            saveDelegate?.handleFieldChange(text: textView.text ?? "", isEditingEnd: true, index: index)
+        default:
+            break
+        }
+        richDisplayTextValueUpdate(textView: textView.text ?? "")
+    }
+    
+    // Update updated value in the joyDoc
+    func richDisplayTextValueUpdate(textView: String) {
+        let value = joyDocFieldData[index].value
+        switch value {
+        case .string:
+            joyDocFieldData[index].value = ValueUnion.string(textView)
+        case .integer(_): break
+        case .valueElementArray(_): break
+        case .array(_): break
+        case .none:
+            joyDocFieldData[index].value = ValueUnion.string(textView)
+        case .some(.null): break
+        }
+        
+        if let index = joyDocStruct?.fields?.firstIndex(where: {$0.id == joyDocFieldData[index].id}) {
+            let modelValue = joyDocStruct?.fields?[index].value
+            switch modelValue {
+            case .string:
+                joyDocStruct?.fields?[index].value = ValueUnion.string(textView)
+            case .integer(_): break
+            case .valueElementArray(_): break
+            case .array(_): break
+            case .none:
+                joyDocStruct?.fields?[index].value = ValueUnion.string(textView)
+            case .some(.null): break
+            }
+        }
+    }
+
     
     // A property that accesses the backing layer's background
     @IBInspectable

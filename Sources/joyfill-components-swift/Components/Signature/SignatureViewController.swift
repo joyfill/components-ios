@@ -7,6 +7,7 @@ class SignatureViewController: UIViewController {
     
     var index = Int()
     var saveDelegate: saveSignatureFieldValue? = nil
+    var fieldDelegate: SaveTextFieldValue? = nil
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,5 +30,6 @@ class SignatureViewController: UIViewController {
         
         signatureView.index = index
         signatureView.saveDelegate = saveDelegate
+        signatureView.fieldDelegate = fieldDelegate
     }
 }

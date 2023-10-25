@@ -11,8 +11,10 @@ open class Table: UIView, UIViewControllerTransitioningDelegate, tableUpdate {
     public var toolTipIconButton = UIButton()
     public var toolTipTitle = String()
     public var toolTipDescription = String()
-    var saveDelegate: SaveTableFieldValue? = nil
+    
     var index = Int()
+    var saveDelegate: SaveTableFieldValue? = nil
+    var fieldDelegate: SaveTextFieldValue? = nil
     
     var numberOfRows = Int()
     var numberOfColumns = Int()
@@ -91,7 +93,7 @@ open class Table: UIView, UIViewControllerTransitioningDelegate, tableUpdate {
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 6),
+            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 5),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             titleLabel.trailingAnchor.constraint(equalTo: toolTipIconButton.leadingAnchor, constant: -5),
             
@@ -104,7 +106,7 @@ open class Table: UIView, UIViewControllerTransitioningDelegate, tableUpdate {
             // CountView Constraint
             countView.bottomAnchor.constraint(equalTo: collectionView.bottomAnchor, constant: -9),
             countView.trailingAnchor.constraint(equalTo: collectionView.trailingAnchor, constant: -9),
-            countView.widthAnchor.constraint(equalToConstant: 90),
+            countView.widthAnchor.constraint(equalToConstant: 120),
             countView.heightAnchor.constraint(equalToConstant: 30),
             
             // ViewButton Constraint
@@ -123,7 +125,7 @@ open class Table: UIView, UIViewControllerTransitioningDelegate, tableUpdate {
             collectionView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 7),
             collectionView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8),
             collectionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
-            collectionView.heightAnchor.constraint(equalToConstant: 200),
+            collectionView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
         ])
         setGlobalUserInterfaceStyle()
         countView.layer.cornerRadius = 6
@@ -179,12 +181,14 @@ open class Table: UIView, UIViewControllerTransitioningDelegate, tableUpdate {
         } else {}
         
         viewType = "modal"
+        fieldDelegate?.handleFocus(index: index)
         while parentResponder != nil {
             parentResponder = parentResponder?.next
             if let viewController = parentResponder as? UIViewController {
                 viewController.modalPresentationStyle = .fullScreen
                 let newViewController = ViewTable()
-                newViewController.saveDelegate = saveDelegate.self
+                newViewController.saveDelegate = self.saveDelegate
+                newViewController.fieldDelegate = self.fieldDelegate
                 newViewController.index = index
                 newViewController.numberOfRows = tableFieldValue[tableIndexNo].count
                 newViewController.numberOfColumns = numberOfColumns
