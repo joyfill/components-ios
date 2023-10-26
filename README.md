@@ -15,15 +15,15 @@
 Make sure to replace the userAccessToken and documentId. Note that documentId is just for this example, you can call our List all documents endpoint and grab an ID from there.
 
 Inside swift file:
-On the top 1st import joyfill package using
 
+1. On the top 1st import joyfill package using
 ```swift
 
 import joyfill_components_swift
     
 ```
 
-Then inside your viewController class add these variables:
+2. Then inside your viewController class add these variables:
 ```swift
 
 var apiUrl = "https://api-joy.joyfill.io"
@@ -32,7 +32,7 @@ var userAccessToken = '<REPLACE_ME>'
     
 ```
 
-Then inside viewController override method viewDidLoad() call JoyDoc using:
+3. Then inside viewController override method viewDidLoad() call JoyDoc using:
 ```swift
 
 override func viewDidLoad() {
@@ -43,7 +43,7 @@ override func viewDidLoad() {
     
 ```
 
-Then add these function inside your viewController file:
+4. Then add these function inside your viewController file:
 ```swift
 
 func getDocumentAsync() {
@@ -77,20 +77,7 @@ func getDocumentAsync() {
                     ])
                             
                     uploadImageTapAction = {
-                        var alertStyle = UIAlertController.Style.actionSheet
-                        if (UIDevice.current.userInterfaceIdiom == .pad) {
-                            alertStyle = UIAlertController.Style.alert
-                        }
-                        let alert = UIAlertController(title: "Choose Image", message: nil, preferredStyle: alertStyle)
-                        alert.addAction(UIAlertAction(title: "Camera", style: .default, handler: { _ in
-                            self.openMultipleImageCamera()
-                        }))
-                        alert.addAction(UIAlertAction(title: "Gallery", style: .default, handler: { _ in
-                            self.openMultipleImageGallery()
-                        }))
-                        alert.addAction(UIAlertAction.init(title: "Cancel", style: .cancel, handler: nil))
-                                
-                        self.present(alert, animated: true, completion: nil)
+                        <Add upload image action here> 
                     }
                             
                     saveButtonTapAction = {
@@ -133,7 +120,25 @@ func updateDocumentChangelogsAsync() {
     
 ```
 
-## Field Events
+5. Then add these onChange, onBlur and onFocus methods
+```swift
+
+func handleOnChange(docChangelog: [String : Any], doc: [String : Any]) {
+    print(">>>>>>>> docChangelog: ", docChangelog)
+    print(">>>>>>>> onChange: ", doc)
+}
+    
+func handleOnFocus(blurAndFocusParams: [String : Any]) {
+    print(">>>>>>>> handleFocus: ", blurAndFocusParams)
+}
+    
+func handleOnBlur(blurAndFocusParams: [String : Any]) {
+    print(">>>>>>>> handleBlur: ", blurAndFocusParams)
+}
+    
+```
+
+## Fiel Events
 
 * **Text**, **Textarea**, **Number**
     *  `onFocus(params: object, e: object)` is fired when the field is focused.
