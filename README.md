@@ -16,14 +16,23 @@ Make sure to replace the userAccessToken and documentId. Note that documentId is
 
 Inside swift file:
 
-1. On the top 1st import joyfill package using
+1. After importing JoyFill SDK, inside JoyFill SDK code folder
+```swift
+
+- Go to 'Source' -> 'joyfill-components-swift' -> 'Components' 
+- Inside Components right click on Assets folder then navigate to 'Show in Finder'
+- Then drag and drop Assets to you project and choose 'Create Groups'.  
+
+```
+
+2. On the top 1st import joyfill package using
 ```swift
 
 import joyfill_components_swift
     
 ```
 
-2. Then inside your viewController class add these variables:
+3. Then inside your viewController class add these variables:
 ```swift
 
 var apiUrl = "https://api-joy.joyfill.io"
@@ -32,7 +41,7 @@ var userAccessToken = "<REPLACE_ME>"
     
 ```
 
-3. Then inside viewController override method viewDidLoad() call JoyDoc using:
+4. Then inside viewController override method viewDidLoad() call JoyDoc using:
 ```swift
 
 override func viewDidLoad() {
@@ -43,7 +52,7 @@ override func viewDidLoad() {
     
 ```
 
-4. Then add these function inside your viewController file:
+5. Then add these function inside your viewController file:
 ```swift
 
 func getDocumentAsync() {
@@ -120,7 +129,7 @@ func updateDocumentChangelogsAsync() {
     
 ```
 
-5. Then add these onChange, onBlur and onFocus methods
+6. Then add these onChange, onBlur and onFocus methods
 ```swift
 
 func handleOnChange(docChangelog: [String : Any], doc: [String : Any]) {
