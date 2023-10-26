@@ -27,8 +27,8 @@ import joyfill_components_swift
 ```swift
 
 var apiUrl = "https://api-joy.joyfill.io"
-var identifier = '<REPLACE_ME>'
-var userAccessToken = '<REPLACE_ME>'
+var identifier = "<REPLACE_ME>"
+var userAccessToken = "<REPLACE_ME>"
     
 ```
 
