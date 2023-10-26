@@ -562,13 +562,17 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         }
         
         var totalHeight: CGFloat = 0.0
+        var optionsHeight: CGFloat = 0.0
         for count in 0..<multiselectOptionSubArray.count {
             let text = multiSelectOptions[i][count]
             let font = UIFont.systemFont(ofSize: 16)
             let width = tableView.frame.width - 50
-            let height = heightForText(text , font: font, width: width) + 32
-            
-            totalHeight += height
+            if multiselectOptionSubArray.count == 1 {
+                optionsHeight = heightForText(text , font: font, width: width) + 50
+            } else {
+                optionsHeight = heightForText(text , font: font, width: width) + 32
+            }
+            totalHeight += optionsHeight
         }
         
         multipleChoice.titleLabel.labelText = joyDocFieldData[i].title
