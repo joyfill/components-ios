@@ -14,18 +14,18 @@
 ## Implement your code:
 Make sure to replace the userAccessToken and documentId. Note that documentId is just for this example, you can call our List all documents endpoint and grab an ID from there.
 
-Inside swift file:
-
 1. After importing JoyFill SDK, inside JoyFill SDK code folder
 ```swift
 
 - Go to 'Source' -> 'joyfill-components-swift' -> 'Components' 
 - Inside Components right click on Assets folder then navigate to 'Show in Finder'
-- Then drag and drop Assets to you project and choose 'Create Groups'.  
+- Then drag and drop Assets folder to you project and choose 'Create Groups'.  
 
 ```
 
-2. On the top 1st import joyfill package using
+Inside swift viewController file:
+
+2. On the top 1st import joyfill package using:
 ```swift
 
 import joyfill_components_swift
@@ -41,7 +41,7 @@ var userAccessToken = "<REPLACE_ME>"
     
 ```
 
-4. Then inside viewController override method viewDidLoad() call JoyDoc using:
+4. Then inside viewController override method viewDidLoad() add:
 ```swift
 
 override func viewDidLoad() {
@@ -129,7 +129,7 @@ func updateDocumentChangelogsAsync() {
     
 ```
 
-6. Then add these onChange, onBlur and onFocus methods
+6. Then add these onChange, onBlur and onFocus methods inside your viewController file:
 ```swift
 
 func handleOnChange(docChangelog: [String : Any], doc: [String : Any]) {
@@ -146,6 +146,8 @@ func handleOnBlur(blurAndFocusParams: [String : Any]) {
 }
     
 ```
+
+7. Now it is ready to run.
 
 ## Fiel Events
 
