@@ -11,7 +11,8 @@
 1. Inside your swift project click on the AppName in the Navigation Area (in the left side).
 2. In the Editor Area (in the centre) under project again click on AppName then go to package dependencies click on “+” and add JoyFill package using “ https://github.com/joyfill/components-ios.git ”.
 
-## Implement your code:
+# For Swift Project
+
 Make sure to replace the userAccessToken and documentId. Note that documentId is just for this example, you can call our List all documents endpoint and grab an ID from there.
 
 1. After importing JoyFill SDK, inside JoyFill SDK code folder
@@ -149,7 +150,156 @@ func handleOnBlur(blurAndFocusParams: [String : Any]) {
 
 7. Now it is ready to run.
 
-## Fiel Events
+# For Objective-C Project
+
+Make sure to replace the userAccessToken and documentId. Note that documentId is just for this example, you can call our List all documents endpoint and grab an ID from there.
+
+1. Add the Swift SDK to Your Objective-C Project using steps under Install Dependency.
+
+2. After importing JoyFill SDK, inside JoyFill SDK code folder
+```swift
+
+- Go to 'Source' -> 'joyfill-components-swift' -> 'Components' 
+- Inside Components right click on Assets folder then navigate to 'Show in Finder'
+- Then drag and drop Assets folder to you project and choose 'Create Groups'.  
+
+```
+
+3. Create a new Swift file in your Objective-C project.
+4. Create a Bridging Header:
+```swift
+
+To use Swift code in an Objective-C project, you need to create a bridging header. The bridging header is an Objective-C header file that allows your Objective-C code to access Swift code. Xcode will typically prompt you to create a bridging header when you add Swift code to an Objective-C project. If it doesn't, you can create one manually.
+- Right click on Project folder -> "New File..."
+- Select "Header File" under the "Source" section and give it a name like "YourProject-Bridging-Header.h."
+
+```
+
+5. Replace with below given code in new created swift file:
+```swift
+
+import Foundation
+import UIKit
+import joyfill_components_swift
+
+@objc(JoyDocForm)
+class JoyDocForm: UIView, onChange {
+    
+    var apiUrl = "https://api-joy.joyfill.io"
+    var identifier = "<REPLACE_ME>"
+    var userAccessToken = "<REPLACE_ME>"
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+    }
+    
+    public init() {
+        super.init(frame: .zero)
+    }
+    
+    @objc public func getDocumentAsync(viewController: UIViewController) {
+        let url = URL(string: apiUrl + "/v1/documents/" + identifier)
+        guard url != nil else {
+            print("Error")
+            return
+        }
+        
+        var request = URLRequest(url: url!)
+        let verificationToken = ["Authorization": "Bearer \(userAccessToken)"]
+        let header = verificationToken
+        
+        request.httpMethod = "GET"
+        request.allHTTPHeaderFields = header
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        URLSession.shared.dataTask(with: request) {data, _, error in
+            if error == nil && data != nil {
+                do {
+                    jsonData = data!
+                    DispatchQueue.main.async {
+                        let components = Form()
+                        components.saveDelegate = self
+                        components.translatesAutoresizingMaskIntoConstraints = false
+                        viewController.view.addSubview(components)
+                        NSLayoutConstraint.activate([
+                            components.topAnchor.constraint(equalTo: viewController.view.topAnchor),
+                            components.leadingAnchor.constraint(equalTo: viewController.view.leadingAnchor),
+                            components.trailingAnchor.constraint(equalTo: viewController.view.trailingAnchor),
+                            components.bottomAnchor.constraint(equalTo: viewController.view.bottomAnchor)
+                        ])
+                        uploadImageTapAction = {
+                            <Add upload image action here>
+                        }
+                        
+                        saveButtonTapAction = {
+                            self.updateDocumentChangelogsAsync(viewController: viewController)
+                        }
+                    }
+                }
+            }
+        }.resume()
+    }
+    
+    func updateDocumentChangelogsAsync(viewController: UIViewController) {
+        do {
+            let jsonData = try JSONSerialization.data(withJSONObject: docChangeLogs, options: [])
+            if let url = URL(string: apiUrl + "/v1/documents/" + identifier + "/changelogs") {
+                var request = URLRequest(url: url)
+                request.httpMethod = "POST"
+                request.httpBody = jsonData
+                
+                request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+                let verificationToken = ["Authorization": "Bearer \(userAccessToken)"]
+                let header = verificationToken
+                request.allHTTPHeaderFields = header
+                let session = URLSession.shared
+                let task = session.dataTask(with: request) { data, response, error in
+                    if let error = error {
+                        print("Error: \(error)")
+                    } else if let data = data {
+                        let json = try? JSONSerialization.jsonObject(with: data, options: [.fragmentsAllowed])
+                        let _ = json as? NSDictionary
+                        self.getDocumentAsync(viewController: viewController)
+                    }
+                }
+                task.resume()
+            }
+        } catch {
+            print("Error serializing JSON: \(error)")
+        }
+    }
+    
+    func handleOnChange(docChangelog: [String : Any], doc: [String : Any]) {
+        print(">>>>>>>> docChangelog: ", docChangelog)
+        print(">>>>>>>> onChange: ", doc)
+    }
+    
+    func handleOnFocus(blurAndFocusParams: [String : Any]) {
+        print(">>>>>>>> handleFocus: ", blurAndFocusParams)
+    }
+    
+    func handleOnBlur(blurAndFocusParams: [String : Any]) {
+        print(">>>>>>>> handleBlur: ", docChangeLogs)
+    }
+}
+
+```
+
+6. Then in (void)viewDidLoad of Objective-C viewController.m file add:
+```objective-C
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    JoyDocForm *joyDoc = [JoyDocForm new];
+    [joyDoc getDocumentAsyncWithViewController:self];
+}
+
+```
+
+7. Now it is ready to run.
+
+
+## Field Events
 
 * **Text**, **Textarea**, **Number**
     *  `onFocus(params: object, e: object)` is fired when the field is focused.
