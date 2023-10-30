@@ -165,8 +165,8 @@ Make sure to replace the userAccessToken and documentId. Note that documentId is
 
 ```
 
-3. Create a new Swift file in your Objective-C project.
-4. Create a Bridging Header:
+3. Create a new Swift file in your Objective-C project and while creating swift file popup will appear and then select "Create Bridging Header". 
+4. Create a Bridging Header file manually if doesn't exist in your project:
 ```swift
 
 To use Swift code in an Objective-C project, you need to create a bridging header. The bridging header is an Objective-C header file that allows your Objective-C code to access Swift code. Xcode will typically prompt you to create a bridging header when you add Swift code to an Objective-C project. If it doesn't, you can create one manually.
