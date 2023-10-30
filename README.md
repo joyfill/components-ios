@@ -284,6 +284,13 @@ class JoyDocForm: UIView, onChange {
 
 ```
 
+7. In Objective-C viewController.m file add:
+```objective-C
+
+#import "BridgingSwiftAndObjcC-Swift.h"
+
+```
+
 6. Then in (void)viewDidLoad of Objective-C viewController.m file add:
 ```objective-C
 
