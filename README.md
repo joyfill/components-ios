@@ -278,7 +278,7 @@ class JoyDocForm: UIView, onChange {
     }
     
     func handleOnBlur(blurAndFocusParams: [String : Any]) {
-        print(">>>>>>>> handleBlur: ", docChangeLogs)
+        print(">>>>>>>> handleBlur: ", blurAndFocusParams)
     }
 }
 
