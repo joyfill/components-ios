@@ -280,8 +280,8 @@ extension JoyDoc {
             DispatchQueue.main.async {
                 fetchDataFromJoyDoc()
                 
-                componentTableView.delegate = viewForDataSource as? any UITableViewDelegate
-                componentTableView.dataSource = viewForDataSource as? any UITableViewDataSource
+                componentTableView.delegate = viewForDataSource as? UITableViewDelegate
+                componentTableView.dataSource = viewForDataSource as? UITableViewDataSource
                 componentTableView.reloadData()
             }
         } catch {
