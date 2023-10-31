@@ -132,7 +132,7 @@ public class DropDownTestField: UITextField {
     }
     
     init() {
-        super.init(frame: CGRectZero)
+        super.init(frame: .zero)
         self.setupUI()
         self.delegate = self
         self.backgroundColor(color: UIColor.white)
