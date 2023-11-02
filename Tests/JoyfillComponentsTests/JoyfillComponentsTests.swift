@@ -1,5 +1,5 @@
 import XCTest
-@testable import joyfill_components_swift
+@testable import JoyfillComponents
 
 final class joyfill_components_swiftTests: XCTestCase {
     func testExample() throws {
