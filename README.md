@@ -14,9 +14,9 @@
     - [Swift Package Manager](#swift-package-manager)
     - [Manually](#manually)
  - [Field Events](#-field-events)
- - [Usage](#-usage)
-    - [For Swift](#code-example-for-Swift)
-    - [For Objective-C](#code-example-for-Objective-C)
+ - [Code Example](#-code-example)
+    - [For Swift](#for-Swift)
+    - [For Objective-C](#for-Objective-C)
 
 ## 💻 Installation:
 
@@ -98,9 +98,9 @@ If you prefer not to use any of dependency managers, you can integrate `JoyFill`
 
 ------
 
-## 🛠 Usage
+## 🛠 Code Example
 
-### Code example for Swift
+### For Swift
 
 Make sure to replace the userAccessToken and documentId. Note that documentId is just for this example, you can call our List all documents endpoint and grab an ID from there.
 
@@ -241,7 +241,7 @@ func handleOnBlur(blurAndFocusParams: [String : Any]) {
 
 ------
 
-### Code example for Objective-C
+### For Objective-C
 
 Make sure to replace the userAccessToken and documentId. Note that documentId is just for this example, you can call our List all documents endpoint and grab an ID from there.
 
