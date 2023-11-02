@@ -40,7 +40,7 @@ class PageNavigationViewController: UIViewController {
     
     lazy var duplicatePageImage: UIImageView = {
         let image = UIImageView()
-        image.image = UIImage(named: "duplicatePage")
+        image.image = UIImage(named: "duplicatePage", in: .module, compatibleWith: nil)
         return image
     }()
     
@@ -63,7 +63,7 @@ class PageNavigationViewController: UIViewController {
     
     lazy var deletePageImage: UIImageView = {
         let image = UIImageView()
-        image.image = UIImage(named: "deletePage")
+        image.image = UIImage(named: "deletePage", in: .module, compatibleWith: nil)
         return image
     }()
     

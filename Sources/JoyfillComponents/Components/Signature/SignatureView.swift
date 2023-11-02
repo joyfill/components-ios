@@ -111,7 +111,7 @@ open class SignatureView : UIView {
         titleLabel.text = "Signature Filled"
         titleLabel.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         
-        toolTipIconButton.setImage(UIImage(named: "tooltipIcon"), for: .normal)
+        toolTipIconButton.setImage(UIImage(named: "tooltipIcon", in: .module, compatibleWith: nil), for: .normal)
         toolTipIconButton.addTarget(self, action: #selector(tooltipButtonTapped), for: .touchUpInside)
         
         imageView.layer.cornerRadius = 12
@@ -129,7 +129,7 @@ open class SignatureView : UIView {
         }
         signViewBt.isUserInteractionEnabled = true
         
-        signIconBt.image = UIImage(named: "Edit_alt_black")
+        signIconBt.image = UIImage(named: "Edit_alt_black", in: .module, compatibleWith: nil)
         signLbBt.fontSize = 14
         signLbBt.isTextBold = true
         signLbBt.labelText = "Sign"

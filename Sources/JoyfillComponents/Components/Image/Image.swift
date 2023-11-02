@@ -161,7 +161,7 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
         imageCountButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 14)
         let moreButtonAttributedString = NSMutableAttributedString(string: "More")
         let moreButtonImageAttachment = NSTextAttachment()
-        moreButtonImageAttachment.image = UIImage(named: "arrowRight")
+        moreButtonImageAttachment.image = UIImage(named: "arrowRight", in: .module, compatibleWith: nil)
         let moreButtonImageAttributedString = NSAttributedString(attachment: moreButtonImageAttachment)
         moreButtonAttributedString.append(NSAttributedString(string: " "))
         moreButtonAttributedString.append(moreButtonImageAttributedString)
@@ -169,14 +169,14 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
         imageCountButton.addTarget(self, action: #selector(imageCountTapped), for: .touchUpInside)
         
         // Sets UploadButton action with Image.
-        uploadButton.image = UIImage(named: "uploadButton")
+        uploadButton.image = UIImage(named: "uploadButton", in: .module, compatibleWith: nil)
         
         imageField.cornerRadius = 10
         imageField.layer.masksToBounds = true
         imageField.isUserInteractionEnabled = true
         titleButton.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         
-        toolTipIconButton.setImage(UIImage(named: "tooltipIcon"), for: .normal)
+        toolTipIconButton.setImage(UIImage(named: "tooltipIcon", in: .module, compatibleWith: nil), for: .normal)
         toolTipIconButton.addTarget(self, action: #selector(tooltipButtonTapped), for: .touchUpInside)
     }
     

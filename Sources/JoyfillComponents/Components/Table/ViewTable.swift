@@ -317,7 +317,7 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
         moreButton.titleLabel?.font = UIFont.systemFont(ofSize: 14)
         let moreButtonAttributedString = NSMutableAttributedString(string: "More")
         let moreButtonImageAttachment = NSTextAttachment()
-        moreButtonImageAttachment.image = UIImage(named: "arrowDown")
+        moreButtonImageAttachment.image = UIImage(named: "arrowDown", in: .module, compatibleWith: nil)
         let moreButtonImageAttributedString = NSAttributedString(attachment: moreButtonImageAttachment)
         moreButtonAttributedString.append(NSAttributedString(string: "  "))
         moreButtonAttributedString.append(moreButtonImageAttributedString)
@@ -379,10 +379,10 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
             NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
         }
         
-        navigationUpMoveButton.setImage(UIImage(named: "upLineArrow"), for: .normal)
-        navigationLeftMoveButton.setImage(UIImage(named: "leftLineArrow"), for: .normal)
-        navigationDownMoveButton.setImage(UIImage(named: "downLineArrow"), for: .normal)
-        navigationRightMoveButton.setImage(UIImage(named: "rightLineArrow"), for: .normal)
+        navigationUpMoveButton.setImage(UIImage(named: "upLineArrow", in: .module, compatibleWith: nil), for: .normal)
+        navigationLeftMoveButton.setImage(UIImage(named: "leftLineArrow", in: .module, compatibleWith: nil), for: .normal)
+        navigationDownMoveButton.setImage(UIImage(named: "downLineArrow", in: .module, compatibleWith: nil), for: .normal)
+        navigationRightMoveButton.setImage(UIImage(named: "rightLineArrow", in: .module, compatibleWith: nil), for: .normal)
         
         navigationUpMoveButton.addTarget(self, action: #selector(navigationUpMoveTapped), for: .touchUpInside)
         navigationDownMoveButton.addTarget(self, action: #selector(navigationDownMoveTapped), for: .touchUpInside)
@@ -479,7 +479,7 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
     // Function to update selection when any action from dropdown list is performed
     func updateSelectionButton() {
         if let cell = collectionView.cellForItem(at: cellSelectedIndexPath ?? IndexPath(row: 0, section: 0)) as? CollectionViewCell {
-            cell.selectionButton.setImage(UIImage(named: "unSelectButton"), for: .normal)
+            cell.selectionButton.setImage(UIImage(named: "unSelectButton", in: .module, compatibleWith: nil), for: .normal)
         }
     }
     
@@ -739,7 +739,7 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
             }
             let newIndexPath = IndexPath(row: cellSelectedIndexPath?.row ?? 0, section: (cellSelectedIndexPath?.section ?? 0) + 1)
             if let cell = collectionView.cellForItem(at: newIndexPath) as? CollectionViewCell {
-                cell.selectionButton.setImage(UIImage(named: "unSelectButton"), for: .normal)
+                cell.selectionButton.setImage(UIImage(named: "unSelectButton", in: .module, compatibleWith: nil), for: .normal)
             }
         }
     }
@@ -973,10 +973,10 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
         tableCollectionViewHeader(cell: cell, indexPath: indexPath)
         
         if indexPath.section == selectedIndexPath {
-            cell.selectionButton.setImage(UIImage(named: "selectButton"), for: .normal)
+            cell.selectionButton.setImage(UIImage(named: "selectButton", in: .module, compatibleWith: nil), for: .normal)
             addTopandBottomBorderToCell(at: cell)
         } else {
-            cell.selectionButton.setImage(UIImage(named: "unSelectButton"), for: .normal)
+            cell.selectionButton.setImage(UIImage(named: "unSelectButton", in: .module, compatibleWith: nil), for: .normal)
             cell.contentView.layer.borderWidth = 0
             cell.contentView.layer.borderColor = UIColor.clear.cgColor
         }
@@ -998,13 +998,13 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
     func changeSelectionButtonState(indexPath: IndexPath) {
         if indexPath.section == selectedIndexPath {
             let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell
-            cell?.selectionButton.setImage(UIImage(named: "unSelectButton"), for: .normal)
+            cell?.selectionButton.setImage(UIImage(named: "unSelectButton", in: .module, compatibleWith: nil), for: .normal)
             selectedIndexPath = nil
             moreButton.isHidden = true
             collectionView.reloadData()
         } else {
             let cell = collectionView.cellForItem(at: indexPath) as? CollectionViewCell
-            cell?.selectionButton.setImage(UIImage(named: "selectButton"), for: .normal)
+            cell?.selectionButton.setImage(UIImage(named: "selectButton", in: .module, compatibleWith: nil), for: .normal)
             selectedIndexPath = indexPath.section
             cellSelectedIndexPath = indexPath
             moreButton.isHidden = false

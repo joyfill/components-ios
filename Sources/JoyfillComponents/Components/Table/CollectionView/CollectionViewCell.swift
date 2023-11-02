@@ -66,7 +66,7 @@ class CollectionViewCell: UICollectionViewCell, UITextFieldDelegate, UITextViewD
         horizontalSeparatorView.backgroundColor = UIColor(hexString: "#E6E7EA")
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(textViewDidTap(_:)))
         cellTextView.addGestureRecognizer(tapGesture)
-        selectionButton.setImage(UIImage(named: "unSelectButton"), for: .normal)
+        selectionButton.setImage(UIImage(named: "unSelectButton", in: .module, compatibleWith: nil), for: .normal)
     }
     
     // Function to add selectionButton in table

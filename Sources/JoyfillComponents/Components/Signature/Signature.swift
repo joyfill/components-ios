@@ -155,7 +155,7 @@ open class Signature: UIView {
         clrButton.cornerRadius = 6
         clrButton.borderColor = UIColor(hexString: "#D1D1D6") ?? .gray
         clrButton.borderWidth = 1
-        let icon = UIImage(named: "close_ring")
+        let icon = UIImage(named: "close_ring", in: .module, compatibleWith: nil)
         clrButton.setImage(icon, for: .normal)
         clrButton.imageEdgeInsets = UIEdgeInsets(top: 0, left: 5, bottom: 0, right: 0)
         clrButton.addTarget(self, action: #selector(clrButtonTapped), for: .touchUpInside)
@@ -180,7 +180,7 @@ open class Signature: UIView {
         saveText.textColor = .white
         saveText.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         
-        saveIcon.image = UIImage(named: "Edit_alt")
+        saveIcon.image = UIImage(named: "Edit_alt", in: .module, compatibleWith: nil)
         
         infomText.text = privacyPolicyText
         infomText.textAlignment = .center

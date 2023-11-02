@@ -84,7 +84,7 @@ open class ShortText: UIView {
             textField.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
 
-        toolTipIconButton.setImage(UIImage(named: "tooltipIcon"), for: .normal)
+        toolTipIconButton.setImage(UIImage(named: "tooltipIcon", in: .module, compatibleWith: nil), for: .normal)
         toolTipIconButton.addTarget(self, action: #selector(tooltipButtonTapped), for: .touchUpInside)
     }
     

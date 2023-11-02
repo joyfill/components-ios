@@ -102,27 +102,16 @@ If you prefer not to use any of dependency managers, you can integrate `JoyFill`
 
 ### For Swift
 
-Make sure to replace the userAccessToken and documentId. Note that documentId is just for this example, you can call our List all documents endpoint and grab an ID from there.
-
-1. After importing JoyFill SDK, inside JoyFill SDK code folder
-```swift
-
-- Go to 'Source' -> 'JoyfillComponents' -> 'Components' 
-- Inside Components right click on Assets folder then navigate to 'Show in Finder'
-- Then drag and drop Assets folder to you project and choose 'Create Groups'.  
-
-```
-
 Inside swift viewController file:
 
-2. On the top 1st import joyfill package using:
+1. On the top 1st import joyfill package using:
 ```swift
 
 import JoyfillComponents
     
 ```
 
-3. Then inside your viewController class add these variables:
+2. Then inside your viewController class add these variables:
 ```swift
 
 var apiUrl = "https://api-joy.joyfill.io"
@@ -131,7 +120,7 @@ var userAccessToken = "<REPLACE_ME>"
     
 ```
 
-4. Then inside viewController override method viewDidLoad() add:
+3. Then inside viewController override method viewDidLoad() add:
 ```swift
 
 override func viewDidLoad() {
@@ -142,7 +131,7 @@ override func viewDidLoad() {
     
 ```
 
-5. Then add these function inside your viewController file:
+4. Then add these function inside your viewController file:
 ```swift
 
 func getDocumentAsync() {
@@ -219,7 +208,7 @@ func updateDocumentChangelogsAsync() {
     
 ```
 
-6. Then add these onChange, onBlur and onFocus methods inside your viewController file:
+5. Then add these onChange, onBlur and onFocus methods inside your viewController file:
 ```swift
 
 func handleOnChange(docChangelog: [String : Any], doc: [String : Any]) {
@@ -237,27 +226,14 @@ func handleOnBlur(blurAndFocusParams: [String : Any]) {
     
 ```
 
-7. Now it is ready to run.
+6. Now it is ready to run.
 
 ------
 
 ### For Objective-C
 
-Make sure to replace the userAccessToken and documentId. Note that documentId is just for this example, you can call our List all documents endpoint and grab an ID from there.
-
-1. Add the Swift SDK to Your Objective-C Project using steps under Install Dependency.
-
-2. After importing JoyFill SDK, inside JoyFill SDK code folder
-```swift
-
-- Go to 'Source' -> 'JoyfillComponents' -> 'Components' 
-- Inside Components right click on Assets folder then navigate to 'Show in Finder'
-- Then drag and drop Assets folder to you project and choose 'Create Groups'.  
-
-```
-
-3. Create a new Swift file in your Objective-C project and while creating swift file popup will appear and then select "Create Bridging Header". 
-4. Create a Bridging Header file manually if doesn't exist in your project:
+1. Create a new Swift file in your Objective-C project and while creating swift select "Create Bridging Header". 
+2. Create a Bridging Header file manually if doesn't exist in your project:
 ```swift
 
 To use Swift code in an Objective-C project, you need to create a bridging header. The bridging header is an Objective-C header file that allows your Objective-C code to access Swift code. Xcode will typically prompt you to create a bridging header when you add Swift code to an Objective-C project. If it doesn't, you can create one manually.
@@ -266,7 +242,7 @@ To use Swift code in an Objective-C project, you need to create a bridging heade
 
 ```
 
-5. Replace with below given code in new created swift file:
+3. Replace with below given code in new created swift file:
 ```swift
 
 import Foundation
@@ -375,14 +351,14 @@ class JoyDocForm: UIView, onChange {
 
 ```
 
-7. In Objective-C viewController.m file add:
+4. In Objective-C viewController.m file add:
 ```objective-C
 
 #import "<Your Project Name>-Swift.h"
 
 ```
 
-6. Then in (void)viewDidLoad of Objective-C viewController.m file add:
+5. Then in (void)viewDidLoad of Objective-C viewController.m file add:
 ```objective-C
 
 - (void)viewDidLoad {
@@ -394,4 +370,4 @@ class JoyDocForm: UIView, onChange {
 
 ```
 
-7. Now it is ready to run.
+6. Now it is ready to run.

@@ -135,7 +135,7 @@ open class Table: UIView, UIViewControllerTransitioningDelegate, tableUpdate {
         viewButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 14)
         let moreButtonAttributedString = NSMutableAttributedString(string: "View")
         let moreButtonImageAttachment = NSTextAttachment()
-        moreButtonImageAttachment.image = UIImage(named: "arrowRight")
+        moreButtonImageAttachment.image = UIImage(named: "arrowRight", in: .module, compatibleWith: nil)
         let moreButtonImageAttributedString = NSAttributedString(attachment: moreButtonImageAttachment)
         moreButtonAttributedString.append(NSAttributedString(string: "  "))
         moreButtonAttributedString.append(moreButtonImageAttributedString)
@@ -146,7 +146,7 @@ open class Table: UIView, UIViewControllerTransitioningDelegate, tableUpdate {
         titleLabel.isTextBold = true
         titleLabel.numberOfLines = 0
         
-        toolTipIconButton.setImage(UIImage(named: "tooltipIcon"), for: .normal)
+        toolTipIconButton.setImage(UIImage(named: "tooltipIcon", in: .module, compatibleWith: nil), for: .normal)
         toolTipIconButton.addTarget(self, action: #selector(tooltipButtonTapped), for: .touchUpInside)
         
         collectionView.collectionView.layer.borderWidth = 1

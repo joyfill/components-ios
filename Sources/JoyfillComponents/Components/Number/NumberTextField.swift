@@ -196,7 +196,7 @@ public class NumberField: UIView, UITextFieldDelegate {
         titleLbl.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         titleTextColor = .black
         
-        toolTipIconButton.setImage(UIImage(named: "tooltipIcon"), for: .normal)
+        toolTipIconButton.setImage(UIImage(named: "tooltipIcon", in: .module, compatibleWith: nil), for: .normal)
         toolTipIconButton.addTarget(self, action: #selector(tooltipButtonTapped), for: .touchUpInside)
         
         numberViewBorderColor = UIColor(hexString: "#D1D1D6") ?? .lightGray

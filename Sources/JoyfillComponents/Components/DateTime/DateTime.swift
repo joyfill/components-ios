@@ -202,7 +202,7 @@ public class DateTime: UIView, UITextFieldDelegate {
         titleLabel.numberOfLines = 0
         titleLabel.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         
-        toolTipIconButton.setImage(UIImage(named: "tooltipIcon"), for: .normal)
+        toolTipIconButton.setImage(UIImage(named: "tooltipIcon", in: .module, compatibleWith: nil), for: .normal)
         toolTipIconButton.addTarget(self, action: #selector(tooltipButtonTapped), for: .touchUpInside)
         
         dateTimeBorderWidth = 1
@@ -213,7 +213,7 @@ public class DateTime: UIView, UITextFieldDelegate {
         
         dateTimeFieldIconColor = .black
         dateTimePlacholder = "MMMM d, yyyy h:mm a"
-        datePickerButton.setImage(UIImage(named: "Date_today"), for: .normal)
+        datePickerButton.setImage(UIImage(named: "Date_today", in: .module, compatibleWith: nil), for: .normal)
     }
     
     public func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {

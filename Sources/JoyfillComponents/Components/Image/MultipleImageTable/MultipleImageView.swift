@@ -193,7 +193,7 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         
         // Set UploadButton
         interiorImageUploadButton.tag = index
-        interiorImageUploadButton.image = UIImage(named: "interiorUploadButton")
+        interiorImageUploadButton.image = UIImage(named: "interiorUploadButton", in: .module, compatibleWith: nil)
         interiorImageUploadButton.addTarget(self, action: #selector(interiorUploadButtonTapped), for: .touchUpInside)
     }
     
