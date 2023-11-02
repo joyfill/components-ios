@@ -1,113 +1,24 @@
 ![joyfill_logo](https://github.com/joyfill/examples/assets/5873346/4943ecf8-a718-4c97-a917-0c89db014e49)
 
-# @joyfill/components-swift
+# joyfill/components-ios
 
-## 🧳 Requirements:
+## Project Requirements:
 1. Note userAccessTokens & identifiers will need to be stored on your end (usually on a user and set of existing form field-based data) in order to interact with our API and UI Components effectively.
 2. iOS v14+
 3. Xcode v13+
 
-## Navigation
+## Install Dependency:
+1. Inside your swift project click on the AppName in the Navigation Area (in the left side).
+2. In the Editor Area (in the centre) under project again click on AppName then go to package dependencies click on “+” and add JoyFill package using “ https://github.com/joyfill/components-ios.git ”.
 
-- [Installation](#-installation)
-    - [CocoaPods](#cocoapods)
-    - [Swift Package Manager](#swift-package-manager)
-    - [Manually](#manually)
- - [Field Events](#-field-events)
- - [Code Example](#-code-example)
-    - [For Swift](#for-Swift)
-    - [For Objective-C](#for-Objective-C)
-
-## 💻 Installation:
-
-### Cocoapods
-
-[JoyfillComponents Cocapods Website](https://cocoapods.org/pods/packageSwift)
-
-CocoaPods is a dependency manager for Cocoa projects. For usage and installation instructions, visit their website. To integrate `AlertToast` into your Xcode project using CocoaPods, specify it in your Podfile:
-
-```ruby
-pod 'packageSwift'
-```
-
-------
-
-### Swift Package Manager
-
-The [Swift Package Manager](https://swift.org/package-manager/) is a tool for managing the distribution of Swift code. It’s integrated with the Swift build system to automate the process of downloading, compiling, and linking dependencies.
-
-To integrate `JoyFill` into your Xcode project using Xcode, specify it in `specify it in File > Add Packages...:`:
-
-```ogdl
-https://github.com/joyfill/components-ios.git, :branch="main" 
-```
-
-------
-
-### Manually
-
-If you prefer not to use any of dependency managers, you can integrate `JoyFill` into your project manually. Put `Sources/JoyfillComponents` folder in your Xcode project. Make sure to enable `Copy items if needed` and `Create groups`.
-
-## Field Events
-
-* **Text**, **Textarea**, **Number**
-    *  `onFocus(params: object, e: object)` is fired when the field is focused.
-    *  `onChange` is fired when the field value is modified.
-    *  `onBlur` is fired when the field is blurred.
-*  **Date**, **Dropdown**
-    *  `onFocus` is fired when the field is pressed and selection modal is displayed.
-    *  `onChange` is fired when the field value is modified.
-    *  `onBlur` is fired when the field is blurred and the selection modal is closed.
-*  **Multiselect**
-    *  `onFocus` is fired when an option is selected or unselected for the first time on the field.
-    *  `onChange` is fired when an option is selected or unselected in the field.
-*  **Chart**
-    *  `onFocus` is fired when “view” button is pressed and modal is displayed.
-    *  `onChange` is fired when the field value is modified.
-    *  `onBlur` is fired when modal is closed.
-*  **Image**
-    *  `onFocus` is fired when “view” button is pressed and modal is displayed.
-        *  An empty image field that is focused will also trigger the `onUploadAsync` request.
-        *  A populated image field that is focused will trigger the image modal to open.
-    *  `onChange` is fired when the field images are uploaded or removed.
-    *  `onBlur` is fired when modal is closed.
-* **Signature**
-    *  `onFocus` is fired when open modal button is pressed and modal is displayed.
-    *  `onChange` is fired when the field value is modified.
-    *  `onBlur` is fired when the modal is closed.
-*  **Table**
-    *  `onFocus` is fired when “view” button is pressed and modal is displayed.
-    *  `onBlur` is fired when modal is closed.
-    * **Table Cells**
-        * **Text Cell**
-            * `onFocus` is fired when the cell is focused.
-            * `onChange` is fired when the cell value is modified.
-            * `onBlur` is fired when the cell is blurred
-        * **Dropdown Cell**
-            *  `onFocus` is fired when the cell is pressed and selection modal is displayed.
-            *  `onChange` is fired when the field value is modified.
-            *  `onBlur` is fired when the cell is blurred and the selection modal is closed.
-        * **Image Cell**
-            *  `onFocus` is fired cell is pressed and modal is displayed.
-                *  An empty image cell that is focused will also trigger the `onUploadAsync` request.
-                *  A populated image cell that is focused will trigger the image modal to open.
-            *  `onChange` is fired when the cell images are uploaded or removed.
-            *  `onBlur` is fired when modal is closed.
-
-**IMPORTANT NOTE:** JoyDoc SDK `onFocus`, `onChange` and `onBlur` events are not always called in the same order. Two different fields can be triggering events at the same time.  For instance, if you have Field A focused and then focus on Field B, the Field B onFocus event could be fired before the Field A onBlur event. Always check the event params object ids to match up the associated field events.
-
-------
-
-## 🛠 Code Example
-
-### For Swift
+# For Swift Project
 
 Make sure to replace the userAccessToken and documentId. Note that documentId is just for this example, you can call our List all documents endpoint and grab an ID from there.
 
 1. After importing JoyFill SDK, inside JoyFill SDK code folder
 ```swift
 
-- Go to 'Source' -> 'JoyfillComponents' -> 'Components' 
+- Go to 'Source' -> 'joyfill-components-swift' -> 'Components' 
 - Inside Components right click on Assets folder then navigate to 'Show in Finder'
 - Then drag and drop Assets folder to you project and choose 'Create Groups'.  
 
@@ -118,7 +29,7 @@ Inside swift viewController file:
 2. On the top 1st import joyfill package using:
 ```swift
 
-import JoyfillComponents
+import joyfill_components_swift
     
 ```
 
@@ -239,9 +150,7 @@ func handleOnBlur(blurAndFocusParams: [String : Any]) {
 
 7. Now it is ready to run.
 
-------
-
-### For Objective-C
+# For Objective-C Project
 
 Make sure to replace the userAccessToken and documentId. Note that documentId is just for this example, you can call our List all documents endpoint and grab an ID from there.
 
@@ -250,7 +159,7 @@ Make sure to replace the userAccessToken and documentId. Note that documentId is
 2. After importing JoyFill SDK, inside JoyFill SDK code folder
 ```swift
 
-- Go to 'Source' -> 'JoyfillComponents' -> 'Components' 
+- Go to 'Source' -> 'joyfill-components-swift' -> 'Components' 
 - Inside Components right click on Assets folder then navigate to 'Show in Finder'
 - Then drag and drop Assets folder to you project and choose 'Create Groups'.  
 
@@ -271,7 +180,7 @@ To use Swift code in an Objective-C project, you need to create a bridging heade
 
 import Foundation
 import UIKit
-import JoyfillComponents
+import joyfill_components_swift
 
 @objc(JoyDocForm)
 class JoyDocForm: UIView, onChange {
@@ -395,3 +304,52 @@ class JoyDocForm: UIView, onChange {
 ```
 
 7. Now it is ready to run.
+
+
+## Field Events
+
+* **Text**, **Textarea**, **Number**
+    *  `onFocus(params: object, e: object)` is fired when the field is focused.
+    *  `onChange` is fired when the field value is modified.
+    *  `onBlur` is fired when the field is blurred.
+*  **Date**, **Dropdown**
+    *  `onFocus` is fired when the field is pressed and selection modal is displayed.
+    *  `onChange` is fired when the field value is modified.
+    *  `onBlur` is fired when the field is blurred and the selection modal is closed.
+*  **Multiselect**
+    *  `onFocus` is fired when an option is selected or unselected for the first time on the field.
+    *  `onChange` is fired when an option is selected or unselected in the field.
+*  **Chart**
+    *  `onFocus` is fired when “view” button is pressed and modal is displayed.
+    *  `onChange` is fired when the field value is modified.
+    *  `onBlur` is fired when modal is closed.
+*  **Image**
+    *  `onFocus` is fired when “view” button is pressed and modal is displayed.
+        *  An empty image field that is focused will also trigger the `onUploadAsync` request.
+        *  A populated image field that is focused will trigger the image modal to open.
+    *  `onChange` is fired when the field images are uploaded or removed.
+    *  `onBlur` is fired when modal is closed.
+* **Signature**
+    *  `onFocus` is fired when open modal button is pressed and modal is displayed.
+    *  `onChange` is fired when the field value is modified.
+    *  `onBlur` is fired when the modal is closed.
+*  **Table**
+    *  `onFocus` is fired when “view” button is pressed and modal is displayed.
+    *  `onBlur` is fired when modal is closed.
+    * **Table Cells**
+        * **Text Cell**
+            * `onFocus` is fired when the cell is focused.
+            * `onChange` is fired when the cell value is modified.
+            * `onBlur` is fired when the cell is blurred
+        * **Dropdown Cell**
+            *  `onFocus` is fired when the cell is pressed and selection modal is displayed.
+            *  `onChange` is fired when the field value is modified.
+            *  `onBlur` is fired when the cell is blurred and the selection modal is closed.
+        * **Image Cell**
+            *  `onFocus` is fired cell is pressed and modal is displayed.
+                *  An empty image cell that is focused will also trigger the `onUploadAsync` request.
+                *  A populated image cell that is focused will trigger the image modal to open.
+            *  `onChange` is fired when the cell images are uploaded or removed.
+            *  `onBlur` is fired when modal is closed.
+
+**IMPORTANT NOTE:** JoyDoc SDK `onFocus`, `onChange` and `onBlur` events are not always called in the same order. Two different fields can be triggering events at the same time.  For instance, if you have Field A focused and then focus on Field B, the Field B onFocus event could be fired before the Field A onBlur event. Always check the event params object ids to match up the associated field events.
