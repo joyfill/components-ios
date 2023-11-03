@@ -201,7 +201,7 @@ open class Signature: UIView {
     func convertImageToDataURI(uri: UIImage, signer: String) {
         if let imageData = uri.jpegData(compressionQuality: 1.0) {
             let base64String = imageData.base64EncodedString()
-            signedImage.insert("data:image/jpeg;base64,\(base64String)", at: index)
+            signedImage[index] =  "data:image/jpeg;base64,\(base64String)"
             signValueUpdate(base64: "data:image/jpeg;base64,\(base64String)")
             saveDelegate?.handleSignatureUpload(sign: "data:image/jpeg;base64,\(base64String)", signer: signer, index: index)
         }
