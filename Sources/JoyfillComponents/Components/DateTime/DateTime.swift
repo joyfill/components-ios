@@ -1,7 +1,11 @@
 import Foundation
 import UIKit
 
-public class DateTime: UIView, UITextFieldDelegate {
+protocol UpdateDateTimeFieldBorderOnBlur {
+    func updateBorderOnBlur()
+}
+
+public class DateTime: UIView, UITextFieldDelegate, UpdateDateTimeFieldBorderOnBlur {
     
     public var dateLabel = String()
     public var titleLabel = UILabel()
@@ -226,6 +230,10 @@ public class DateTime: UIView, UITextFieldDelegate {
     
     // Function to open datePicker
     @objc func openDatePicker() {
+        RPicker.sharedInstance.index = self.index
+        RPicker.sharedInstance.dateTimeDelegate = self
+        RPicker.sharedInstance.saveDelegate = self.saveDelegate
+        
         datePickerUI()
         saveDelegate?.handleFocus(index: index)
         dateTimeView.layer.borderWidth = 2
@@ -239,7 +247,6 @@ public class DateTime: UIView, UITextFieldDelegate {
                 let timestampMilliseconds = dateToTimestampMilliseconds(date: selectedDate)
                 self?.dateTimeUpadte(timestampMilliseconds: timestampMilliseconds)
                 self?.saveDelegate?.handleFieldChange(text: timestampMilliseconds as Any, isEditingEnd: true, index: self?.index ?? 0)
-                self?.saveDelegate?.handleBlur(index: self?.index ?? 0)
             })
             
         } else if format == "hh:mma" {
@@ -248,7 +255,6 @@ public class DateTime: UIView, UITextFieldDelegate {
                 let timestampMilliseconds = dateToTimestampMilliseconds(date: selectedDate)
                 self?.dateTimeUpadte(timestampMilliseconds: timestampMilliseconds)
                 self?.saveDelegate?.handleFieldChange(text: timestampMilliseconds as Any, isEditingEnd: true, index: self?.index ?? 0)
-                self?.saveDelegate?.handleBlur(index: self?.index ?? 0)
             })
             
         } else {
@@ -257,7 +263,6 @@ public class DateTime: UIView, UITextFieldDelegate {
                 let timestampMilliseconds = dateToTimestampMilliseconds(date: selectedDate)
                 self?.dateTimeUpadte(timestampMilliseconds: timestampMilliseconds)
                 self?.saveDelegate?.handleFieldChange(text: timestampMilliseconds as Any, isEditingEnd: true, index: self?.index ?? 0)
-                self?.saveDelegate?.handleBlur(index: self?.index ?? 0)
             })
         }
     }
@@ -302,12 +307,13 @@ public class DateTime: UIView, UITextFieldDelegate {
         saveDelegate?.handleFieldChange(text: textField.text ?? "", isEditingEnd: true, index: index)
     }
     
-    
-    
     // Set selected date and time in textField
     public func selectedDate(date: String) {
         dateLabel = date
         dateTimeField.text = dateLabel
+    }
+    
+    func updateBorderOnBlur() {
         dateTimeView.layer.borderWidth = 1
         dateTimeView.layer.borderColor = UIColor(hexString: "#D1D1D6")?.cgColor
     }

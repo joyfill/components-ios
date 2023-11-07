@@ -108,7 +108,7 @@ public class Form: UIView, SaveTableFieldValue, saveImageFieldValue, saveSignatu
             saveButton.topAnchor.constraint(equalTo: componentTableView.bottomAnchor, constant: 5),
             saveButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
             saveButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            saveButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -20),
+            saveButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -20)
         ])
         
         // Set cornerRadius and shadow to view.
@@ -448,9 +448,11 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         
         // DateTime value based on indexPath from JoyDoc
         switch value {
-        case .string(_): break
+        case .string(let string):
+            let date = getTimeFromISO8601Format(iso8601String: string)
+            datetime.dateTimeField.text = date
         case .integer(let integer):
-            let date = timestampMillisecondsToDate(value: integer)
+            let date = timestampMillisecondsToDate(value: integer, format: datetime.format)
             datetime.dateTimeField.text = date
         case .valueElementArray(_): break
         case .array(_): break
@@ -1344,13 +1346,13 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
     // MARK: - Field Focus and Blur Method
     func handleBlur(index: Int) {
         _ = fieldBlur(id: joyDocId,
-                       identifier: joyDocIdentifier,
-                       fileId: joyDocFieldData[index].file ?? "",
-                       pageId: joyDocPageId[pageIndex],
-                       fieldId: joyDocFieldData[index].id ?? "",
-                       fieldIdentifier: joyDocFieldData[index].identifier ?? "",
+                      identifier: joyDocIdentifier,
+                      fileId: joyDocFieldData[index].file ?? "",
+                      pageId: joyDocPageId[pageIndex],
+                      fieldId: joyDocFieldData[index].id ?? "",
+                      fieldIdentifier: joyDocFieldData[index].identifier ?? "",
                       fieldPositionId: joyDocFieldPositionData[index].id ?? "",
-                       target: "fieldPosition.blur")
+                      target: "fieldPosition.blur")
     }
     
     func handleFocus(index: Int) {
