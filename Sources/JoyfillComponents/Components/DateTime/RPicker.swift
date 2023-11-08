@@ -11,8 +11,11 @@ enum RPickerType {
 
 @objc open class RPicker: NSObject {
     
-    private static let sharedInstance = RPicker()
+    var index = Int()
     private var isPresented = false
+    var saveDelegate: SaveTextFieldValue? = nil
+    public static let sharedInstance = RPicker()
+    var dateTimeDelegate: UpdateDateTimeFieldBorderOnBlur? = nil
     
     /**
      Show UIDatePicker with various constraints.
@@ -122,6 +125,10 @@ enum RPickerType {
                 
                 let vc = RPickerController(title: title, cancelText: cancelText, doneText: doneText, datePickerMode: datePickerMode, selectedDate: selectedDate, minDate: minDate, maxDate: maxDate, dataArray: dataArray, selectedIndex: selectedIndex, type: type, style: style)
                 
+                vc.index = RPicker.sharedInstance.index
+                vc.saveDelegate = RPicker.sharedInstance.saveDelegate
+                vc.dateTimeDelegate = RPicker.sharedInstance.dateTimeDelegate
+                
                 vc.modalPresentationStyle = .overCurrentContext
                 vc.modalTransitionStyle = .crossDissolve
                 cc.present(vc, animated: true, completion: nil)
@@ -142,6 +149,10 @@ class RPickerController: UIViewController {
     var onDateSelected : ((_ date: Date) -> Void)?
     var onOptionSelected : ((_ value: String, _ atIndex: Int) -> Void)?
     var onWillDismiss : (() -> Void)?
+    
+    var index = Int()
+    var saveDelegate: SaveTextFieldValue? = nil
+    var dateTimeDelegate: UpdateDateTimeFieldBorderOnBlur? = nil
     
     //MARK:- Public variables
     var selectedIndex: Int?
@@ -194,7 +205,6 @@ class RPickerController: UIViewController {
             view.overrideUserInterfaceStyle = .light
         }
         initialSetup()
-        
     }
     
     required init?(coder: NSCoder) {
@@ -307,6 +317,8 @@ class RPickerController: UIViewController {
     private func dismissVC() {
         onWillDismiss?()
         dismiss(animated: true, completion: nil)
+        self.dateTimeDelegate?.updateBorderOnBlur()
+        self.saveDelegate?.handleBlur(index: self.index)
     }
     
     //MARK:- Private properties

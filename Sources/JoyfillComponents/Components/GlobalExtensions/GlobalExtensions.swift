@@ -345,13 +345,37 @@ public func dateToTimestampMilliseconds(date: Date) -> Int {
 }
 
 // Function to convert timeStamp in date
-public func timestampMillisecondsToDate(value: Int) -> String {
+public func timestampMillisecondsToDate(value: Int, format: String) -> String {
     let timestampMilliseconds: TimeInterval = TimeInterval(value)
     let date = Date(timeIntervalSince1970: timestampMilliseconds / 1000.0)
     let dateFormatter = DateFormatter()
-    dateFormatter.dateFormat = "MMMM d, yyyy"
+    
+    if format == "MM/DD/YYYY" {
+        dateFormatter.dateFormat = "MMMM d, yyyy"
+    } else if format == "hh:mma" {
+        dateFormatter.dateFormat = "hh:mm a"
+    } else {
+        dateFormatter.dateFormat = "MMMM d, yyyy h:mm a"
+    }
+    
     let formattedDate = dateFormatter.string(from: date)
     return formattedDate
+}
+
+// Function to convert iso8601TimeStamp in time
+public func getTimeFromISO8601Format(iso8601String: String) -> String {
+    let dateFormatter = ISO8601DateFormatter()
+    let instant = dateFormatter.date(from: iso8601String)
+    
+    let timeZone = TimeZone.current
+    let zonedDateTime = instant ?? Date()
+    
+    let formatter = DateFormatter()
+    formatter.dateFormat = "hh:mm a"
+    formatter.timeZone = timeZone
+    
+    let timeString = formatter.string(from: zonedDateTime)
+    return timeString
 }
 
 // Function to convert RGB color to Hexa
