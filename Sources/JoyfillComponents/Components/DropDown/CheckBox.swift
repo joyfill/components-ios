@@ -46,7 +46,6 @@ open class Checkbox: UIControl {
     @IBInspectable public var checkedBorderColor: UIColor!
     @IBInspectable public var checkmarkColor: UIColor!
    
-    @available(swift, obsoleted: 4.1, renamed: "checkboxFillColor", message: "Defaults to a clear color")
     public var checkboxBackgroundColor: UIColor! = .white
     @IBInspectable public var checkboxFillColor: UIColor = .clear
     @IBInspectable public var borderCornerRadius: CGFloat = 0.0
