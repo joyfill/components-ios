@@ -1,0 +1,465 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		3F1F15EA2B02A2800034926A /* JoyDocViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F1F15E92B02A2800034926A /* JoyDocViewModel.swift */; };
+		3F2E09812B02E085004B4C30 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F2E09802B02E085004B4C30 /* Constants.swift */; };
+		3F2E09832B02E3DE004B4C30 /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F2E09822B02E3DE004B4C30 /* API.swift */; };
+		3F52BBC82AFDDBFA00AF04D3 /* DocumentSubmissionsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F52BBC72AFDDBFA00AF04D3 /* DocumentSubmissionsList.swift */; };
+		3F5ACA7C2AF9390B003971AE /* JoyfillExampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F5ACA7B2AF9390B003971AE /* JoyfillExampleApp.swift */; };
+		3F5ACA7E2AF9390B003971AE /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F5ACA7D2AF9390B003971AE /* ContentView.swift */; };
+		3F5ACA822AF9390C003971AE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3F5ACA812AF9390C003971AE /* Assets.xcassets */; };
+		3F5ACA852AF9390C003971AE /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3F5ACA842AF9390C003971AE /* Preview Assets.xcassets */; };
+		3F5ACA942AF98F69003971AE /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = 3F5ACA932AF98F69003971AE /* AlertToast */; };
+		3F83D3CD2AFC03250010F96D /* DocumentJoyDoc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F83D3CC2AFC03250010F96D /* DocumentJoyDoc.swift */; };
+		3F8BB5B82AFD8D710035407E /* JoyfillComponents in Frameworks */ = {isa = PBXBuildFile; productRef = 3F8BB5B72AFD8D710035407E /* JoyfillComponents */; };
+		3FC3970F2AF9A842000D3F18 /* DocumentList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FC3970E2AF9A842000D3F18 /* DocumentList.swift */; };
+		3FC397112AF9A856000D3F18 /* DocumentForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FC397102AF9A856000D3F18 /* DocumentForm.swift */; };
+		3FC397132AF9A873000D3F18 /* PrimaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FC397122AF9A873000D3F18 /* PrimaryButton.swift */; };
+		3FC397152AF9A8FC000D3F18 /* DocumentModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FC397142AF9A8FC000D3F18 /* DocumentModel.swift */; };
+		3FC397172AF9A915000D3F18 /* DocumentsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FC397162AF9A915000D3F18 /* DocumentsViewModel.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		3F1F15E92B02A2800034926A /* JoyDocViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyDocViewModel.swift; sourceTree = "<group>"; };
+		3F2E09802B02E085004B4C30 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		3F2E09822B02E3DE004B4C30 /* API.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = API.swift; sourceTree = "<group>"; };
+		3F52BBC72AFDDBFA00AF04D3 /* DocumentSubmissionsList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentSubmissionsList.swift; sourceTree = "<group>"; };
+		3F5ACA782AF9390B003971AE /* JoyfillExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JoyfillExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3F5ACA7B2AF9390B003971AE /* JoyfillExampleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyfillExampleApp.swift; sourceTree = "<group>"; };
+		3F5ACA7D2AF9390B003971AE /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		3F5ACA812AF9390C003971AE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		3F5ACA842AF9390C003971AE /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		3F83D3CC2AFC03250010F96D /* DocumentJoyDoc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentJoyDoc.swift; sourceTree = "<group>"; };
+		3FC3970E2AF9A842000D3F18 /* DocumentList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentList.swift; sourceTree = "<group>"; };
+		3FC397102AF9A856000D3F18 /* DocumentForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentForm.swift; sourceTree = "<group>"; };
+		3FC397122AF9A873000D3F18 /* PrimaryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryButton.swift; sourceTree = "<group>"; };
+		3FC397142AF9A8FC000D3F18 /* DocumentModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentModel.swift; sourceTree = "<group>"; };
+		3FC397162AF9A915000D3F18 /* DocumentsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentsViewModel.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		3F5ACA752AF9390B003971AE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3F8BB5B82AFD8D710035407E /* JoyfillComponents in Frameworks */,
+				3F5ACA942AF98F69003971AE /* AlertToast in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		3F5ACA6F2AF9390B003971AE = {
+			isa = PBXGroup;
+			children = (
+				3F5ACA7A2AF9390B003971AE /* JoyfillExample */,
+				3F5ACA792AF9390B003971AE /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		3F5ACA792AF9390B003971AE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3F5ACA782AF9390B003971AE /* JoyfillExample.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		3F5ACA7A2AF9390B003971AE /* JoyfillExample */ = {
+			isa = PBXGroup;
+			children = (
+				3F5ACA8F2AF96FC1003971AE /* Models */,
+				3F5ACA8E2AF96FB7003971AE /* Views */,
+				3F5ACA7B2AF9390B003971AE /* JoyfillExampleApp.swift */,
+				3F5ACA7D2AF9390B003971AE /* ContentView.swift */,
+				3F5ACA812AF9390C003971AE /* Assets.xcassets */,
+				3F5ACA832AF9390C003971AE /* Preview Content */,
+				3F2E09802B02E085004B4C30 /* Constants.swift */,
+				3F2E09822B02E3DE004B4C30 /* API.swift */,
+			);
+			path = JoyfillExample;
+			sourceTree = "<group>";
+		};
+		3F5ACA832AF9390C003971AE /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				3F5ACA842AF9390C003971AE /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		3F5ACA8E2AF96FB7003971AE /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				3FC3970B2AF9A80C000D3F18 /* Documents */,
+				3FC3970A2AF9A805000D3F18 /* Helper */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		3F5ACA8F2AF96FC1003971AE /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				3FC397142AF9A8FC000D3F18 /* DocumentModel.swift */,
+				3FC397162AF9A915000D3F18 /* DocumentsViewModel.swift */,
+				3F1F15E92B02A2800034926A /* JoyDocViewModel.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		3FC3970A2AF9A805000D3F18 /* Helper */ = {
+			isa = PBXGroup;
+			children = (
+				3FC397122AF9A873000D3F18 /* PrimaryButton.swift */,
+			);
+			path = Helper;
+			sourceTree = "<group>";
+		};
+		3FC3970B2AF9A80C000D3F18 /* Documents */ = {
+			isa = PBXGroup;
+			children = (
+				3FC3970E2AF9A842000D3F18 /* DocumentList.swift */,
+				3FC397102AF9A856000D3F18 /* DocumentForm.swift */,
+				3F83D3CC2AFC03250010F96D /* DocumentJoyDoc.swift */,
+				3F52BBC72AFDDBFA00AF04D3 /* DocumentSubmissionsList.swift */,
+			);
+			path = Documents;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		3F5ACA772AF9390B003971AE /* JoyfillExample */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3F5ACA882AF9390C003971AE /* Build configuration list for PBXNativeTarget "JoyfillExample" */;
+			buildPhases = (
+				3F5ACA742AF9390B003971AE /* Sources */,
+				3F5ACA752AF9390B003971AE /* Frameworks */,
+				3F5ACA762AF9390B003971AE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = JoyfillExample;
+			packageProductDependencies = (
+				3F5ACA932AF98F69003971AE /* AlertToast */,
+				3F8BB5B72AFD8D710035407E /* JoyfillComponents */,
+			);
+			productName = JoyfillExample;
+			productReference = 3F5ACA782AF9390B003971AE /* JoyfillExample.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		3F5ACA702AF9390B003971AE /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					3F5ACA772AF9390B003971AE = {
+						CreatedOnToolsVersion = 15.0.1;
+					};
+				};
+			};
+			buildConfigurationList = 3F5ACA732AF9390B003971AE /* Build configuration list for PBXProject "JoyfillExample" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 3F5ACA6F2AF9390B003971AE;
+			packageReferences = (
+				3F5ACA922AF98F69003971AE /* XCRemoteSwiftPackageReference "AlertToast" */,
+				3F8BB5B62AFD8D710035407E /* XCRemoteSwiftPackageReference "components-ios" */,
+			);
+			productRefGroup = 3F5ACA792AF9390B003971AE /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				3F5ACA772AF9390B003971AE /* JoyfillExample */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		3F5ACA762AF9390B003971AE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3F5ACA852AF9390C003971AE /* Preview Assets.xcassets in Resources */,
+				3F5ACA822AF9390C003971AE /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		3F5ACA742AF9390B003971AE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3F83D3CD2AFC03250010F96D /* DocumentJoyDoc.swift in Sources */,
+				3FC397112AF9A856000D3F18 /* DocumentForm.swift in Sources */,
+				3FC3970F2AF9A842000D3F18 /* DocumentList.swift in Sources */,
+				3F5ACA7E2AF9390B003971AE /* ContentView.swift in Sources */,
+				3FC397172AF9A915000D3F18 /* DocumentsViewModel.swift in Sources */,
+				3F2E09812B02E085004B4C30 /* Constants.swift in Sources */,
+				3FC397152AF9A8FC000D3F18 /* DocumentModel.swift in Sources */,
+				3F2E09832B02E3DE004B4C30 /* API.swift in Sources */,
+				3F1F15EA2B02A2800034926A /* JoyDocViewModel.swift in Sources */,
+				3FC397132AF9A873000D3F18 /* PrimaryButton.swift in Sources */,
+				3F5ACA7C2AF9390B003971AE /* JoyfillExampleApp.swift in Sources */,
+				3F52BBC82AFDDBFA00AF04D3 /* DocumentSubmissionsList.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		3F5ACA862AF9390C003971AE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		3F5ACA872AF9390C003971AE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		3F5ACA892AF9390C003971AE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"JoyfillExample/Preview Content\"";
+				DEVELOPMENT_TEAM = 6C8622NQYH;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.joyfill.JoyfillExample;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		3F5ACA8A2AF9390C003971AE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"JoyfillExample/Preview Content\"";
+				DEVELOPMENT_TEAM = 6C8622NQYH;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.joyfill.JoyfillExample;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3F5ACA732AF9390B003971AE /* Build configuration list for PBXProject "JoyfillExample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3F5ACA862AF9390C003971AE /* Debug */,
+				3F5ACA872AF9390C003971AE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3F5ACA882AF9390C003971AE /* Build configuration list for PBXNativeTarget "JoyfillExample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3F5ACA892AF9390C003971AE /* Debug */,
+				3F5ACA8A2AF9390C003971AE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		3F5ACA922AF98F69003971AE /* XCRemoteSwiftPackageReference "AlertToast" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/elai950/AlertToast.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.3.9;
+			};
+		};
+		3F8BB5B62AFD8D710035407E /* XCRemoteSwiftPackageReference "components-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/joyfill/components-ios.git";
+			requirement = {
+				branch = jp;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		3F5ACA932AF98F69003971AE /* AlertToast */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3F5ACA922AF98F69003971AE /* XCRemoteSwiftPackageReference "AlertToast" */;
+			productName = AlertToast;
+		};
+		3F8BB5B72AFD8D710035407E /* JoyfillComponents */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3F8BB5B62AFD8D710035407E /* XCRemoteSwiftPackageReference "components-ios" */;
+			productName = JoyfillComponents;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 3F5ACA702AF9390B003971AE /* Project object */;
+}
