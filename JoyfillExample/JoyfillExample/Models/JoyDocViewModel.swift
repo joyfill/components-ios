@@ -20,9 +20,7 @@ class JoyDocViewModel: ObservableObject {
         URLSession.shared.dataTask(with: request) { data, response, error in
             if let data = data, error == nil {
                 do {
-                    
-                    print("TRYING TO LOAD DOC.....", data)
-                    
+                                        
                     // This dispatches on the main thread an update to our  @Published
                     // variable where our UI is also listening on the main thread for
                     // changes to occur to, when it does it rerenders the UI

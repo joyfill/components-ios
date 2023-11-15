@@ -4,6 +4,8 @@ struct DocumentList: View {
     
     @ObservedObject var documentsViewModel = DocumentsViewModel()
     
+    @Environment(\.dismiss) var dismiss
+    
     @State private var search: String = ""
     @FocusState private var searchIsFocused: Bool
     
@@ -18,10 +20,9 @@ struct DocumentList: View {
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding([.top, .bottom], 10)
                     
-                
                 ForEach(documentsViewModel.documents) { document in
                     NavigationLink {
-                        DocumentSubmissionsList(identifier: document.identifier)
+                        DocumentSubmissionsList(identifier: document.identifier, name: document.name)
                     } label: {
                         VStack(alignment: .leading) {
                             HStack {

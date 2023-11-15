@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import SwiftyJSON
 
 class DocumentsViewModel: ObservableObject {
     var JoyDocModel = JoyDocViewModel()
@@ -125,42 +126,58 @@ class DocumentsViewModel: ObservableObject {
         }.resume()
     }
     
-    // TODO: ------- THIS IS working but the create submission call I am having a hard time getting it to work even with postman
-    
-//    func createDocumentSubmission(identifier: String) {
-//        
-//        JoyDocModel.fetchJoyDoc(identifier: identifier, userAccessToken: userAccessToken, completion: { joyDocJSON in
-//            
-//            print("Loaded createDocumentSubmission ", joyDocJSON)
-//            
-//            guard let url = URL(string: "\(Constants.baseURL)/") else {
-//                print("Invalid json url")
-//                return
-//            }
-//            
-//            var request = URLRequest(url: url)
-//            
-//            // See https://docs.joyfill.io/reference/create-a-document
-//            let jsonBody = try? JSONSerialization.data(withJSONObject: joyDocJSON)
-//            
-//            print("Loaded createDocumentSubmission jsonBody ", jsonBody!)
-//            
-//            request.httpBody = jsonBody
-//            request.httpMethod = "POST"
-//            request.setValue("Bearer \(self.userAccessToken)", forHTTPHeaderField: "Authorization")
-//            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-//            
-//            URLSession.shared.dataTask(with: request) { data, response, error in
-//                if let error = error {
-//                    print("Error creating submission: \(error)")
-//                } else if let data = data {
-//                    let json = try? JSONSerialization.jsonObject(with: data, options: [.fragmentsAllowed])
-//                    let _ = json as? NSDictionary
-//                }
-//            }.resume()
-//            
-//            self.fetchDocumentSubmissions(identifier: identifier)
-//        })
-//
-//    }
+    func createDocumentSubmission(identifier: String, completion: @escaping ((Any) -> Void)) {
+        // First we fetch the current template this document is sourced from
+        JoyDocModel.fetchJoyDoc(identifier: identifier, userAccessToken: userAccessToken, completion: { joyDocJSON in
+            
+            print("First Loaded createDocumentSubmission joyDocJSON ", joyDocJSON)
+            print("First Loaded createDocumentSubmission identifier ", identifier)
+            
+            guard let url = URL(string: "\(Constants.baseURL)") else {
+                print("Invalid json url")
+                return
+            }
+            var request = URLRequest(url: url)
+            var json = JSON(joyDocJSON)
+
+            // Using SwiftyJson we remove some of the uneeded keys, specifically changing the "type" to "document"
+            json.dictionaryObject?.removeValue(forKey: "_id")
+            json.dictionaryObject?.removeValue(forKey: "createdOn")
+            json.dictionaryObject?.removeValue(forKey: "deleted")
+            json.dictionaryObject?.removeValue(forKey: "categories")
+            json.dictionaryObject?.removeValue(forKey: "stage")
+            json.dictionaryObject?.removeValue(forKey: "identifier")
+            json.dictionaryObject?.removeValue(forKey: "metadata")
+            json.dictionaryObject?.updateValue("document", forKey: "type")
+            json.dictionaryObject?.updateValue(identifier, forKey: "template")
+            json.dictionaryObject?.updateValue(identifier, forKey: "source")
+            
+            let jsonData = json.rawString(options: .fragmentsAllowed)?.data(using: .utf8)
+            
+            /* To see the JoyDoc before creation use this.
+             let jsonString = String(data: jsonData!, encoding: .utf8)!
+             print(jsonString)
+             */
+
+            // Make our request to create a document submission
+            request.httpBody = jsonData
+            request.httpMethod = "POST"
+            request.setValue("Bearer \(self.userAccessToken)", forHTTPHeaderField: "Authorization")
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                        
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                if let error = error {
+                    print("Error creating submission: \(error)")
+                } else if let data = data {
+                    let jsonRes = try? JSONSerialization.jsonObject(with: data, options: [.fragmentsAllowed])
+                    let _ = jsonRes as? NSDictionary
+                    
+                    print("COMPLETE CREATED DOC jsonRes: ", jsonRes ?? "TEST")
+                    
+                    completion(jsonRes!)
+                }
+            }.resume()
+        })
+
+    }
 }

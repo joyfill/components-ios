@@ -18,6 +18,7 @@
 		3F5ACA942AF98F69003971AE /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = 3F5ACA932AF98F69003971AE /* AlertToast */; };
 		3F83D3CD2AFC03250010F96D /* DocumentJoyDoc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F83D3CC2AFC03250010F96D /* DocumentJoyDoc.swift */; };
 		3F8BB5B82AFD8D710035407E /* JoyfillComponents in Frameworks */ = {isa = PBXBuildFile; productRef = 3F8BB5B72AFD8D710035407E /* JoyfillComponents */; };
+		3F97CFC32B043DEE00509850 /* SwiftyJSON in Frameworks */ = {isa = PBXBuildFile; productRef = 3F97CFC22B043DEE00509850 /* SwiftyJSON */; };
 		3FC3970F2AF9A842000D3F18 /* DocumentList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FC3970E2AF9A842000D3F18 /* DocumentList.swift */; };
 		3FC397112AF9A856000D3F18 /* DocumentForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FC397102AF9A856000D3F18 /* DocumentForm.swift */; };
 		3FC397132AF9A873000D3F18 /* PrimaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FC397122AF9A873000D3F18 /* PrimaryButton.swift */; };
@@ -48,6 +49,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3F97CFC32B043DEE00509850 /* SwiftyJSON in Frameworks */,
 				3F8BB5B82AFD8D710035407E /* JoyfillComponents in Frameworks */,
 				3F5ACA942AF98F69003971AE /* AlertToast in Frameworks */,
 			);
@@ -152,6 +154,7 @@
 			packageProductDependencies = (
 				3F5ACA932AF98F69003971AE /* AlertToast */,
 				3F8BB5B72AFD8D710035407E /* JoyfillComponents */,
+				3F97CFC22B043DEE00509850 /* SwiftyJSON */,
 			);
 			productName = JoyfillExample;
 			productReference = 3F5ACA782AF9390B003971AE /* JoyfillExample.app */;
@@ -184,6 +187,7 @@
 			packageReferences = (
 				3F5ACA922AF98F69003971AE /* XCRemoteSwiftPackageReference "AlertToast" */,
 				3F8BB5B62AFD8D710035407E /* XCRemoteSwiftPackageReference "components-ios" */,
+				3F97CFC12B043DEE00509850 /* XCRemoteSwiftPackageReference "SwiftyJSON" */,
 			);
 			productRefGroup = 3F5ACA792AF9390B003971AE /* Products */;
 			projectDirPath = "";
@@ -446,6 +450,14 @@
 				kind = branch;
 			};
 		};
+		3F97CFC12B043DEE00509850 /* XCRemoteSwiftPackageReference "SwiftyJSON" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SwiftyJSON/SwiftyJSON.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -458,6 +470,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 3F8BB5B62AFD8D710035407E /* XCRemoteSwiftPackageReference "components-ios" */;
 			productName = JoyfillComponents;
+		};
+		3F97CFC22B043DEE00509850 /* SwiftyJSON */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3F97CFC12B043DEE00509850 /* XCRemoteSwiftPackageReference "SwiftyJSON" */;
+			productName = SwiftyJSON;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

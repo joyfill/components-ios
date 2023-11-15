@@ -103,5 +103,5 @@ struct DocumentJoyDoc: View {
 }
 
 #Preview {
-    DocumentJoyDoc(identifier: "template_6543d0edf91c009ca84b3a30", userAccessToken: Constants.userAccessToken)
+    DocumentJoyDoc(identifier: "template_65540f03bc18c7a71302b9de", userAccessToken: Constants.userAccessToken)
 }

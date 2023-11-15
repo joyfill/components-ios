@@ -1,10 +1,19 @@
 import Foundation
 
+struct NewDocument {
+    var type: String
+    var name: String
+    var files: [Any]
+    var fields: [Any]
+    var stage: String
+    var source: String
+    var template: String
+}
+
 struct Document: Codable {
     var _id: String
     var type: String
     var identifier: String
-    var source: String
     var name: String
     var stage: String
     var createdOn: Int

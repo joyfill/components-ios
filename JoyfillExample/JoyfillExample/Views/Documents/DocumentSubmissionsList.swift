@@ -2,6 +2,7 @@ import SwiftUI
 
 struct DocumentSubmissionsList: View {
     var identifier: String
+    var name: String
     
     @ObservedObject var documentsViewModel = DocumentsViewModel()
     
@@ -48,16 +49,26 @@ struct DocumentSubmissionsList: View {
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Text("Submissions")
-                        .font(.system(size: 22, weight: .bold))
+                    VStack(alignment: .leading) {
+                        Text(name)
+                            .font(.system(size: 20, weight: .semibold)).padding([.top], 10)
+                        Text("Submissions")
+                            .font(.system(size: 16, weight: .semibold)).foregroundStyle(.gray)
+                    }
+                    
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
-                        // TODO: Get me working
-//                        documentsViewModel.createDocumentSubmission(identifier: identifier)
+                        // Note: @identifier param for refreshing the list after creation only
+                        documentsViewModel.createDocumentSubmission(identifier: identifier, completion: { joyDocJSON in
+                            documentsViewModel.fetchDocumentSubmissions(identifier: identifier)
+                        })
                     } label: {
-                        Text("Fill New")
-                        Image(systemName: "plus")
+                        HStack {
+                            Text("Fill New")
+                            Image(systemName: "plus")
+                        }.padding([.top], 28)
+                        
                     }
                 }
             }
@@ -72,9 +83,12 @@ struct DocumentSubmissionsList: View {
         .onAppear {
             documentsViewModel.fetchDocumentSubmissions(identifier: identifier)
         }
+        .refreshable {
+            documentsViewModel.fetchDocumentSubmissions(identifier: identifier)
+        }
     }
 }
 
 #Preview {
-    DocumentSubmissionsList(identifier: "template_6543d0edf91c009ca84b3a30")
+    DocumentSubmissionsList(identifier: "template_65540f03bc18c7a71302b9de", name: "AES 6")
 }
