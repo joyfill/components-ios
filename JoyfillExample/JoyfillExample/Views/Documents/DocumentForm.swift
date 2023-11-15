@@ -14,7 +14,7 @@ struct DocumentForm: View {
             AlertToast(type: .complete(Color(.green)), title: "Form Loaded")
         }.onAppear {
             showLoaded.toggle()
-        }
+        }.padding([.top], -70)
     }
 }
 

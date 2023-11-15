@@ -22,16 +22,29 @@ struct DocumentSubmissionsList: View {
     }
     
     var body: some View {
-        NavigationSplitView {
+        Group {
+            
             List {
-                TextField("Search submissions", text: $search)
-                    .focused($searchIsFocused)
-                    .onSubmit {
-                        print("Submitted \(search)")
-                    }
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .padding([.top, .bottom], 10)
+                VStack(alignment: .leading) {
+                    Text(name)
+                        .font(.system(size: 20, weight: .semibold))
+                    Text("Submissions")
+                        .font(.system(size: 16, weight: .semibold)).foregroundStyle(.gray)
+                }
                 
+                VStack {
+                    Button {
+                        // Note: @identifier param for refreshing the list after creation only
+                        documentsViewModel.createDocumentSubmission(identifier: identifier, completion: { joyDocJSON in
+                            documentsViewModel.fetchDocumentSubmissions(identifier: identifier)
+                        })
+                    } label: {
+                        HStack {
+                            Text("Fill New")
+                            Image(systemName: "plus")
+                        }.padding([.top, .bottom], 5)
+                    }
+                }
                 
                 ForEach(documentsViewModel.submissions) { submission in
                     NavigationLink {
@@ -47,38 +60,12 @@ struct DocumentSubmissionsList: View {
                     }
                 }
             }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    VStack(alignment: .leading) {
-                        Text(name)
-                            .font(.system(size: 20, weight: .semibold)).padding([.top], 10)
-                        Text("Submissions")
-                            .font(.system(size: 16, weight: .semibold)).foregroundStyle(.gray)
-                    }
-                    
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        // Note: @identifier param for refreshing the list after creation only
-                        documentsViewModel.createDocumentSubmission(identifier: identifier, completion: { joyDocJSON in
-                            documentsViewModel.fetchDocumentSubmissions(identifier: identifier)
-                        })
-                    } label: {
-                        HStack {
-                            Text("Fill New")
-                            Image(systemName: "plus")
-                        }.padding([.top], 28)
-                        
-                    }
-                }
-            }
+            .padding([.top], -30)
             .overlay {
                 if documentsViewModel.submissionsLoading {
                     ProgressView()
                 }
             }
-        } detail: {
-            Text("Select a document")
         }
         .onAppear {
             documentsViewModel.fetchDocumentSubmissions(identifier: identifier)
