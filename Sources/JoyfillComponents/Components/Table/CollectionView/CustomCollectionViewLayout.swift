@@ -32,7 +32,6 @@ class TwoWayScrollingCollectionViewLayout: UICollectionViewFlowLayout {
     override func prepare() {
         setupAttributes()
         updateStickyItemsPositions()
-        
         let lastItemFrame = allAttributes.last?.last?.frame ?? .zero
         if viewType == "modal" {
             contentSize = CGSize(width: lastItemFrame.maxX + 160, height: lastItemFrame.maxY)
@@ -55,9 +54,46 @@ class TwoWayScrollingCollectionViewLayout: UICollectionViewFlowLayout {
     override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         return true
     }
+    private var attributesCache: [IndexPath: UICollectionViewLayoutAttributes] = [:]
     
     // MARK: - Helpers
     private func setupAttributes() {
+        allAttributes = []
+        
+        var xOffset: CGFloat = 0
+        var yOffset: CGFloat = 0
+        
+        for row in 0..<rowsCount {
+            var rowAttrs: [UICollectionViewLayoutAttributes] = []
+            
+            xOffset = 0
+            
+            for col in 0..<columnsCount(in: row) {
+                let indexPath = IndexPath(row: row, column: col)
+                
+                if let cachedAttributes = attributesCache[indexPath] {
+                    // Use cached attributes if available
+                    rowAttrs.append(cachedAttributes)
+                } else {
+                    let itemSize = size(forRow: row, column: col)
+                    let attributes = UICollectionViewLayoutAttributes(forCellWith: indexPath)
+                    attributes.frame = CGRect(x: xOffset, y: yOffset, width: itemSize.width, height: itemSize.height).integral
+                    
+                    rowAttrs.append(attributes)
+                    
+                    // Cache the attributes for reuse
+                    attributesCache[indexPath] = attributes
+                }
+                
+                xOffset += rowAttrs.last?.frame.width ?? 0.0
+            }
+            
+            yOffset += rowAttrs.last?.frame.height ?? 0.0
+            allAttributes.append(rowAttrs)
+        }
+    }
+    
+    public func setupCollectionView() {
         allAttributes = []
         
         var xOffset: CGFloat = 0
@@ -74,6 +110,7 @@ class TwoWayScrollingCollectionViewLayout: UICollectionViewFlowLayout {
                 attributes.frame = CGRect(x: xOffset, y: yOffset, width: itemSize.width, height: itemSize.height).integral
                 
                 rowAttrs.append(attributes)
+                attributesCache[indexPath] = attributes
                 
                 xOffset += itemSize.width
             }

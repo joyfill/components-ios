@@ -91,7 +91,6 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
         collectionView.dataSource = self
         collectionView.register(CollectionViewCell.self, forCellWithReuseIdentifier: "Cell")
         collectionView.backgroundColor = .clear
-        layout.stickyRowsCount = 1
         setupUI()
     }
     
@@ -156,6 +155,11 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
             navigationLeftMoveButton.trailingAnchor.constraint(equalTo: navigationUpMoveButton.leadingAnchor, constant: -6),
             navigationLeftMoveButton.bottomAnchor.constraint(equalTo: mainView.bottomAnchor, constant: -constant)
         ])
+        
+        collectionView.collectionViewLayout.invalidateLayout()
+        let insets = UIEdgeInsets(top: 0, left: 0, bottom: keyboardFrame.height, right: 0)
+        collectionView.contentInset = insets
+        collectionView.scrollIndicatorInsets = insets
     }
     
     // Keyboard dismiss function
@@ -166,6 +170,10 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
         if let cell = collectionView.cellForItem(at: selectedTextFieldIndexPath) as? CollectionViewCell {
             cell.cellTextView.layer.borderWidth = 0
         }
+        
+        let insets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        collectionView.contentInset = insets
+        collectionView.scrollIndicatorInsets = insets
     }
     
     // Deinitializer to prevent memory leakage
@@ -455,10 +463,8 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
     
     // Function to reload particular section of collectionView
     func reloadCollectionRowNumber() {
-        for i in 0...collectionView.numberOfSections - 1 {
-            let indexPath = IndexPath(row: 1, section: i)
-            collectionView.reloadItems(at: [indexPath])
-        }
+        let visibleIndexPaths = collectionView.indexPathsForVisibleItems
+        collectionView.reloadItems(at: visibleIndexPaths)
     }
     
     // Function to update topBorder and bottomBorder
@@ -536,8 +542,9 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
             )
             tableFieldValue[tableIndexNo].append(valueElement)
             tableCellsData[tableIndexNo].append(data)
-            collectionView.scrollToItem(at: lastIndexPath, at: .bottom, animated: true)
             collectionView.insertSections(IndexSet(integer: lastSection))
+            collectionView.collectionViewLayout.invalidateLayout()
+            layout.setupCollectionView()
             
             joyDocFieldData[index].rowOrder?.append(tableFieldValue[tableIndexNo][lastIndexPath.section].id ?? "")
             let value = joyDocFieldData[index].value
@@ -566,7 +573,6 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
                 case .some(.null): break
                 }
             }
-            
             
             let dict = tableFieldValue[tableIndexNo][lastIndexPath.section].cells
             var cells : [String:Any] = [:]
@@ -614,6 +620,7 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
             tableFieldValue[tableIndexNo].insert(valueElement, at: cellSelectedIndexPath?.section ?? 0)
             tableCellsData[tableIndexNo].insert(data, at: cellSelectedIndexPath?.section ?? 0)
             collectionView.insertSections(IndexSet(integer: cellSelectedIndexPath?.section ?? 0))
+            layout.setupCollectionView()
             
             joyDocFieldData[index].rowOrder?.insert(tableFieldValue[tableIndexNo][(cellSelectedIndexPath?.section ?? 0)].id ?? "", at: cellSelectedIndexPath?.section ?? 0)
             let value = joyDocFieldData[index].value
@@ -688,6 +695,7 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
             tableFieldValue[tableIndexNo].insert(valueElement, at: cellSelectedIndexPath?.section ?? 0)
             tableCellsData[tableIndexNo].insert(cellItemToDuplicate, at: cellSelectedIndexPath?.section ?? 0)
             collectionView.insertSections(IndexSet(integer: cellSelectedIndexPath?.section ?? 0))
+            layout.setupCollectionView()
             
             joyDocFieldData[index].rowOrder?.insert(tableFieldValue[tableIndexNo][(cellSelectedIndexPath?.section ?? 0)].id ?? "", at: cellSelectedIndexPath?.section ?? 0)
             let value = joyDocFieldData[index].value
@@ -756,6 +764,7 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
             collectionView.moveSection(cellSelectedIndexPath?.section ?? 0, toSection: (cellSelectedIndexPath?.section ?? 0) - 1)
             tableFieldValue[tableIndexNo].swapAt((cellSelectedIndexPath?.section ?? 0) - 1, (cellSelectedIndexPath?.section ?? 0) - 2)
             tableCellsData[tableIndexNo].swapAt((cellSelectedIndexPath?.section ?? 0) - 1, (cellSelectedIndexPath?.section ?? 0) - 2)
+            layout.setupCollectionView()
             
             joyDocFieldData[index].rowOrder?.swapAt((cellSelectedIndexPath?.section ?? 0) - 1, (cellSelectedIndexPath?.section ?? 0) - 2)
             let value = joyDocFieldData[index].value
@@ -789,6 +798,11 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
             saveDelegate?.handleMoveRowUp(rowId: rowMoveUpId, rowIndex: (cellSelectedIndexPath?.section ?? 0) - 2, isEditingEnd: true, index: index)
             selectedIndexPath = nil
             updateCellSubviewBorder(at: -1)
+            let itemCount = collectionView.numberOfItems(inSection: cellSelectedIndexPath?.section ?? 0)
+            for itemIndex in 0..<itemCount {
+                let indexPath = IndexPath(item: itemIndex, section: cellSelectedIndexPath?.section ?? 0)
+                collectionView.reloadItems(at: [indexPath])
+            }
         }
     }
     
@@ -804,6 +818,7 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
             collectionView.moveSection(cellSelectedIndexPath?.section ?? 0, toSection: (cellSelectedIndexPath?.section ?? 0) + 1)
             tableFieldValue[tableIndexNo].swapAt((cellSelectedIndexPath?.section ?? 0) - 1, cellSelectedIndexPath?.section ?? 0)
             tableCellsData[tableIndexNo].swapAt((cellSelectedIndexPath?.section ?? 0) - 1, cellSelectedIndexPath?.section ?? 0)
+            layout.setupCollectionView()
             
             joyDocFieldData[index].rowOrder?.swapAt((cellSelectedIndexPath?.section ?? 0) - 1, cellSelectedIndexPath?.section ?? 0)
             let value = joyDocFieldData[index].value
@@ -850,6 +865,7 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
             tableFieldValue[tableIndexNo].remove(at: (cellSelectedIndexPath?.section ?? 0) - 1)
             tableCellsData[tableIndexNo].remove(at: (cellSelectedIndexPath?.section ?? 0) - 1)
             collectionView.deleteSections(IndexSet(integer: cellSelectedIndexPath?.section ?? 0))
+            layout.setupCollectionView()
             joyDocFieldData[index].rowOrder?.remove(at: (cellSelectedIndexPath?.section ?? 0) - 1)
             let value = joyDocFieldData[index].value
             switch value {

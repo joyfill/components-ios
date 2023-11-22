@@ -22,16 +22,6 @@
 
 ### Cocoapods
 
-[JoyfillComponents Cocapods Website](https://cocoapods.org/pods/packageSwift)
-
-CocoaPods is a dependency manager for Cocoa projects. For usage and installation instructions, visit their website. To integrate `AlertToast` into your Xcode project using CocoaPods, specify it in your Podfile:
-
-```ruby
-pod 'packageSwift'
-```
-
-------
-
 ### Swift Package Manager
 
 The [Swift Package Manager](https://swift.org/package-manager/) is a tool for managing the distribution of Swift code. It’s integrated with the Swift build system to automate the process of downloading, compiling, and linking dependencies.
