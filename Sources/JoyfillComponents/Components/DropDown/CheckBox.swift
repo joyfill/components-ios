@@ -46,9 +46,7 @@ open class Checkbox: UIControl {
     @IBInspectable public var checkedBorderColor: UIColor!
     @IBInspectable public var checkmarkColor: UIColor!
    
-    // Removed the @absolete for recent fix - jp
     public var checkboxBackgroundColor: UIColor! = .white
-    // Removed the @absolete for recent fix - jp
     @IBInspectable public var checkboxFillColor: UIColor = .clear
     @IBInspectable public var borderCornerRadius: CGFloat = 0.0
     @IBInspectable public var increasedTouchRadius: CGFloat = 5

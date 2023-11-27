@@ -3,6 +3,8 @@ import UIKit
 
 // TextField protocol to get the selected indexPath
 protocol ChartViewTextFieldCellDelegate: AnyObject {
+    func reloadAddLineTableView()
+    func deletePointDidSelect(_ cell: UITableViewCell)
     func textFieldCellDidSelect(_ cell: UITableViewCell)
 }
 
@@ -199,6 +201,7 @@ public class ChartLineTableViewCell: UITableViewCell, ChartViewTextFieldCellDele
         pointsTableView.delegate = self
         pointsTableView.dataSource = self
         pointsTableView.separatorStyle = .none
+        pointsTableView.isScrollEnabled = false
         pointsTableView.backgroundColor = .clear
         pointsTableView.showsVerticalScrollIndicator = false
         pointsTableView.register(PointsTableViewCell.self, forCellReuseIdentifier: "PointsTableViewCell")
@@ -259,7 +262,7 @@ extension ChartLineTableViewCell: UITableViewDelegate, UITableViewDataSource {
     
     // MARK: TableView delegate method to give tableView rows
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return yPointsData[index].count
+        return yCoordinates[index][addPointButtonIndexPath].count
     }
     
     // MARK: TableView delegate function to set cell inside tableView
@@ -301,6 +304,7 @@ extension ChartLineTableViewCell: UITableViewDelegate, UITableViewDataSource {
     
     // MARK: TextField delegate method for textField selection
     func textFieldCellDidSelect(_ cell: UITableViewCell) {
+        textFieldDelegate?.textFieldCellDidSelect(self)
         guard let indexPath = pointsTableView.indexPath(for: cell) else {
             return
         }
@@ -375,8 +379,12 @@ extension ChartLineTableViewCell: UITableViewDelegate, UITableViewDataSource {
         }
     }
     
+    func reloadAddLineTableView() {}
+    func deletePointDidSelect(_ cell: UITableViewCell) {}
+    
     // Action function for deleteButton inside tableView cell
     @objc func deleteTapped(_ sender: UIButton) {
+        textFieldDelegate?.deletePointDidSelect(self)
         let indexPath = IndexPath(row: sender.tag, section: 0)
         
         // Check if it's the last row, and if so, do nothing
@@ -391,6 +399,7 @@ extension ChartLineTableViewCell: UITableViewDelegate, UITableViewDataSource {
             pointsTableView.reloadData()
             lineGraph.setNeedsDisplay()
             
+            textFieldDelegate?.reloadAddLineTableView()
             self.saveDelegate?.handleLineChange(line: index, indexPath: indexPath.row)
         }
     }
