@@ -114,9 +114,15 @@ public class PointsTableViewCell: UITableViewCell {
             labelTF.isUserInteractionEnabled = false
             verticalValueTF.isUserInteractionEnabled = false
             horizontalValueTF.isUserInteractionEnabled = false
+            labelTF.backgroundColor = UIColor(hexString: "#F5F5F5")
+            verticalValueTF.backgroundColor = UIColor(hexString: "#F5F5F5")
+            horizontalValueTF.backgroundColor = UIColor(hexString: "#F5F5F5")
         } else {
             deleteButton.isHidden = false
+            labelTF.backgroundColor = .white
             labelTF.isUserInteractionEnabled = true
+            verticalValueTF.backgroundColor = .white
+            horizontalValueTF.backgroundColor = .white
             verticalValueTF.isUserInteractionEnabled = true
             horizontalValueTF.isUserInteractionEnabled = true
         }

@@ -65,9 +65,14 @@ open class RichText: UIView {
                             if inlineStyleKey == "fontsize" {
                                 attributedText.addAttribute(.font, value: UIFont.systemFont(ofSize: CGFloat(Int(inlineStyleValue) ?? 0)), range: range)
                             } else if inlineStyleKey == "color" {
-                                let hexValue = rgbToHex(rgbString: inlineStyleValue)
-                                attributedText.addAttribute(.foregroundColor, value: UIColor(hexString: hexValue ?? "") as Any, range: range)
-                                attributedText.addAttribute(.underlineColor, value: UIColor(hexString: hexValue ?? "") as Any, range: range)
+                                if inlineStyleValue.hasPrefix("#") {
+                                    attributedText.addAttribute(.foregroundColor, value: UIColor(hexString: inlineStyleValue ) as Any, range: range)
+                                    attributedText.addAttribute(.underlineColor, value: UIColor(hexString: inlineStyleValue ) as Any, range: range)
+                                } else {
+                                    let hexValue = rgbToHex(rgbString: inlineStyleValue)
+                                    attributedText.addAttribute(.foregroundColor, value: UIColor(hexString: hexValue ?? "") as Any, range: range)
+                                    attributedText.addAttribute(.underlineColor, value: UIColor(hexString: hexValue ?? "") as Any, range: range)
+                                }
                             }
                         }
                         

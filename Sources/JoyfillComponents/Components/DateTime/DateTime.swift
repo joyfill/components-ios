@@ -137,11 +137,15 @@ public class DateTime: UIView, UITextFieldDelegate, UpdateDateTimeFieldBorderOnB
     
     public func dateTimeDisplayModes(mode : String) {
         if mode != "readonly" {
+            dateTimeView.backgroundColor = .white
+            dateTimeField.backgroundColor = .white
             dateTimeField.isUserInteractionEnabled = true
             datePickerButton.addTarget(self, action: #selector(openDatePicker), for: .touchDown)
             let tap = UIGestureRecognizer(target: self, action: #selector(openDatePicker))
             dateTimeField.addGestureRecognizer(tap)
         } else {
+            dateTimeView.backgroundColor = UIColor(hexString: "#F5F5F5")
+            dateTimeField.backgroundColor = UIColor(hexString: "#F5F5F5")
             dateTimeField.isUserInteractionEnabled = false
         }
     }

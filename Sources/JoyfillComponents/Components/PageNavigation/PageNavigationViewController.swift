@@ -9,6 +9,7 @@ protocol SavePageNavigationChange {
 class PageNavigationViewController: UIViewController {
     
     var fieldsData = [[String: Any]]()
+    var pageNavigationDisplayMode = String()
     var saveDelegate: SavePageNavigationChange? = nil
     
     lazy var titleLabel: UILabel = {
@@ -229,12 +230,6 @@ class PageNavigationViewController: UIViewController {
             deletePageLabel.trailingAnchor.constraint(equalTo: deletePageView.trailingAnchor, constant: -12),
             deletePageLabel.bottomAnchor.constraint(equalTo: deletePageView.bottomAnchor, constant: -13),
             
-            // PagesTitleLabel Constraints
-            pagesTitleLabel.topAnchor.constraint(equalTo: duplicatePageView.bottomAnchor, constant: 10),
-            pagesTitleLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20),
-            pagesTitleLabel.widthAnchor.constraint(equalToConstant: 52),
-            pagesTitleLabel.heightAnchor.constraint(equalToConstant: 20),
-            
             // PagesOptionTableView Constraints
             pagesOptionTableView.topAnchor.constraint(equalTo: pagesTitleLabel.bottomAnchor, constant: 10),
             pagesOptionTableView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 10),
@@ -254,6 +249,28 @@ class PageNavigationViewController: UIViewController {
         
         let deletePageTapGesture = UITapGestureRecognizer(target: self, action: #selector(deletePageTapped))
         deletePageView.addGestureRecognizer(deletePageTapGesture)
+        
+        if pageNavigationDisplayMode == "readonly" {
+            titleLabel.isHidden = true
+            deletePageView.isHidden = true
+            duplicatePageView.isHidden = true
+            
+            // PagesTitleLabel Constraints
+            pagesTitleLabel.topAnchor.constraint(equalTo: closeButton.bottomAnchor, constant: 10).isActive = true
+            pagesTitleLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20).isActive = true
+            pagesTitleLabel.widthAnchor.constraint(equalToConstant: 52).isActive = true
+            pagesTitleLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        } else {
+            titleLabel.isHidden = false
+            deletePageView.isHidden = false
+            duplicatePageView.isHidden = false
+            
+            // PagesTitleLabel Constraints
+            pagesTitleLabel.topAnchor.constraint(equalTo: duplicatePageView.bottomAnchor, constant: 10).isActive = true
+            pagesTitleLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20).isActive = true
+            pagesTitleLabel.widthAnchor.constraint(equalToConstant: 52).isActive = true
+            pagesTitleLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        }
     }
     
     // Action function for close button

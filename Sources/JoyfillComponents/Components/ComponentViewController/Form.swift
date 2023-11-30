@@ -1,7 +1,9 @@
 import Foundation
 import UIKit
 
+public var mode = String()
 var cellHeight = [CGFloat]()
+public var updateImage = Bool()
 public var imageIndexNo = Int()
 public var cellView = [UIView]()
 public var chartIndexPath = Int()
@@ -16,7 +18,6 @@ public var componentTableViewCellHeight = [CGFloat]()
 public var selectedPicture = [[String]]()
 public var pickedSinglePicture = [[String]]()
 public var imageSelectionCount = [[String]]()
-public var saveButtonTapAction: (() -> Void)?
 public var uploadImageTapAction: (() -> Void)?
 
 public protocol onChange {
@@ -26,12 +27,11 @@ public protocol onChange {
 }
 
 public class Form: UIView, SaveTableFieldValue, saveImageFieldValue, saveSignatureFieldValue, SavePageNavigationChange {
-    
-    public var saveButton = Button()
+
     public var pageNavigationView = UIView()
     public var pageNavigationLabel = Label()
     public var pageNavigationArrow = ImageView()
-    
+
     var joyFillStruct: JoyDoc?
     var imageIndexPath = Int()
     var tableHeight = CGFloat()
@@ -69,11 +69,9 @@ public class Form: UIView, SaveTableFieldValue, saveImageFieldValue, saveSignatu
         // SubViews
         addSubview(pageNavigationView)
         addSubview(componentTableView)
-        addSubview(saveButton)
         pageNavigationView.addSubview(pageNavigationArrow)
         pageNavigationView.addSubview(pageNavigationLabel)
         
-        saveButton.translatesAutoresizingMaskIntoConstraints = false
         componentTableView.translatesAutoresizingMaskIntoConstraints = false
         pageNavigationView.translatesAutoresizingMaskIntoConstraints = false
         pageNavigationArrow.translatesAutoresizingMaskIntoConstraints = false
@@ -102,24 +100,11 @@ public class Form: UIView, SaveTableFieldValue, saveImageFieldValue, saveSignatu
             componentTableView.topAnchor.constraint(equalTo: pageNavigationView.bottomAnchor, constant: 10),
             componentTableView.leadingAnchor.constraint(equalTo: leadingAnchor),
             componentTableView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            componentTableView.bottomAnchor.constraint(equalTo: saveButton.topAnchor, constant: -5),
-            
-            // SaveButton Constraint
-            saveButton.topAnchor.constraint(equalTo: componentTableView.bottomAnchor, constant: 5),
-            saveButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            saveButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            saveButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -20)
+            componentTableView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -20)
         ])
         
         // Set cornerRadius and shadow to view.
         backgroundColor = .white
-        
-        saveButton.title = "Save"
-        saveButton.cornerRadius = 20
-        saveButton.titleColor = UIColor.blue
-        saveButton.backgroundColor = UIColor(hexString: "#F5F5F5")
-        saveButton.addTarget(self, action: #selector(saveButtonTapped), for: .touchUpInside)
-        
         pageNavigationLabel.fontSize = 14
         pageNavigationView.layer.cornerRadius = 20
         if #available(iOS 13.0, *) {
@@ -145,12 +130,6 @@ public class Form: UIView, SaveTableFieldValue, saveImageFieldValue, saveSignatu
         pageNavigationView.addGestureRecognizer(tapGesture)
     }
     
-    @objc public func saveButtonTapped(sender: UIButton) {
-        saveButtonTapAction?()
-        docChangeLogs.removeAll()
-        changelogs.removeAll()
-    }
-    
     private func findViewController() -> UIViewController? {
         var responder: UIResponder? = self
         
@@ -170,6 +149,7 @@ public class Form: UIView, SaveTableFieldValue, saveImageFieldValue, saveSignatu
         }
         let vc = PageNavigationViewController()
         vc.saveDelegate = self
+        vc.pageNavigationDisplayMode = mode
         vc.modalPresentationStyle = .overCurrentContext
         viewController.present(vc, animated: false)
     }
@@ -280,20 +260,27 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         }
         
         if image.selectedImage[i].count == 0 {
-            if selectedPicture[i].count != 0 {
+            tableView.rowHeight = selectedPicture[i].count != 0 ? 260 : 150
+            
+            if selectedPicture[i].count != 0 && updateImage {
                 image.selectedImage[i] = selectedPicture[i]
                 image.pickedSingleImg[i] = pickedSinglePicture[i]
-                tableView.rowHeight = 260
+                updateUploadedImage(index: i, imageMultiValue: joyDocFieldData[i].multi ?? false)
+                
+                let objectToSend = joyDocFieldData[i].multi ?? true ? image.selectedImage[i] : image.pickedSingleImg[i]
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "reloadTable"), object: objectToSend, userInfo: nil)
                 image.saveDelegate?.handleUpload(indexPath: i)
-            } else {
-                tableView.rowHeight = 150
             }
         } else {
             tableView.rowHeight = 260
-            if selectedPicture[i].count != 0 {
+            
+            if selectedPicture[i].count != 0 && updateImage {
                 image.selectedImage[i].append(selectedPicture[i].last ?? "")
-                image.pickedSingleImg[i].append(pickedSinglePicture[i].last ?? "")
-                tableView.rowHeight = 260
+                image.pickedSingleImg[i] = pickedSinglePicture[i]
+                updateUploadedImage(index: i, imageMultiValue: joyDocFieldData[i].multi ?? false)
+                
+                let objectToSend = joyDocFieldData[i].multi ?? true ? image.selectedImage[i] : image.pickedSingleImg[i]
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "reloadTable"), object: objectToSend, userInfo: nil)
                 image.saveDelegate?.handleUpload(indexPath: i)
             }
         }
@@ -302,6 +289,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         image.toolTipDescription = joyDocFieldData[i].tipDescription ?? ""
         image.tooltipVisible(bool: joyDocFieldData[i].tipVisible ?? false)
         
+        image.imageDisplayModes(mode: mode)
         image.titleButton.text = joyDocFieldData[i].title
         image.allowMultipleImages(value: joyDocFieldData[i].multi ?? false)
         image.uploadButton.addTarget(self, action: #selector(uploadButtonTapped), for: .touchUpInside)
@@ -309,9 +297,50 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         cellView.insert(image, at: i)
     }
     @objc public func uploadButtonTapped(sender: UIButton) {
-        uploadImageTapAction?()
-        imageIndexNo = sender.tag
-        fieldDelegate?.handleFocus(index: sender.tag)
+        if mode != "readonly" {
+            uploadImageTapAction?()
+            imageIndexNo = sender.tag
+            fieldDelegate?.handleFocus(index: sender.tag)
+        }
+    }
+    // Update updated value in the joyDoc
+    func updateUploadedImage(index: Int, imageMultiValue: Bool) {
+        let value = joyDocFieldData[index].value
+        switch value {
+        case .string(_): break
+        case .integer(_): break
+        case .valueElementArray(var valueElements):
+            emptyValueElement.url = selectedPicture[index].last
+            if imageMultiValue {
+                valueElements.append(emptyValueElement)
+            } else {
+                valueElements = [emptyValueElement]
+            }
+            joyDocFieldData[index].value = ValueUnion.valueElementArray(valueElements)
+        case .array(_): break
+        case .none: break
+        case .some(.null): break
+        }
+        
+        if let indexValue = joyDocStruct?.fields?.firstIndex(where: {$0.id == joyDocFieldData[index].id}) {
+            let modelValue = joyDocStruct?.fields?[indexValue].value
+            switch modelValue {
+            case .string(_): break
+            case .integer(_): break
+            case .valueElementArray(var valueElements):
+                emptyValueElement.url = selectedPicture[index].last
+                if imageMultiValue {
+                    valueElements.append(emptyValueElement)
+                } else {
+                    valueElements = [emptyValueElement]
+                }
+                joyDocStruct?.fields?[indexValue].value = ValueUnion.valueElementArray(valueElements)
+            case .array(_): break
+            case .none: break
+            case .some(.null): break
+            }
+        }
+        updateImage = false
     }
     
     //MARK: - Block Field
@@ -366,6 +395,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         case .some(.null): break
         }
         
+        shortText.textFieldDisplayModes(mode: mode)
         shortText.topLabel.labelText = joyDocFieldData[i].title
         let height = (joyDocFieldData[i].title?.height(withConstrainedWidth: tableView.bounds.width - 40, font: shortText.topLabel.font))
         tableView.rowHeight = 80 + (height ?? 0)
@@ -374,6 +404,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         shortText.frame = CGRect(x: 20, y: 5, width: tableView.bounds.width - 40, height: tableView.rowHeight)
         cellView.insert(shortText, at: i)
     }
+    
     //MARK: - TextArea Field
     func configureTextAreaFieldCell(tableView: UITableView, i: Int, value: ValueUnion?) {
         let longText = LongText()
@@ -384,6 +415,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         longText.textField.resignFirstResponder()
         longText.topLabel.labelText = joyDocFieldData[i].title
         
+        longText.textAreaDisplayModes(mode: mode)
         longText.toolTipTitle = joyDocFieldData[i].tipTitle ?? ""
         longText.toolTipDescription = joyDocFieldData[i].tipDescription ?? ""
         longText.tooltipVisible(bool: joyDocFieldData[i].tipVisible ?? false)
@@ -425,6 +457,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         case .some(.null): break
         }
         
+        number.numberDisplayModes(mode: mode)
         number.toolTipTitle = joyDocFieldData[i].tipTitle ?? ""
         number.toolTipDescription = joyDocFieldData[i].tipDescription ?? ""
         number.tooltipVisible(bool: joyDocFieldData[i].tipVisible ?? false)
@@ -443,7 +476,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         let datetime = DateTime()
         datetime.index = i
         datetime.saveDelegate = self
-        datetime.dateTimeDisplayModes(mode: "")
+        datetime.dateTimeDisplayModes(mode: mode)
         datetime.format = joyDocFieldPositionData[i].format ?? ""
         
         // DateTime value based on indexPath from JoyDoc
@@ -504,6 +537,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
             }
         }
         
+        dropDownText.dropdownDisplayModes(mode: mode)
         dropDownText.titleLbl.labelText = joyDocFieldData[i].title
         let height = (joyDocFieldData[i].title?.height(withConstrainedWidth: tableView.bounds.width - 40, font: dropDownText.titleLbl.font))
         tableView.rowHeight = 80 + (height ?? 0)
@@ -523,6 +557,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         multipleChoice.saveDelegate = self
         multiSelectOptionId[i].removeAll()
         multiselectOptionSubArray.removeAll()
+        multipleChoice.multipleChoiseDisplayModes(mode: mode)
         
         multipleChoice.toolTipTitle = joyDocFieldData[i].tipTitle ?? ""
         multipleChoice.toolTipDescription = joyDocFieldData[i].tipDescription ?? ""
@@ -599,6 +634,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         case .some(.null): break
         }
         
+        signatureDisplayModes = mode
         let sign = SignatureView()
         sign.index = i
         sign.saveDelegate = self
@@ -652,7 +688,13 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
             }
             for k in 0..<tableFieldValue[i].count {
                 if let cells = tableFieldValue[i][k].cells {
-                    let valuesArray = Array(cells.values)
+                    let valuesArray: [String] = cells.compactMap { key, valueUnion in
+                        if case .string(let stringValue) = valueUnion {
+                            return stringValue
+                        } else {
+                            return nil
+                        }
+                    }
                     tableCellsData[i].append(valuesArray)
                 }
             }
@@ -662,6 +704,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         }
         
         tableIndexPath = i
+        tableDisplayMode = mode
         let table = Table()
         table.tableIndexNo(indexPath: i)
         table.saveDelegate = self
@@ -697,13 +740,15 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         case .valueElementArray(let valueElements):
             for item in valueElements {
                 chartValueElement[i].append(item)
+                chartLineTitle[i].append(item.title ?? "")
+                chartLineDescription[i].append(item.description ?? "")
             }
             
             for k in 0..<valueElements.count {
+                var pointsIdSubArray: [String] = []
                 var graphLabelSubArray: [String] = []
                 var graphXCoordinateSubArray: [CGFloat] = []
                 var graphYCoordianteSubArray: [CGFloat] = []
-                var pointsIdSubArray: [String] = []
                 if let points = valueElements[k].points {
                     for l in 0..<points.count {
                         let label = points[l].label ?? ""
@@ -730,6 +775,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         }
         
         chartIndexPath = i
+        chartDisplayMode = mode
         let chart = Chart()
         chart.index = i
         chart.lineGraph.index = i

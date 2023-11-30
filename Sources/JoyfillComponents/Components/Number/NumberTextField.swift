@@ -154,6 +154,18 @@ public class NumberField: UIView, UITextFieldDelegate {
         }
     }
     
+    public func numberDisplayModes(mode : String) {
+        if mode == "readonly" {
+            view.backgroundColor = UIColor(hexString: "#F5F5F5")
+            numberField.backgroundColor = UIColor(hexString: "#F5F5F5")
+            numberField.isUserInteractionEnabled = false
+        } else {
+            view.backgroundColor = .white
+            numberField.backgroundColor = .white
+            numberField.isUserInteractionEnabled = true
+        }
+    }
+    
     func setupUI () {
         addSubview(titleLbl)
         addSubview(toolTipIconButton)

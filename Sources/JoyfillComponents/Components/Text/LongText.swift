@@ -37,6 +37,16 @@ open class LongText: UIView {
         }
     }
     
+    public func textAreaDisplayModes(mode : String) {
+        if mode == "readonly" {
+            textField.backgroundColor = UIColor(hexString: "#F5F5F5")
+            textField.isUserInteractionEnabled = false
+        } else {
+            textField.backgroundColor = .white
+            textField.isUserInteractionEnabled = true
+        }
+    }
+    
     func setupView() {
         topLabel.borderWidth = 0
         topLabel.numberOfLines = 0

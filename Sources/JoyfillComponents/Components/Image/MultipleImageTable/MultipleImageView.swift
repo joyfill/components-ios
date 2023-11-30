@@ -42,6 +42,7 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         if #available(iOS 13.0, *) {
             view.overrideUserInterfaceStyle = .light
         }
+        NotificationCenter.default.addObserver(self, selector: #selector(reloadTable), name: NSNotification.Name(rawValue: "reloadTable"), object: nil)
         setupUI()
     }
     
@@ -49,25 +50,7 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         super.viewWillAppear(animated)
         view.backgroundColor = .white
         setupUI()
-        
-        if imageDisplayMode == "readonly" {
-            if selectedImage[index].count != 0 {
-                deleteView.isHidden = true
-                interiorImageUploadButton.isHidden = true
-            } else {
-                deleteView.isHidden = true
-                interiorImageUploadButton.isHidden = true
-                imageTableView.isHidden = true
-            }
-        } else {
-            if selectedImage[index].count != 0 {
-                deleteView.isHidden = true
-                imageTableView.isHidden = false
-            } else {
-                deleteView.isHidden = true
-                imageTableView.isHidden = false
-            }
-        }
+        deleteView.isHidden = true
     }
     
     func setupUI() {
@@ -216,7 +199,6 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         cell.contentView.backgroundColor = .clear
         cell.selectedImage = selectedImage
         cell.index = index
-        cell.checkDisplayMode()
         
         if imageMultiValue {
             cell.cellImageField.load(urlString: selectedImage[index][indexPath.row])
@@ -226,7 +208,6 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         
         tableView.rowHeight = 280
         cell.isSelected = selectedIndexPath.contains(indexPath.row)
-        cell.imageDisplayMode = imageDisplayMode
         
         if selectedIndexPath.contains(indexPath.row) {
             cell.checkboxButton.isChecked = true
@@ -280,6 +261,18 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
             } else {
                 deleteView.isHidden = false
             }
+        }
+    }
+    
+    // Reload tableView when new image is updated
+    @objc func reloadTable(_ notification: Notification) {
+        if let selectedPicture = notification.object as? [String] {
+            if imageMultiValue {
+                selectedImage[index] = selectedPicture
+            } else {
+                pickedSingleImg[index] = selectedPicture
+            }
+            imageTableView.reloadData()
         }
     }
     

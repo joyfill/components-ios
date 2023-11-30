@@ -49,18 +49,11 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
     
     open override func didMoveToWindow() {
         super.didMoveToWindow()
-        setImageField()
+        checkImageCount()
     }
     
     public func imageDisplayModes(mode : String) {
         imageDisplayMode = mode
-        if mode == "readonly" {
-            imageField.isHidden = true
-            setupView()
-        } else {
-            imageField.isHidden = false
-            setupView()
-        }
     }
     
     public func allowMultipleImages(value : Bool) {
@@ -184,15 +177,6 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
         toolTipAlertShow(for: self, title: toolTipTitle, message: toolTipDescription)
     }
     
-    // Fuction to set imageField according to selectedImage
-    public func setImageField() {
-        if imageDisplayMode == "readonly" {
-            imageField.isHidden = true
-        } else {
-            checkImageCount()
-        }
-    }
-    
     public func checkImageCount() {
         if selectedImage[index].count == 0 {
             imageField.isHidden = true
@@ -205,7 +189,6 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
         } else {
             imageField.isHidden = false
             uploadButton.isHidden = true
-            setupView()
             imageField.borderWidth = 0
             checkForMulti()
         }
@@ -241,56 +224,57 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
             newViewController.didMove(toParent: parentViewController)
         }
     }
-    
-    // Function to get images back after upload action performed
-    public func onUploadAsync(images: [[String]], image: [[String]]) {
-        setupView()
-        imageField.load(urlString: image[index].first ?? "")
-        imageCountLabel.labelText = "+\(image[index].count)"
-        setUploadedImage()
-    }
-    
-    public func setUploadedImage() {
-        if imageDisplayMode == "readonly" {
-            imageField.isHidden = true
-        } else {
-            imageField.isHidden = false
-            uploadButton.isHidden = true
-            imageField.borderWidth = 0
-        }
-    }
-    
-    public func checkForMultiUploadImage() {
-        if imageMultiValue {
-            imageField.load(urlString: selectedImage[index].first ?? "")
-            imageCountLabel.labelText = "+\(selectedImage[index].count)"
-        } else {
-            imageField.load(urlString: pickedSingleImg[index].first ?? "")
-            imageCountLabel.labelText = "+\(pickedSingleImg[index].count)"
-        }
-    }
 }
 
 extension Image: MultipleImageViewDelegate {
     func imagesDeleted(selectedIndex: Int) {
-        selectedImage[index].remove(at: selectedIndex)
-        setImageField()
+        updateDeletedImage(selectedIndex: selectedIndex)
+        componentTableView.reloadData()
         self.saveDelegate?.handleDelete(indexPath: index)
     }
     
     func imagesUpdated() {
-        setImageField()
+        checkImageCount()
     }
     
     func removeAllImages() {
         selectedImage[index].removeAll()
         selectedPicture[index].removeAll()
         pickedSingleImg[index].removeAll()
+        pickedSinglePicture[index].removeAll()
         imageSelectionCount[index].removeAll()
-        setImageField()
         let indexPathsToReload = [IndexPath(row: index, section: 0)]
         componentTableView.reloadRows(at: indexPathsToReload, with: .fade)
         self.saveDelegate?.handleDelete(indexPath: index)
+    }
+    
+    // Update updated value in the joyDoc
+    func updateDeletedImage(selectedIndex: Int) {
+        let value = joyDocFieldData[index].value
+        switch value {
+        case .string(_): break
+        case .integer(_): break
+        case .valueElementArray(var valueElements):
+            valueElements.remove(at: selectedIndex)
+            joyDocFieldData[index].value = ValueUnion.valueElementArray(valueElements)
+        case .array(_): break
+        case .none: break
+        case .some(.null): break
+        }
+        
+        if let indexValue = joyDocStruct?.fields?.firstIndex(where: {$0.id == joyDocFieldData[index].id}) {
+            let modelValue = joyDocStruct?.fields?[indexValue].value
+            switch modelValue {
+            case .string(_): break
+            case .integer(_): break
+            case .valueElementArray(var valueElements):
+                valueElements.remove(at: selectedIndex)
+                joyDocStruct?.fields?[indexValue].value = ValueUnion.valueElementArray(valueElements)
+            case .array(_): break
+            case .none: break
+            case .some(.null): break
+            }
+        }
     }
 }
 
