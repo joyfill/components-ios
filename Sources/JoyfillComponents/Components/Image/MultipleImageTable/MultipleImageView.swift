@@ -13,12 +13,12 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
     public var deleteView = UIView()
     public var deleteLabel = Label()
     public var closeButton = Button()
+    public var uploadButton = Button()
     public var deleteImage = ImageView()
     public var interiorImageBar = UIView()
     public var interiorImageLabel = Label()
     public var imageTableView = UITableView()
     public var deleteUploadStack = UIStackView()
-    public var interiorImageUploadButton = Button()
     
     public var index = Int()
     public var imageMultiValue = Bool()
@@ -63,11 +63,11 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         interiorImageBar.addSubview(closeButton)
         deleteView.addSubview(deleteLabel)
         deleteView.addSubview(deleteImage)
-        deleteUploadStack.addArrangedSubview(interiorImageUploadButton)
+        deleteUploadStack.addArrangedSubview(uploadButton)
         deleteUploadStack.addArrangedSubview(deleteView)
         
         mainView.translatesAutoresizingMaskIntoConstraints = false
-        interiorImageUploadButton.translatesAutoresizingMaskIntoConstraints = false
+        uploadButton.translatesAutoresizingMaskIntoConstraints = false
         deleteView.translatesAutoresizingMaskIntoConstraints = false
         deleteImage.translatesAutoresizingMaskIntoConstraints = false
         deleteLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -109,7 +109,7 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
             deleteUploadStack.heightAnchor.constraint(equalToConstant: 35),
             
             // UploadButton Constraint
-            interiorImageUploadButton.widthAnchor.constraint(equalToConstant: 93),
+            uploadButton.widthAnchor.constraint(equalToConstant: 93),
             
             // DeleteButton Constraint
             deleteView.widthAnchor.constraint(equalToConstant: 93),
@@ -175,13 +175,19 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         deleteView.isUserInteractionEnabled = true
         
         // Set UploadButton
-        interiorImageUploadButton.tag = index
-        interiorImageUploadButton.image = UIImage(named: "interiorUploadButton", in: .module, compatibleWith: nil)
-        interiorImageUploadButton.addTarget(self, action: #selector(interiorUploadButtonTapped), for: .touchUpInside)
+        uploadButton.tag = index
+        uploadButton.image = UIImage(named: "interiorUploadButton", in: .module, compatibleWith: nil)
+        uploadButton.addTarget(self, action: #selector(interiorUploadButtonTapped), for: .touchUpInside)
+        
+        if imageDisplayMode == "readonly" {
+            uploadButton.isHidden = true
+        } else {
+            uploadButton.isHidden = false
+        }
     }
     
     @objc public func interiorUploadButtonTapped(sender: UIButton) {
-        uploadImageTapAction?()
+        joyfillFormImageUpload?()
         imageIndexNo = sender.tag
     }
     
@@ -258,6 +264,7 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         if imageDisplayMode != "readonly" {
             if selectedIndexPath.count == 0 {
                 deleteView.isHidden = true
+                uploadButton.isHidden = true
             } else {
                 deleteView.isHidden = false
             }
@@ -266,11 +273,11 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
     
     // Reload tableView when new image is updated
     @objc func reloadTable(_ notification: Notification) {
-        if let selectedPicture = notification.object as? [String] {
+        if let uploadedMultipleImage = notification.object as? [String] {
             if imageMultiValue {
-                selectedImage[index] = selectedPicture
+                selectedImage[index] = uploadedMultipleImage
             } else {
-                pickedSingleImg[index] = selectedPicture
+                pickedSingleImg[index] = uploadedMultipleImage
             }
             imageTableView.reloadData()
         }

@@ -229,7 +229,7 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
 extension Image: MultipleImageViewDelegate {
     func imagesDeleted(selectedIndex: Int) {
         updateDeletedImage(selectedIndex: selectedIndex)
-        componentTableView.reloadData()
+        joyDoc.reloadData()
         self.saveDelegate?.handleDelete(indexPath: index)
     }
     
@@ -239,12 +239,12 @@ extension Image: MultipleImageViewDelegate {
     
     func removeAllImages() {
         selectedImage[index].removeAll()
-        selectedPicture[index].removeAll()
         pickedSingleImg[index].removeAll()
-        pickedSinglePicture[index].removeAll()
-        imageSelectionCount[index].removeAll()
+        uploadedImageCount[index].removeAll()
+        uploadedSingleImage[index].removeAll()
+        uploadedMultipleImage[index].removeAll()
         let indexPathsToReload = [IndexPath(row: index, section: 0)]
-        componentTableView.reloadRows(at: indexPathsToReload, with: .fade)
+        joyDoc.reloadRows(at: indexPathsToReload, with: .fade)
         self.saveDelegate?.handleDelete(indexPath: index)
     }
     

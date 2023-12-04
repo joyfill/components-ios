@@ -282,9 +282,9 @@ extension JoyDoc {
             DispatchQueue.main.async {
                 fetchDataFromJoyDoc()
                 
-                componentTableView.delegate = viewForDataSource as? UITableViewDelegate
-                componentTableView.dataSource = viewForDataSource as? UITableViewDataSource
-                componentTableView.reloadData()
+                joyDoc.delegate = viewForDataSource as? UITableViewDelegate
+                joyDoc.dataSource = viewForDataSource as? UITableViewDataSource
+                joyDoc.reloadData()
             }
         } catch {
             print("Error decoding JSON: \(error)")
@@ -414,7 +414,6 @@ func initializeVariablesWithEmptyValues() {
     graphLabelData.append([])
     tableCellsData.append([])
     chartLineTitle.append([""])
-    selectedPicture.append([])
     tableFieldValue.append([])
     dropdownOptions.append([])
     tableColumnType.append([])
@@ -422,9 +421,10 @@ func initializeVariablesWithEmptyValues() {
     chartValueElement.append([])
     tableColumnOrderId.append([])
     multiSelectOptions.append([])
+    uploadedImageCount.append([])
     multiSelectOptionId.append([])
-    imageSelectionCount.append([])
-    pickedSinglePicture.append([])
+    uploadedSingleImage.append([])
+    uploadedMultipleImage.append([])
     chartLineDescription.append([""])
     componentTableViewCellHeight.append(0)
     selectedDropdownOptionIndexPath.append(0)

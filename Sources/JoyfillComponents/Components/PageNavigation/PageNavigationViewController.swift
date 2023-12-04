@@ -392,7 +392,7 @@ class PageNavigationViewController: UIViewController {
         fetchDataFromJoyDoc()
         deletePageView.isHidden = false
         DispatchQueue.main.async {
-            componentTableView.reloadData()
+            joyDoc.reloadData()
         }
         pagesOptionTableView.reloadData()
     }
@@ -418,7 +418,7 @@ class PageNavigationViewController: UIViewController {
         pageIndex = pagesOptionTableView.indexPathForSelectedRow?.row ?? 0
         fetchDataFromJoyDoc()
         DispatchQueue.main.async {
-            componentTableView.reloadData()
+            joyDoc.reloadData()
         }
         deletePageView.isHidden = false
         pagesOptionTableView.reloadData()
@@ -466,7 +466,7 @@ extension PageNavigationViewController: UITableViewDelegate, UITableViewDataSour
         pageIndex = indexPath.row
         fetchDataFromJoyDoc()
         DispatchQueue.main.async {
-            componentTableView.reloadData()
+            joyDoc.reloadData()
         }
         pagesOptionTableView.reloadData()
     }

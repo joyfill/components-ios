@@ -4,7 +4,7 @@ import JoyfillComponents
 import AlertToast
 
 class ViewController: UIViewController, onChange, UIImagePickerControllerDelegate & UINavigationControllerDelegate {
-
+    
     // MARK: - Variables
     @ObservedObject var JoyDocModel = JoyDocViewModel()
     
@@ -35,32 +35,32 @@ class ViewController: UIViewController, onChange, UIImagePickerControllerDelegat
             jsonData = joyDocJSON as! Data
             DispatchQueue.main.async {
                 // Setup joydoc form
-                let form = Form()
-                mode = "fill"
-                form.saveDelegate = self
+                let joyfillForm = JoyfillForm()
+                joyfillForm.mode = "readonly"
+                joyfillForm.saveDelegate = self
                 
                 // Add joydoc to view
-                self.view.addSubview(form)
+                self.view.addSubview(joyfillForm)
                 self.view.addSubview(self.saveButton)
                 
                 // Set joydoc views for full screen form view (optional)
                 self.overrideUserInterfaceStyle = .light
-                form.translatesAutoresizingMaskIntoConstraints = false
+                joyfillForm.translatesAutoresizingMaskIntoConstraints = false
                 self.saveButton.translatesAutoresizingMaskIntoConstraints = false
                 NSLayoutConstraint.activate([
-                    form.topAnchor.constraint(equalTo: self.view.topAnchor),
-                    form.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
-                    form.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
-                    form.bottomAnchor.constraint(equalTo: self.saveButton.topAnchor, constant: -5),
+                    joyfillForm.topAnchor.constraint(equalTo: self.view.topAnchor),
+                    joyfillForm.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
+                    joyfillForm.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
+                    joyfillForm.bottomAnchor.constraint(equalTo: self.saveButton.topAnchor, constant: -5),
                     
-                    self.saveButton.topAnchor.constraint(equalTo: form.bottomAnchor, constant: 5),
+                    self.saveButton.topAnchor.constraint(equalTo: joyfillForm.bottomAnchor, constant: 5),
                     self.saveButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 50),
                     self.saveButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -50),
                     self.saveButton.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -10)
                 ])
                 
                 // Listener for joydoc form changes
-                uploadImageTapAction = {
+                joyfillFormImageUpload = {
                     print("Upload images...")
                     
                     var alertStyle = UIAlertController.Style.actionSheet
@@ -136,10 +136,10 @@ class ViewController: UIViewController, onChange, UIImagePickerControllerDelegat
         if let imageData = uri.jpegData(compressionQuality: 1.0) {
             let base64String = imageData.base64EncodedString()
             updateImage = true
-            imageSelectionCount[imageIndexNo] = ["data:image/jpeg;base64,\(base64String)"]
-            pickedSinglePicture[imageIndexNo] = ["data:image/jpeg;base64,\(base64String)"]
-            selectedPicture[imageIndexNo].append("data:image/jpeg;base64,\(base64String)")
-            componentTableView.reloadData()
+            uploadedImageCount[imageIndexNo] = ["data:image/jpeg;base64,\(base64String)"]
+            uploadedSingleImage[imageIndexNo] = ["data:image/jpeg;base64,\(base64String)"]
+            uploadedMultipleImage[imageIndexNo].append("data:image/jpeg;base64,\(base64String)")
+            joyDoc.reloadData()
         }
     }
 }
@@ -167,6 +167,6 @@ struct DocumentJoyDoc: View {
     }
 }
 
-#Preview {
-    DocumentJoyDoc(identifier: "template_65540f03bc18c7a71302b9de", userAccessToken: Constants.userAccessToken)
-}
+//#Preview {
+//    DocumentJoyDoc(identifier: "template_65540f03bc18c7a71302b9de", userAccessToken: Constants.userAccessToken)
+//}

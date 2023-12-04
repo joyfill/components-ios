@@ -1,24 +1,23 @@
 import Foundation
 import UIKit
 
-public var mode = String()
 var cellHeight = [CGFloat]()
 public var updateImage = Bool()
 public var imageIndexNo = Int()
 public var cellView = [UIView]()
 public var chartIndexPath = Int()
 public var tableIndexPath = Int()
+public var joyDoc = UITableView()
 public var doc: [String: Any] = [:]
 public var viewForDataSource = UIView()
 public var docChangeLogs: [String: Any] = [:]
-public var componentTableView = UITableView()
 public var blurAndFocusParams: [String: Any] = [:]
 public var componentTableViewCellHeight = [CGFloat]()
 
-public var selectedPicture = [[String]]()
-public var pickedSinglePicture = [[String]]()
-public var imageSelectionCount = [[String]]()
-public var uploadImageTapAction: (() -> Void)?
+public var uploadedImageCount = [[String]]()
+public var uploadedSingleImage = [[String]]()
+public var uploadedMultipleImage = [[String]]()
+public var joyfillFormImageUpload: (() -> Void)?
 
 public protocol onChange {
     func handleOnChange(docChangelog: [String: Any], doc: [String: Any])
@@ -26,12 +25,13 @@ public protocol onChange {
     func handleOnBlur(blurAndFocusParams: [String: Any])
 }
 
-public class Form: UIView, SaveTableFieldValue, saveImageFieldValue, saveSignatureFieldValue, SavePageNavigationChange {
+public class JoyfillForm: UIView, SaveTableFieldValue, saveImageFieldValue, saveSignatureFieldValue, SavePageNavigationChange {
 
     public var pageNavigationView = UIView()
     public var pageNavigationLabel = Label()
     public var pageNavigationArrow = ImageView()
 
+    public var mode = String()
     var joyFillStruct: JoyDoc?
     var imageIndexPath = Int()
     var tableHeight = CGFloat()
@@ -68,11 +68,11 @@ public class Form: UIView, SaveTableFieldValue, saveImageFieldValue, saveSignatu
         
         // SubViews
         addSubview(pageNavigationView)
-        addSubview(componentTableView)
+        addSubview(joyDoc)
         pageNavigationView.addSubview(pageNavigationArrow)
         pageNavigationView.addSubview(pageNavigationLabel)
         
-        componentTableView.translatesAutoresizingMaskIntoConstraints = false
+        joyDoc.translatesAutoresizingMaskIntoConstraints = false
         pageNavigationView.translatesAutoresizingMaskIntoConstraints = false
         pageNavigationArrow.translatesAutoresizingMaskIntoConstraints = false
         pageNavigationLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -97,10 +97,10 @@ public class Form: UIView, SaveTableFieldValue, saveImageFieldValue, saveSignatu
             pageNavigationLabel.trailingAnchor.constraint(equalTo: pageNavigationView.trailingAnchor, constant: -5),
             
             // TableView Constraint
-            componentTableView.topAnchor.constraint(equalTo: pageNavigationView.bottomAnchor, constant: 10),
-            componentTableView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            componentTableView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            componentTableView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -20)
+            joyDoc.topAnchor.constraint(equalTo: pageNavigationView.bottomAnchor, constant: 10),
+            joyDoc.leadingAnchor.constraint(equalTo: leadingAnchor),
+            joyDoc.trailingAnchor.constraint(equalTo: trailingAnchor),
+            joyDoc.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -20)
         ])
         
         // Set cornerRadius and shadow to view.
@@ -117,12 +117,12 @@ public class Form: UIView, SaveTableFieldValue, saveImageFieldValue, saveSignatu
         pageNavigationView.backgroundColor = UIColor(hexString: "#F5F5F5")
         
         // Set tableView Properties
-        componentTableView.bounces = false
-        componentTableView.separatorStyle = .none
-        componentTableView.allowsSelection = false
-        componentTableView.tintColor = .white
-        componentTableView.showsVerticalScrollIndicator = false
-        componentTableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
+        joyDoc.bounces = false
+        joyDoc.separatorStyle = .none
+        joyDoc.allowsSelection = false
+        joyDoc.tintColor = .white
+        joyDoc.showsVerticalScrollIndicator = false
+        joyDoc.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
         
         viewForDataSource = self
         
@@ -156,7 +156,7 @@ public class Form: UIView, SaveTableFieldValue, saveImageFieldValue, saveSignatu
 }
 
 // MARK: Setup tableView
-extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, saveChartFieldValue {
+extension JoyfillForm: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, saveChartFieldValue {
     // MARK: TableView delegate method for number of rows in section
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return componentType.count
@@ -165,7 +165,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
     // MARK: TableView delegate method for cell for row at
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
-        componentTableView.separatorStyle = .none
+        joyDoc.separatorStyle = .none
         pageNavigationLabel.labelText = "Page #\(pageIndex + 1)"
         
         // Configure the cell
@@ -211,8 +211,8 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         let fieldType = joyDocFieldData[indexPath.row].type
         switch fieldType {
         case FieldTypes.image:
-            if imageSelectionCount[indexPath.row].count == 0 {
-                if selectedPicture[indexPath.row].count == 0 {
+            if uploadedImageCount[indexPath.row].count == 0 {
+                if uploadedMultipleImage[indexPath.row].count == 0 {
                     cellHeight.insert(150, at: indexPath.row)
                 } else {
                     cellHeight.insert(270, at: indexPath.row)
@@ -237,10 +237,10 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         image.saveDelegate = self
         image.fieldDelegate = self
         image.uploadButton.tag = i
-        image.selectedImage = selectedPicture
-        image.pickedSingleImg = pickedSinglePicture
+        image.selectedImage = uploadedMultipleImage
+        image.pickedSingleImg = uploadedSingleImage
         
-        imageSelectionCount[i].removeAll()
+        uploadedImageCount[i].removeAll()
         image.selectedImage[i].removeAll()
         image.pickedSingleImg[i].removeAll()
         
@@ -250,7 +250,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         case .integer(_): break
         case .valueElementArray(let valueElements):
             for k in 0..<valueElements.count {
-                imageSelectionCount[i] = [valueElements[k].url ?? ""]
+                uploadedImageCount[i] = [valueElements[k].url ?? ""]
                 image.pickedSingleImg[i] = [valueElements[k].url ?? ""]
                 image.selectedImage[i].append(valueElements[k].url ?? "")
             }
@@ -260,11 +260,11 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         }
         
         if image.selectedImage[i].count == 0 {
-            tableView.rowHeight = selectedPicture[i].count != 0 ? 260 : 150
+            tableView.rowHeight = uploadedMultipleImage[i].count != 0 ? 260 : 150
             
-            if selectedPicture[i].count != 0 && updateImage {
-                image.selectedImage[i] = selectedPicture[i]
-                image.pickedSingleImg[i] = pickedSinglePicture[i]
+            if uploadedMultipleImage[i].count != 0 && updateImage {
+                image.selectedImage[i] = uploadedMultipleImage[i]
+                image.pickedSingleImg[i] = uploadedSingleImage[i]
                 updateUploadedImage(index: i, imageMultiValue: joyDocFieldData[i].multi ?? false)
                 
                 let objectToSend = joyDocFieldData[i].multi ?? true ? image.selectedImage[i] : image.pickedSingleImg[i]
@@ -274,9 +274,9 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         } else {
             tableView.rowHeight = 260
             
-            if selectedPicture[i].count != 0 && updateImage {
-                image.selectedImage[i].append(selectedPicture[i].last ?? "")
-                image.pickedSingleImg[i] = pickedSinglePicture[i]
+            if uploadedMultipleImage[i].count != 0 && updateImage {
+                image.selectedImage[i].append(uploadedMultipleImage[i].last ?? "")
+                image.pickedSingleImg[i] = uploadedSingleImage[i]
                 updateUploadedImage(index: i, imageMultiValue: joyDocFieldData[i].multi ?? false)
                 
                 let objectToSend = joyDocFieldData[i].multi ?? true ? image.selectedImage[i] : image.pickedSingleImg[i]
@@ -298,7 +298,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
     }
     @objc public func uploadButtonTapped(sender: UIButton) {
         if mode != "readonly" {
-            uploadImageTapAction?()
+            joyfillFormImageUpload?()
             imageIndexNo = sender.tag
             fieldDelegate?.handleFocus(index: sender.tag)
         }
@@ -310,7 +310,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
         case .string(_): break
         case .integer(_): break
         case .valueElementArray(var valueElements):
-            emptyValueElement.url = selectedPicture[index].last
+            emptyValueElement.url = uploadedMultipleImage[index].last
             if imageMultiValue {
                 valueElements.append(emptyValueElement)
             } else {
@@ -328,7 +328,7 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
             case .string(_): break
             case .integer(_): break
             case .valueElementArray(var valueElements):
-                emptyValueElement.url = selectedPicture[index].last
+                emptyValueElement.url = uploadedMultipleImage[index].last
                 if imageMultiValue {
                     valueElements.append(emptyValueElement)
                 } else {
@@ -1177,10 +1177,10 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
     func handleUpload(indexPath: Int) {
         var elementData = [String: Any]()
         var transformedDataArray = [[String: Any]]()
-        for picture in 0..<selectedPicture[indexPath].count {
+        for picture in 0..<uploadedMultipleImage[indexPath].count {
             let data: [String: Any] = [
                 "id": generateObjectId(),
-                "url": selectedPicture[indexPath][picture]
+                "url": uploadedMultipleImage[indexPath][picture]
             ]
             transformedDataArray.append(data)
         }
@@ -1191,10 +1191,10 @@ extension Form: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, 
     func handleDelete(indexPath: Int) {
         var elementData = [String: Any]()
         var transformedDataArray = [[String: Any]]()
-        for picture in 0..<selectedPicture[indexPath].count {
+        for picture in 0..<uploadedMultipleImage[indexPath].count {
             let data: [String: Any] = [
                 "id": generateObjectId(),
-                "url": selectedPicture[indexPath][picture]
+                "url": uploadedMultipleImage[indexPath][picture]
             ]
             transformedDataArray.append(data)
         }
