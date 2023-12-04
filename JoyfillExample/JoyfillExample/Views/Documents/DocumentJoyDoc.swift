@@ -11,6 +11,7 @@ class ViewController: UIViewController, onChange, UIImagePickerControllerDelegat
     var apiUrl = "https://api-joy.joyfill.io"
     var identifier = ""
     var userAccessToken = ""
+    var mode = "<Replace_me (Readonly/Fill)>"
     
     lazy var saveButton: UIButton = {
         let button = UIButton()
@@ -36,7 +37,7 @@ class ViewController: UIViewController, onChange, UIImagePickerControllerDelegat
             DispatchQueue.main.async {
                 // Setup joydoc form
                 let joyfillForm = JoyfillForm()
-                joyfillForm.mode = "readonly"
+                joyfillForm.mode = self.mode
                 joyfillForm.saveDelegate = self
                 
                 // Add joydoc to view
@@ -167,6 +168,6 @@ struct DocumentJoyDoc: View {
     }
 }
 
-//#Preview {
-//    DocumentJoyDoc(identifier: "template_65540f03bc18c7a71302b9de", userAccessToken: Constants.userAccessToken)
-//}
+#Preview {
+    DocumentJoyDoc(identifier: "template_65540f03bc18c7a71302b9de", userAccessToken: Constants.userAccessToken)
+}
