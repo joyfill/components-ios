@@ -37,6 +37,16 @@ open class ShortText: UIView {
         }
     }
     
+    public func textFieldDisplayModes(mode : String) {
+        if mode == "readonly" {
+            textField.backgroundColor = UIColor(hexString: "#F5F5F5")
+            textField.isUserInteractionEnabled = false
+        } else {
+            textField.backgroundColor = .white
+            textField.isUserInteractionEnabled = true
+        }
+    }
+    
     func setupView() {
         topLabel.borderWidth = 0
         topLabel.textColor = .black

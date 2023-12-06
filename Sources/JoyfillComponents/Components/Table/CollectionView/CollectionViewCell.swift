@@ -18,7 +18,6 @@ class CollectionViewCell: UICollectionViewCell, UITextFieldDelegate, UITextViewD
     var bottomBorder = UIView()
     let selectionButton = Button()
     let dropdownImage = ImageView()
-    let imageandCountView = UIView()
     let cellTextView = UITextView()
     let verticalSeparatorView = UIView()
     let dropdownTextField = UITextField()
@@ -103,7 +102,7 @@ class CollectionViewCell: UICollectionViewCell, UITextFieldDelegate, UITextViewD
         cellTextView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            cellTextView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 0),
+            cellTextView.topAnchor.constraint(equalTo: contentView.topAnchor),
             cellTextView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             cellTextView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor,constant: -1),
             cellTextView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -1)
@@ -127,8 +126,8 @@ class CollectionViewCell: UICollectionViewCell, UITextFieldDelegate, UITextViewD
         NSLayoutConstraint.activate([
             dropdownView.topAnchor.constraint(equalTo: contentView.topAnchor),
             dropdownView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            dropdownView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            dropdownView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            dropdownView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -1),
+            dropdownView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -1),
             
             dropdownTextField.topAnchor.constraint(equalTo: dropdownView.topAnchor, constant: 6),
             dropdownTextField.leadingAnchor.constraint(equalTo: dropdownView.leadingAnchor, constant: 10),

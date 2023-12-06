@@ -28,14 +28,17 @@ var joyDocId = String()
 var joyDocFileId = String()
 var joyDocPageData: [Page]?
 var joyDocPageId = [String]()
-var joyDocPageOrderId = [String]()
 var joyDocIdentifier = String()
 var valueUnion: [ValueUnion] = []
+var joyDocPageOrderId = [String]()
 var joyDocFieldData: [JoyDocField] = []
 var tableFieldValue: [[ValueElement]] = []
 var chartValueElement = [[ValueElement]]()
 var optionsData: [[FieldTableColumn]] = []
 var joyDocFieldPositionData: [FieldPosition] = []
+
+var chartLineTitle = [[String]]()
+var chartLineDescription = [[String]]()
 
 // Variable to save counts
 var fieldCount = Int()
@@ -176,18 +179,17 @@ enum ValueUnion: Codable {
 // MARK: - ValueElement
 struct ValueElement: Codable {
     let id: String?
-    let url: String?
+    var url: String?
     let fileName, filePath: String?
     let deleted: Bool?
     let title, description: String?
     var points: [Point]?
-    var cells: [String: String]?
+    var cells: [String: ValueUnion]?
     
     enum CodingKeys: String, CodingKey {
         case id = "_id"
         case url, fileName, filePath, deleted, title, description, points, cells
     }
-    
 }
 
 // MARK: - Point
@@ -280,9 +282,9 @@ extension JoyDoc {
             DispatchQueue.main.async {
                 fetchDataFromJoyDoc()
                 
-                componentTableView.delegate = viewForDataSource as? UITableViewDelegate
-                componentTableView.dataSource = viewForDataSource as? UITableViewDataSource
-                componentTableView.reloadData()
+                joyDoc.delegate = viewForDataSource as? UITableViewDelegate
+                joyDoc.dataSource = viewForDataSource as? UITableViewDataSource
+                joyDoc.reloadData()
             }
         } catch {
             print("Error decoding JSON: \(error)")
@@ -411,7 +413,7 @@ func initializeVariablesWithEmptyValues() {
     cellView.append(UIView())
     graphLabelData.append([])
     tableCellsData.append([])
-    selectedPicture.append([])
+    chartLineTitle.append([""])
     tableFieldValue.append([])
     dropdownOptions.append([])
     tableColumnType.append([])
@@ -419,9 +421,11 @@ func initializeVariablesWithEmptyValues() {
     chartValueElement.append([])
     tableColumnOrderId.append([])
     multiSelectOptions.append([])
+    uploadedImageCount.append([])
     multiSelectOptionId.append([])
-    imageSelectionCount.append([])
-    pickedSinglePicture.append([])
+    uploadedSingleImage.append([])
+    uploadedMultipleImage.append([])
+    chartLineDescription.append([""])
     componentTableViewCellHeight.append(0)
     selectedDropdownOptionIndexPath.append(0)
     multiChoiseSelectedOptionIndexPath.append([])
@@ -445,6 +449,7 @@ func DeinitializeVariables() {
     componentType.removeAll()
     graphLabelData.removeAll()
     tableCellsData.removeAll()
+    chartLineTitle.removeAll()
     joyDocPageData?.removeAll()
     dropdownOptions.removeAll()
     tableColumnType.removeAll()
@@ -456,6 +461,7 @@ func DeinitializeVariables() {
     tableColumnOrderId.removeAll()
     multiSelectOptions.removeAll()
     multiSelectOptionId.removeAll()
+    chartLineDescription.removeAll()
     joyDocFieldPositionData.removeAll()
     componentTableViewCellHeight.removeAll()
     componentsYValueForMobileView.removeAll()

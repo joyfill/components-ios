@@ -492,10 +492,10 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
     // Function to show default value when row is added or inserted
     func insertColumnDefaultValue(indexpath: IndexPath) {
         emptyValueElement.cells?.removeAll()
-        var cellValue = [String:String]()
+        var cellValue = [String: ValueUnion]()
         for i in 0..<tableColumnOrderId[tableIndexNo].count {
             if let _ = optionsData[tableIndexNo].first(where: { $0.id == tableColumnOrderId[tableIndexNo][indexpath.row-2]}) {
-                cellValue[optionsData[tableIndexNo][i].id ?? ""] = optionsData[tableIndexNo][i].value
+                cellValue[optionsData[tableIndexNo][i].id ?? ""] = .string(optionsData[tableIndexNo][i].value ?? "")
             }
         }
         emptyValueElement = ValueElement(
@@ -511,6 +511,35 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
         )
     }
     
+    // Function to unwrap JoyfillComponents.ValueUnion
+    func unWrapValueUnionValues(value: JoyfillComponents.ValueUnion) -> Any? {
+        switch value {
+        case .string(let stringValue):
+            return stringValue
+        case .valueElementArray(let elementArray):
+            return elementArray.map { unWrapValueElementValues(element: $0) }
+        case .integer(_), .array(_), .null:
+            return nil
+        }
+    }
+    
+    // Function to unwrap JoyfillComponents.ValueElement
+    func unWrapValueElementValues(element: JoyfillComponents.ValueElement) -> [String: Any] {
+        var unwrappedElement: [String: Any] = [:]
+
+        unwrappedElement["id"] = element.id
+        unwrappedElement["url"] = element.url
+        unwrappedElement["fileName"] = element.fileName
+        unwrappedElement["filePath"] = element.filePath
+        unwrappedElement["deleted"] = element.deleted
+        unwrappedElement["title"] = element.title
+        unwrappedElement["description"] = element.description
+        unwrappedElement["points"] = element.points
+        unwrappedElement["cells"] = element.cells?.mapValues { unWrapValueUnionValues(value: $0) }
+
+        return unwrappedElement
+    }
+    
     // MARK: AddRow Tapped
     @objc func insertRowTapped() {
         dropdownView.isHidden = true
@@ -519,10 +548,10 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
         let lastSection = collectionView.numberOfSections - 1
         let lastItem = collectionView.numberOfItems(inSection: lastSection) - 1
         let lastIndexPath = IndexPath(item: lastItem, section: lastSection)
-        var cellValue = [String:String]()
+        var cellValue = [String: ValueUnion]()
         for i in 0..<tableColumnOrderId[tableIndexNo].count {
             if let _ = optionsData[tableIndexNo].first(where: { $0.id == tableColumnOrderId[tableIndexNo][lastIndexPath.row-2]}) {
-                cellValue[optionsData[tableIndexNo][i].id ?? ""] = optionsData[tableIndexNo][i].value
+                cellValue[optionsData[tableIndexNo][i].id ?? ""] = .string(optionsData[tableIndexNo][i].value ?? "")
             }
         }
         if var valueElement = tableFieldValue[tableIndexNo][lastIndexPath.section - 1] as? ValueElement {
@@ -575,8 +604,9 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
             }
             
             let dict = tableFieldValue[tableIndexNo][lastIndexPath.section].cells
-            var cells : [String:Any] = [:]
-            for (key, value) in dict ?? [:] {
+            let cellValues = dict?.mapValues { unWrapValueUnionValues(value: $0) }
+            var cells : [String: Any] = [:]
+            for (key, value) in cellValues ?? [:] {
                 cells[key] = value
             }
             let row = ["_id":  tableFieldValue[tableIndexNo][lastIndexPath.section].id ?? "",
@@ -651,8 +681,9 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
             }
             
             let dict = tableFieldValue[tableIndexNo][lastSection - 2].cells
-            var cells : [String:Any] = [:]
-            for (key, _) in dict ?? [:] {
+            let cellValues = dict?.mapValues { unWrapValueUnionValues(value: $0) }
+            var cells : [String: Any] = [:]
+            for (key, _) in cellValues ?? [:] {
                 cells[key] = ""
             }
             let row = ["_id":  tableFieldValue[tableIndexNo][(cellSelectedIndexPath?.section ?? 0)].id ?? "",
@@ -726,14 +757,16 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
             }
             
             let dict = tableFieldValue[tableIndexNo][cellSelectedIndexPath?.section ?? 0].cells
+            let cellValues = dict?.mapValues { unWrapValueUnionValues(value: $0) }
             var cells: [String: Any] = [:]
-            for (key, value) in dict ?? [:] {
+            for (key, value) in cellValues ?? [:] {
                 cells[key] = value
             }
             let row = ["_id":  tableFieldValue[tableIndexNo][cellSelectedIndexPath?.section ?? 0].id ?? "",
                        "deleted" : false,
                        "cells" : cells
             ] as [String: Any]
+            
             docChangeLogs = ["row": row, "targetRowIndex": cellSelectedIndexPath?.section ?? 0]
             saveDelegate?.handleDuplicateRow(row: docChangeLogs, rowIndex: cellSelectedIndexPath?.section ?? 0, isEditingEnd: true, index: index)
             selectedIndexPath = nil
@@ -1054,9 +1087,16 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
                 let cellData = tableFieldValue[tableIndexNo][indexPath.section-1].cells ?? [:]
                 if let matchData = cellData.first(where: {$0.key == tableColumnOrderId[tableIndexNo][indexPath.row-2]}) {
                     let tableColumnsData = optionsData[tableIndexNo][indexPath.row-2].options
-                    if tableColumnsData?[i].id == matchData.value {
-                        selectedDropdownOptionIndexPath[tableIndexNo] = i
+                    
+                    switch matchData.value {
+                    case .string(let string):
+                        if tableColumnsData?[i].id == string {
+                            selectedDropdownOptionIndexPath[tableIndexNo] = i
+                        }
+                    case .integer(_), .array(_), .valueElementArray(_), .null:
+                        break
                     }
+                    
                 } else {
                     selectedDropdownOptionIndexPath[tableIndexNo] = nil
                 }
@@ -1201,9 +1241,16 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
         let cellData = tableFieldValue[tableIndexNo][indexPath.section-1].cells ?? [:]
         if let matchData = cellData.first(where: {$0.key == tableColumnOrderId[tableIndexNo][indexPath.row-2]}) {
             let tableColumnsData = optionsData[tableIndexNo][indexPath.row-2].options
-            if let dropDownId = tableColumnsData?.first(where: {$0.id == matchData.value}) {
-                cell.dropdownTextField.text = dropDownId.value
+            
+            switch matchData.value {
+            case .string(let string):
+                if let dropDownId = tableColumnsData?.first(where: {$0.id == string}) {
+                    cell.dropdownTextField.text = dropDownId.value
+                }
+            case .integer(_), .array(_), .valueElementArray(_), .null:
+                break
             }
+            
         } else {
             cell.dropdownTextField.text = ""
         }
@@ -1213,7 +1260,14 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
     func setCellTextValue(cell: CollectionViewCell, indexPath: IndexPath) {
         let cellData = tableFieldValue[tableIndexNo][indexPath.section-1].cells ?? [:]
         if let matchData = cellData.first(where: {$0.key == tableColumnOrderId[tableIndexNo][indexPath.row-2]}) {
-            cell.cellTextView.text = matchData.value
+            
+            switch matchData.value {
+            case .string(let string):
+                cell.cellTextView.text = string
+            case .integer(_), .array(_), .valueElementArray(_), .null:
+                break
+            }
+            
         } else {
             cell.cellTextView.text = ""
         }
@@ -1224,7 +1278,11 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
         switch tableDisplayMode {
         case "readonly":
             cell.cellTextView.isUserInteractionEnabled = false
+            cell.cellTextView.backgroundColor = UIColor(hexString: "#F5F5F5")
+            cell.dropdownView.backgroundColor = UIColor(hexString: "#F5F5F5")
         default:
+            cell.cellTextView.backgroundColor = .white
+            cell.dropdownView.backgroundColor = .white
             cell.cellTextView.isUserInteractionEnabled = true
         }
     }
@@ -1273,7 +1331,8 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
         
         if text != "" {
             var dropDownSelectId = String()
-            var cells = [String:String]()
+            var cells = [String: Any]()
+            var valueUnionCells = [String: ValueUnion]()
             
             if let option = optionsData[tableIndexNo][indexPathRow-2].options?.first(where: {$0.value == text}) {
                 dropDownSelectId = option.id ?? ""
@@ -1281,17 +1340,26 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
             
             if let fieldTableColumn = tableColumnOrderId[tableIndexNo].first(where: {$0 == optionsData[tableIndexNo][indexPathRow-2].id}) {
                 cells[fieldTableColumn] = dropDownSelectId
+                valueUnionCells[fieldTableColumn] = .string(dropDownSelectId)
             }
             
             let rowId = tableRowOrder[tableIndexNo][indexPathSection-1]
             let columnId = optionsData[tableIndexNo][indexPathRow-2].id ?? ""
             let columnIdentifier = optionsData[tableIndexNo][indexPathRow-2].identifier ?? ""
             let dict = tableFieldValue[tableIndexNo][indexPathSection-1].cells
-            for (key, value) in dict ?? [:] {
+            let cellValues = dict?.mapValues { unWrapValueUnionValues(value: $0) }
+            for (key, value) in cellValues ?? [:] {
                 if key == optionsData[tableIndexNo][indexPathRow-2].id {
                     cells[key] = dropDownSelectId
                 } else {
                     cells[key] = value
+                }
+            }
+            for (key, value) in dict ?? [:] {
+                if key == optionsData[tableIndexNo][indexPathRow-2].id {
+                    valueUnionCells[key] = .string(dropDownSelectId)
+                } else {
+                    valueUnionCells[key] = value
                 }
             }
             if var valueElement = tableFieldValue[tableIndexNo][indexPathSection - 1] as? ValueElement {
@@ -1304,7 +1372,7 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
                     title: valueElement.title,
                     description: valueElement.description,
                     points: valueElement.points,
-                    cells: cells
+                    cells: valueUnionCells
                 )
                 if (tableFieldValue[tableIndexNo].first(where: {$0.id == valueElement.id}) != nil) {
                     tableFieldValue[tableIndexNo][indexPathSection - 1] = valueElement
@@ -1326,12 +1394,21 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
         let columnId = optionsData[tableIndexNo][indexRow-2].id ?? ""
         let columnIdentifier = optionsData[tableIndexNo][indexRow-2].identifier ?? ""
         let dict = tableFieldValue[tableIndexNo][indexSection-1].cells
-        var cells = [String:String]()
-        for (key, value) in dict ?? [:] {
+        let cellValues = dict?.mapValues { unWrapValueUnionValues(value: $0) }
+        var cells = [String: Any]()
+        var valueUnionCells = [String: ValueUnion]()
+        for (key, value) in cellValues ?? [:] {
             if cellKey == key {
                 cells[cellKey] = cellValue
             } else {
                 cells[key] = value
+            }
+        }
+        for (key, value) in dict ?? [:] {
+            if cellKey == key {
+                valueUnionCells[cellKey] = .string(cellValue)
+            } else {
+                valueUnionCells[key] = value
             }
         }
         if var valueElement = tableFieldValue[tableIndexNo][indexSection - 1] as? ValueElement {
@@ -1344,7 +1421,7 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
                 title: valueElement.title,
                 description: valueElement.description,
                 points: valueElement.points,
-                cells: cells
+                cells: valueUnionCells
             )
             if (tableFieldValue[tableIndexNo].first(where: {$0.id == valueElement.id}) != nil) {
                 tableFieldValue[tableIndexNo][indexSection - 1] = valueElement
@@ -1365,14 +1442,23 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
         let columnId = optionsData[tableIndexNo][indexRow-2].id ?? ""
         let columnIdentifier = optionsData[tableIndexNo][indexRow-2].identifier ?? ""
         let dict = tableFieldValue[tableIndexNo][indexSection-1].cells
-        var cells = [String:String]()
+        let cellValues = dict?.mapValues { unWrapValueUnionValues(value: $0) }
+        var cells = [String: Any]()
+        var valueUnionCells = [String: ValueUnion]()
         var textCellId = String()
         if let fieldTableColumn = tableColumnOrderId[tableIndexNo].first(where: {$0 == optionsData[tableIndexNo][indexRow-2].id}) {
             textCellId = fieldTableColumn
             cells[textCellId] = cellValue
         }
-        for (key, value) in dict ?? [:] {
+        for (key, value) in cellValues ?? [:] {
             cells[key] = value
+        }
+        if let fieldTableColumn = tableColumnOrderId[tableIndexNo].first(where: {$0 == optionsData[tableIndexNo][indexRow-2].id}) {
+            textCellId = fieldTableColumn
+            valueUnionCells[textCellId] = .string(cellValue)
+        }
+        for (key, value) in dict ?? [:] {
+            valueUnionCells[key] = value
         }
         if var valueElement = tableFieldValue[tableIndexNo][indexSection - 1] as? ValueElement {
             valueElement = ValueElement(
@@ -1384,7 +1470,7 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
                 title: valueElement.title,
                 description: valueElement.description,
                 points: valueElement.points,
-                cells: cells
+                cells: valueUnionCells
             )
             if (tableFieldValue[tableIndexNo].first(where: {$0.id == valueElement.id}) != nil) {
                 tableFieldValue[tableIndexNo][indexSection - 1] = valueElement

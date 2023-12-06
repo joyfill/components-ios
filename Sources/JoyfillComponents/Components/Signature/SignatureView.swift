@@ -34,11 +34,10 @@ open class SignatureView : UIView {
     
     open override func didMoveToWindow() {
         super.didMoveToWindow()
-        if signatureDisplayModes != "readonly" {
-            if signedImage[index] != "" {
-                imageView.layer.borderWidth = 0
-                imageSignature.load(urlString: signedImage[index])
-            }
+        if signatureDisplayModes == "readonly" {
+            signViewBt.isHidden = true
+        } else {
+            signViewBt.isHidden = false
         }
     }
     

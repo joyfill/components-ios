@@ -164,8 +164,13 @@ extension CollectionViewTable: UICollectionViewDelegate, UICollectionViewDataSou
         let cellData = tableFieldValue[tableIndexNo][indexPath.section-1].cells ?? [:]
         if let matchData = cellData.first(where: {$0.key == tableColumnOrderId[tableIndexNo][indexPath.row]}) {
             let tableColumnsData = optionsData[tableIndexNo][indexPath.row].options
-            if let dropDownId = tableColumnsData?.first(where: {$0.id == matchData.value}) {
-                cell.dropdownTextField.text = dropDownId.value
+            switch matchData.value {
+            case .string(let string):
+                if let dropDownId = tableColumnsData?.first(where: {$0.id == string}) {
+                    cell.dropdownTextField.text = dropDownId.value
+                }
+            case .integer(_), .array(_), .valueElementArray(_), .null:
+                break
             }
         } else {
             cell.dropdownTextField.text = ""
@@ -176,7 +181,12 @@ extension CollectionViewTable: UICollectionViewDelegate, UICollectionViewDataSou
     func setCellTextValue(cell: CollectionViewCell, indexPath: IndexPath) {
         let cellData = tableFieldValue[tableIndexNo][indexPath.section-1].cells ?? [:]
         if let matchData = cellData.first(where: {$0.key == tableColumnOrderId[tableIndexNo][indexPath.row]}) {
-            cell.cellTextView.text = matchData.value
+            switch matchData.value {
+            case .string(let string):
+                cell.cellTextView.text = string
+            case .integer(_), .array(_), .valueElementArray(_), .null:
+                break
+            }
         } else {
             cell.cellTextView.text = ""
         }

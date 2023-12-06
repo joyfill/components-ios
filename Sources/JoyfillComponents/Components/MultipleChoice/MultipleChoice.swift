@@ -117,6 +117,10 @@ public class MultipleChoice: UIView {
         }
     }
     
+    public func multipleChoiseDisplayModes(mode : String) {
+        multipleChoiceDspMode = mode
+    }
+    
     func setupUI () {
         // SubViews
         addSubview(titleLabel)
@@ -184,6 +188,11 @@ extension MultipleChoice: UITableViewDelegate, UITableViewDataSource {
     // MARK: TableView delegate method for cell for row at
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MultiChoiceTableViewCell", for: indexPath as IndexPath) as! MultiChoiceTableViewCell
+        if multipleChoiceDspMode == "readonly" {
+            cell.contentView.backgroundColor = UIColor(hexString: "#F5F5F5")
+        } else {
+            cell.contentView.backgroundColor = .white
+        }
         if multiSelect[index] == true {
             if multiChoiseSelectedOptionIndexPath[index].contains(indexPath.row) {
                 cell.cellCheckbox.isChecked = true

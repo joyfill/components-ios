@@ -35,6 +35,7 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
     var newLineId = String()
     var labelTitle = String()
     var contentViewHeight = CGFloat()
+    var isTextFieldSelected: Bool = false
     var saveDelegate: saveChartFieldValue? = nil
     var fieldDelegate: SaveTextFieldValue? = nil
     weak var textFieldDelegate: ChartViewTextFieldCellDelegate?
@@ -231,43 +232,43 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
             horizontalXView.heightAnchor.constraint(equalToConstant: 100),
             
             // PSITextField Constraint
-            PSITextField.topAnchor.constraint(equalTo: verticalYView.topAnchor, constant: 14),
+            PSITextField.topAnchor.constraint(equalTo: verticalYView.topAnchor, constant: 10),
             PSITextField.leadingAnchor.constraint(equalTo: verticalYView.leadingAnchor, constant: 13),
             PSITextField.trailingAnchor.constraint(equalTo: verticalMinTextField.leadingAnchor, constant: -7),
-            PSITextField.bottomAnchor.constraint(equalTo: verticalYView.bottomAnchor, constant: -14),
+            PSITextField.bottomAnchor.constraint(equalTo: verticalYView.bottomAnchor, constant: -10),
             
             // VerticalMinTextField Constraint
-            verticalMinTextField.topAnchor.constraint(equalTo: verticalYView.topAnchor, constant: 14),
+            verticalMinTextField.topAnchor.constraint(equalTo: verticalYView.topAnchor, constant: 10),
             verticalMinTextField.leadingAnchor.constraint(equalTo: PSITextField.trailingAnchor, constant: 7),
             verticalMinTextField.trailingAnchor.constraint(equalTo: verticalMaxTextField.leadingAnchor, constant: -7),
-            verticalMinTextField.bottomAnchor.constraint(equalTo: verticalYView.bottomAnchor, constant: -14),
+            verticalMinTextField.bottomAnchor.constraint(equalTo: verticalYView.bottomAnchor, constant: -10),
             verticalMinTextField.widthAnchor.constraint(equalToConstant: 76),
             
             // VerticalMaxTextField Constraint
-            verticalMaxTextField.topAnchor.constraint(equalTo: verticalYView.topAnchor, constant: 14),
+            verticalMaxTextField.topAnchor.constraint(equalTo: verticalYView.topAnchor, constant: 10),
             verticalMaxTextField.leadingAnchor.constraint(equalTo: verticalMinTextField.trailingAnchor, constant: 7),
             verticalMaxTextField.trailingAnchor.constraint(equalTo: verticalYView.trailingAnchor, constant: -13),
-            verticalMaxTextField.bottomAnchor.constraint(equalTo: verticalYView.bottomAnchor, constant: -14),
+            verticalMaxTextField.bottomAnchor.constraint(equalTo: verticalYView.bottomAnchor, constant: -10),
             verticalMaxTextField.widthAnchor.constraint(equalToConstant: 76),
             
             // GPMTextField Constraint
-            GPMTextField.topAnchor.constraint(equalTo: horizontalXView.topAnchor, constant: 14),
+            GPMTextField.topAnchor.constraint(equalTo: horizontalXView.topAnchor, constant: 10),
             GPMTextField.leadingAnchor.constraint(equalTo: horizontalXView.leadingAnchor, constant: 13),
             GPMTextField.trailingAnchor.constraint(equalTo: horizontalMinTextField.leadingAnchor, constant: -7),
-            GPMTextField.bottomAnchor.constraint(equalTo: horizontalXView.bottomAnchor, constant: -14),
+            GPMTextField.bottomAnchor.constraint(equalTo: horizontalXView.bottomAnchor, constant: -10),
             
             // HorizontalMinTextField Constraint
-            horizontalMinTextField.topAnchor.constraint(equalTo: horizontalXView.topAnchor, constant: 14),
+            horizontalMinTextField.topAnchor.constraint(equalTo: horizontalXView.topAnchor, constant: 10),
             horizontalMinTextField.leadingAnchor.constraint(equalTo: GPMTextField.trailingAnchor, constant: 7),
             horizontalMinTextField.trailingAnchor.constraint(equalTo: horizontalMaxTextField.leadingAnchor, constant: -7),
-            horizontalMinTextField.bottomAnchor.constraint(equalTo: horizontalXView.bottomAnchor, constant: -14),
+            horizontalMinTextField.bottomAnchor.constraint(equalTo: horizontalXView.bottomAnchor, constant: -10),
             horizontalMinTextField.widthAnchor.constraint(equalToConstant: 76),
             
             // HorizontalMaxTextField Constraint
-            horizontalMaxTextField.topAnchor.constraint(equalTo: horizontalXView.topAnchor, constant: 14),
+            horizontalMaxTextField.topAnchor.constraint(equalTo: horizontalXView.topAnchor, constant: 10),
             horizontalMaxTextField.leadingAnchor.constraint(equalTo: horizontalMinTextField.trailingAnchor, constant: 7),
             horizontalMaxTextField.trailingAnchor.constraint(equalTo: horizontalXView.trailingAnchor, constant: -13),
-            horizontalMaxTextField.bottomAnchor.constraint(equalTo: horizontalXView.bottomAnchor, constant: -14),
+            horizontalMaxTextField.bottomAnchor.constraint(equalTo: horizontalXView.bottomAnchor, constant: -10),
             horizontalMaxTextField.widthAnchor.constraint(equalToConstant: 76),
             
             // ChartLineLabel Constraint
@@ -300,11 +301,23 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
             verticalMaxTextField.textField.isUserInteractionEnabled = false
             horizontalMinTextField.textField.isUserInteractionEnabled = false
             horizontalMaxTextField.textField.isUserInteractionEnabled = false
+            PSITextField.textField.backgroundColor = UIColor(hexString: "#F5F5F5")
+            GPMTextField.textField.backgroundColor = UIColor(hexString: "#F5F5F5")
+            verticalMinTextField.textField.backgroundColor = UIColor(hexString: "#F5F5F5")
+            verticalMaxTextField.textField.backgroundColor = UIColor(hexString: "#F5F5F5")
+            horizontalMinTextField.textField.backgroundColor = UIColor(hexString: "#F5F5F5")
+            horizontalMaxTextField.textField.backgroundColor = UIColor(hexString: "#F5F5F5")
         } else {
             chartLineLabel.isHidden = false
             addGraphLineButton.isHidden = false
+            PSITextField.textField.backgroundColor = .white
+            GPMTextField.textField.backgroundColor = .white
             PSITextField.textField.isUserInteractionEnabled = true
             GPMTextField.textField.isUserInteractionEnabled = true
+            verticalMinTextField.textField.backgroundColor = .white
+            verticalMaxTextField.textField.backgroundColor = .white
+            horizontalMinTextField.textField.backgroundColor = .white
+            horizontalMaxTextField.textField.backgroundColor = .white
             verticalMinTextField.textField.isUserInteractionEnabled = true
             verticalMaxTextField.textField.isUserInteractionEnabled = true
             horizontalMinTextField.textField.isUserInteractionEnabled = true
@@ -437,6 +450,14 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
                 lineGraph.addLine(yCoordinates[index][i], labels: graphLabelData[index][i])
                 contentViewHeight += CGFloat(280 + (120 * yCoordinates[index][i].count))
             }
+        } else {
+            yCoordinates[index] = [[0]]
+            xCoordinates[index] = [[0]]
+            graphLabelData[index] = [[""]]
+            
+            lineGraph.addLine(yCoordinates[index][0], labels: graphLabelData[index][0])
+            contentViewHeight += CGFloat(280 + (120 * yCoordinates[index][0].count))
+            addNewValueElement()
         }
         scrollView.contentSize = CGSize(width: scrollView.frame.width, height: contentViewHeight)
         contentView.frame = CGRect(x: 0, y: 0, width: scrollView.contentSize.width, height: scrollView.contentSize.height)
@@ -474,9 +495,11 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
     
     // ScrollView delegate method calls on scroll
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        reloadTimer?.invalidate()
-        reloadTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { [weak self] _ in
-            self?.addLineTableView.reloadData()
+        if !isTextFieldSelected {
+            reloadTimer?.invalidate()
+            reloadTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { [weak self] _ in
+                self?.addLineTableView.reloadData()
+            }
         }
     }
     
@@ -484,16 +507,14 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
     @objc func showHideButtonTapped() {
         let isHidden = verticalYView.isHidden
         
-        UIView.animate(withDuration: 0.3) {
-            self.verticalYView.isHidden = !isHidden
-            self.horizontalXView.isHidden = !isHidden
-            self.showHideButton.title = isHidden ? "Hide" : "Show"
-            if #available(iOS 13.0, *) {
-                let imageName = isHidden ? "chevron.up" : "chevron.down"
-                self.showHideButtonImage.image = UIImage(systemName: imageName)
-            } else {
-                // Fallback on earlier versions
-            }
+        self.verticalYView.isHidden = !isHidden
+        self.horizontalXView.isHidden = !isHidden
+        self.showHideButton.title = isHidden ? "Hide" : "Show"
+        if #available(iOS 13.0, *) {
+            let imageName = isHidden ? "chevron.up" : "chevron.down"
+            self.showHideButtonImage.image = UIImage(systemName: imageName)
+        } else {
+            // Fallback on earlier versions
         }
     }
     
@@ -522,28 +543,7 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
                 addLineTableView.scrollToBottom()
                 addLineTableView.reloadData()
             }
-            
-            // Create a new ValueElement instance
-            let lineId = generateObjectId()
-            let pointId = generateObjectId()
-            let newValueElement = ValueElement(
-                id: lineId,
-                url: "",
-                fileName: "",
-                filePath: "",
-                deleted: false,
-                title: "",
-                description: "",
-                points: [
-                    Point(id: pointId,
-                          label: "",
-                          y: 0,
-                          x: 0)
-                ]
-            )
-            newLineId = lineId
-            chartPointsId[index].append([pointId])
-            chartValueElement[index].append(newValueElement)
+            addNewValueElement()
             
             // Update updated value in the joyDoc
             let value = joyDocFieldData[index].value
@@ -574,6 +574,30 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
             
             self.saveDelegate?.handleLineCreate(line: index)
         }
+    }
+    
+    // Create a new ValueElement instance
+    func addNewValueElement() {
+        let lineId = generateObjectId()
+        let pointId = generateObjectId()
+        let newValueElement = ValueElement(
+            id: lineId,
+            url: "",
+            fileName: "",
+            filePath: "",
+            deleted: false,
+            title: "",
+            description: "",
+            points: [
+                Point(id: pointId,
+                      label: "",
+                      y: 0,
+                      x: 0)
+            ]
+        )
+        newLineId = lineId
+        chartPointsId[index].append([pointId])
+        chartValueElement[index].append(newValueElement)
     }
     
     // TextField delegate method called when editing stops to update max and min value of horizontal and vertical axis
@@ -658,8 +682,29 @@ extension ChartView: UITableViewDelegate, UITableViewDataSource {
     
     // MARK: TextField delegate method for textField selection
     func textFieldCellDidSelect(_ cell: UITableViewCell) {
-        let indexPath = addLineTableView.indexPath(for: cell)
-        addPointButtonIndexPath = indexPath?.row ?? 0
+        guard let indexPath = addLineTableView.indexPath(for: cell) else {
+            return
+        }
+        
+        let tableCell = addLineTableView.cellForRow(at: indexPath) as? ChartLineTableViewCell
+        isTextFieldSelected = true
+        addPointButtonIndexPath = indexPath.row
+        tableCell?.typeDescriptionTextField.delegate = self
+        tableCell?.typeTitleTextField.textField.delegate = self
+    }
+    
+    public func textFieldDidEndEditing(_ textField: UITextField, reason: UITextField.DidEndEditingReason) {
+        let tableCell = addLineTableView.cellForRow(at: IndexPath(row: addPointButtonIndexPath, section: 0)) as? ChartLineTableViewCell
+        isTextFieldSelected = false
+        textField.layer.borderWidth = 1
+        textField.layer.borderColor = UIColor(hexString: "#D1D1D6")?.cgColor
+        chartLineTitle[index][addPointButtonIndexPath] = tableCell?.typeTitleTextField.textField.text ?? ""
+        chartLineDescription[index][addPointButtonIndexPath] = tableCell?.typeDescriptionTextField.text ?? ""
+    }
+    
+    public func textFieldDidBeginEditing(_ textField: UITextField) {
+        textField.layer.borderWidth = 2
+        textField.layer.borderColor = UIColor.darkGray.cgColor
     }
     
     // MARK: Point delete button delegate method to get indexPath
@@ -696,6 +741,8 @@ extension ChartView: UITableViewDelegate, UITableViewDataSource {
             yCoordinates[index].remove(at: sender.tag)
             xCoordinates[index].remove(at: sender.tag)
             graphLabelData[index].remove(at: sender.tag)
+            chartLineTitle[index].remove(at: sender.tag)
+            chartLineDescription[index].remove(at: sender.tag)
             
             addPointButtonIndexPath = indexPath.row
             if addPointButtonIndexPath == xCoordinates[index].count {

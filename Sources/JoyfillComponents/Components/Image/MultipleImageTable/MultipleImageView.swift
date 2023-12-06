@@ -13,12 +13,12 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
     public var deleteView = UIView()
     public var deleteLabel = Label()
     public var closeButton = Button()
+    public var uploadButton = Button()
     public var deleteImage = ImageView()
     public var interiorImageBar = UIView()
     public var interiorImageLabel = Label()
     public var imageTableView = UITableView()
     public var deleteUploadStack = UIStackView()
-    public var interiorImageUploadButton = Button()
     
     public var index = Int()
     public var imageMultiValue = Bool()
@@ -42,6 +42,7 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         if #available(iOS 13.0, *) {
             view.overrideUserInterfaceStyle = .light
         }
+        NotificationCenter.default.addObserver(self, selector: #selector(reloadTable), name: NSNotification.Name(rawValue: "reloadTable"), object: nil)
         setupUI()
     }
     
@@ -49,25 +50,7 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         super.viewWillAppear(animated)
         view.backgroundColor = .white
         setupUI()
-        
-        if imageDisplayMode == "readonly" {
-            if selectedImage[index].count != 0 {
-                deleteView.isHidden = true
-                interiorImageUploadButton.isHidden = true
-            } else {
-                deleteView.isHidden = true
-                interiorImageUploadButton.isHidden = true
-                imageTableView.isHidden = true
-            }
-        } else {
-            if selectedImage[index].count != 0 {
-                deleteView.isHidden = true
-                imageTableView.isHidden = false
-            } else {
-                deleteView.isHidden = true
-                imageTableView.isHidden = false
-            }
-        }
+        deleteView.isHidden = true
     }
     
     func setupUI() {
@@ -80,11 +63,11 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         interiorImageBar.addSubview(closeButton)
         deleteView.addSubview(deleteLabel)
         deleteView.addSubview(deleteImage)
-        deleteUploadStack.addArrangedSubview(interiorImageUploadButton)
+        deleteUploadStack.addArrangedSubview(uploadButton)
         deleteUploadStack.addArrangedSubview(deleteView)
         
         mainView.translatesAutoresizingMaskIntoConstraints = false
-        interiorImageUploadButton.translatesAutoresizingMaskIntoConstraints = false
+        uploadButton.translatesAutoresizingMaskIntoConstraints = false
         deleteView.translatesAutoresizingMaskIntoConstraints = false
         deleteImage.translatesAutoresizingMaskIntoConstraints = false
         deleteLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -126,7 +109,7 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
             deleteUploadStack.heightAnchor.constraint(equalToConstant: 35),
             
             // UploadButton Constraint
-            interiorImageUploadButton.widthAnchor.constraint(equalToConstant: 93),
+            uploadButton.widthAnchor.constraint(equalToConstant: 93),
             
             // DeleteButton Constraint
             deleteView.widthAnchor.constraint(equalToConstant: 93),
@@ -192,13 +175,19 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         deleteView.isUserInteractionEnabled = true
         
         // Set UploadButton
-        interiorImageUploadButton.tag = index
-        interiorImageUploadButton.image = UIImage(named: "interiorUploadButton", in: .module, compatibleWith: nil)
-        interiorImageUploadButton.addTarget(self, action: #selector(interiorUploadButtonTapped), for: .touchUpInside)
+        uploadButton.tag = index
+        uploadButton.image = UIImage(named: "interiorUploadButton", in: .module, compatibleWith: nil)
+        uploadButton.addTarget(self, action: #selector(interiorUploadButtonTapped), for: .touchUpInside)
+        
+        if imageDisplayMode == "readonly" {
+            uploadButton.isHidden = true
+        } else {
+            uploadButton.isHidden = false
+        }
     }
     
     @objc public func interiorUploadButtonTapped(sender: UIButton) {
-        uploadImageTapAction?()
+        joyfillFormImageUpload?()
         imageIndexNo = sender.tag
     }
     
@@ -216,7 +205,6 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         cell.contentView.backgroundColor = .clear
         cell.selectedImage = selectedImage
         cell.index = index
-        cell.checkDisplayMode()
         
         if imageMultiValue {
             cell.cellImageField.load(urlString: selectedImage[index][indexPath.row])
@@ -226,7 +214,6 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         
         tableView.rowHeight = 280
         cell.isSelected = selectedIndexPath.contains(indexPath.row)
-        cell.imageDisplayMode = imageDisplayMode
         
         if selectedIndexPath.contains(indexPath.row) {
             cell.checkboxButton.isChecked = true
@@ -277,9 +264,22 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         if imageDisplayMode != "readonly" {
             if selectedIndexPath.count == 0 {
                 deleteView.isHidden = true
+                uploadButton.isHidden = true
             } else {
                 deleteView.isHidden = false
             }
+        }
+    }
+    
+    // Reload tableView when new image is updated
+    @objc func reloadTable(_ notification: Notification) {
+        if let uploadedMultipleImage = notification.object as? [String] {
+            if imageMultiValue {
+                selectedImage[index] = uploadedMultipleImage
+            } else {
+                pickedSingleImg[index] = uploadedMultipleImage
+            }
+            imageTableView.reloadData()
         }
     }
     

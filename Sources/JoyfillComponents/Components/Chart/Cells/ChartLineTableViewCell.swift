@@ -187,6 +187,8 @@ public class ChartLineTableViewCell: UITableViewCell, ChartViewTextFieldCellDele
         typeTitleTextField.textField.placeholder = "Type title"
         typeDescriptionTextField.placeholder = "Type description"
         typeTitleTextField.topLabel.labelText = "Title & Description"
+        typeTitleTextField.textField.text = chartLineTitle[index][addPointButtonIndexPath]
+        typeDescriptionTextField.text = chartLineDescription[index][addPointButtonIndexPath]
         
         pointsLabel.labelText = "Points"
         pointsLabel.font = UIFont.boldSystemFont(ofSize: 14)
@@ -218,9 +220,13 @@ public class ChartLineTableViewCell: UITableViewCell, ChartViewTextFieldCellDele
             addPointButton.isHidden = true
             typeDescriptionTextField.isUserInteractionEnabled = false
             typeTitleTextField.textField.isUserInteractionEnabled = false
+            typeDescriptionTextField.backgroundColor = UIColor(hexString: "#F5F5F5")
+            typeTitleTextField.textField.backgroundColor = UIColor(hexString: "#F5F5F5")
         } else {
             removeView.isHidden = false
             addPointButton.isHidden = false
+            typeDescriptionTextField.backgroundColor = .white
+            typeTitleTextField.textField.backgroundColor = .white
             typeDescriptionTextField.isUserInteractionEnabled = true
             typeTitleTextField.textField.isUserInteractionEnabled = true
         }

@@ -47,6 +47,20 @@ public class Dropdown: UIView, DropDownSelectText, UITextFieldDelegate {
         saveDelegate?.handleBlur(index: index)
     }
     
+    public func dropdownDisplayModes(mode : String) {
+        if mode != "readonly" {
+            viewTextField.backgroundColor = .white
+            textField.backgroundColor = .white
+            textField.isUserInteractionEnabled = true
+            let tap = UITapGestureRecognizer(target: self, action: #selector(dropdownOpen))
+            textField.addGestureRecognizer(tap)
+        } else {
+            viewTextField.backgroundColor = UIColor(hexString: "#F5F5F5")
+            textField.backgroundColor = UIColor(hexString: "#F5F5F5")
+            textField.isUserInteractionEnabled = false
+        }
+    }
+    
     func setupUI () {
         addSubview(titleLbl)
         addSubview(toolTipIconButton)
@@ -107,12 +121,8 @@ public class Dropdown: UIView, DropDownSelectText, UITextFieldDelegate {
         textField.delegate = self
         textField.font = UIFont(name: "Helvetica Neue", size: 14)
         self.dropdownPlaceholder = "Select option"
-        let tap = UITapGestureRecognizer(target: self, action: #selector(dropdownOpen))
-        textField.addGestureRecognizer(tap)
-        textField.isUserInteractionEnabled = true
         
         if #available(iOS 13.0, *) {
-            
             let boldConfig = UIImage.SymbolConfiguration(weight: .bold)
             let boldSearch = UIImage(systemName: "chevron.down", withConfiguration: boldConfig)
             button.setImage(boldSearch, for: .normal)
