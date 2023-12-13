@@ -16,6 +16,7 @@ class CollectionViewCell: UICollectionViewCell, UITextFieldDelegate, UITextViewD
     let numberLabel = Label()
     var dropdownView = UIView()
     var bottomBorder = UIView()
+    let imageCountLabel = Label()
     let selectionButton = Button()
     let dropdownImage = ImageView()
     let cellTextView = UITextView()
@@ -154,6 +155,30 @@ class CollectionViewCell: UICollectionViewCell, UITextFieldDelegate, UITextViewD
         }
         dropdownImage.tintColor = .black
         dropdownView.isUserInteractionEnabled = false
+    }
+    
+    // Function to add Image in table
+    func setImageFieldInTableColumn() {
+        contentView.addSubview(image)
+        contentView.addSubview(imageCountLabel)
+        
+        image.translatesAutoresizingMaskIntoConstraints = false
+        imageCountLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            image.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            image.centerXAnchor.constraint(equalTo: contentView.centerXAnchor, constant: -5),
+            image.widthAnchor.constraint(equalToConstant: 30),
+            image.heightAnchor.constraint(equalToConstant: 30),
+            
+            imageCountLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 2),
+            imageCountLabel.leadingAnchor.constraint(equalTo: image.trailingAnchor, constant: 2),
+            imageCountLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -2),
+            imageCountLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -2)
+        ])
+        
+        image.image = UIImage(named: "Img_box_fill", in: .module, compatibleWith: nil)
+        imageCountLabel.fontSize = 12
     }
     
     // Action function for textView

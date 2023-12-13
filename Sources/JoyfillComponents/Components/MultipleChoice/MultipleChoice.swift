@@ -18,6 +18,7 @@ public class MultipleChoice: UIView {
     var index = Int()
     var selectedId = [String]()
     var saveDelegate: SaveTextFieldValue? = nil
+    public var tableViewCellHeight = [CGFloat]()
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
@@ -159,6 +160,7 @@ public class MultipleChoice: UIView {
         tableView.layer.borderWidth = 1
         tableView.layer.cornerRadius = 10
         tableView.separatorStyle = .none
+        tableView.isScrollEnabled = false
         tableView.contentInsetAdjustmentBehavior = .never
         tableView.showsVerticalScrollIndicator = false
         tableView.layer.borderColor = UIColor(hexString: "#C0C1C6")?.cgColor
@@ -233,12 +235,7 @@ extension MultipleChoice: UITableViewDelegate, UITableViewDataSource {
     
     // MARK: TableView delegate method to adjust cell height
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        // Calculate the required height for the text in the cell
-        let text = multiSelectOptions[index][indexPath.row]
-        let font = UIFont.systemFont(ofSize: 16)
-        let width = tableView.frame.width - 10
-        let height = heightForText(text , font: font, width: width)
-        return height + 30
+        return tableViewCellHeight[indexPath.row]
     }
     
     // Function to check multiSelect or singleSelect

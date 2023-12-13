@@ -264,7 +264,6 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         if imageDisplayMode != "readonly" {
             if selectedIndexPath.count == 0 {
                 deleteView.isHidden = true
-                uploadButton.isHidden = true
             } else {
                 deleteView.isHidden = false
             }

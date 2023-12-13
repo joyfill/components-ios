@@ -536,7 +536,9 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
         if yCoordinates[index].count < 12 {
             yCoordinates[index].append([0])
             xCoordinates[index].append([0])
+            chartLineTitle[index].append("")
             graphLabelData[index].append([""])
+            chartLineDescription[index].append("")
             addPointButtonIndexPath = xCoordinates[index].count - 1
             for i in 0...yCoordinates[index].count - 1 {
                 lineGraph.addLine(yCoordinates[index][i], labels: graphLabelData[index][i])

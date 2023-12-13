@@ -52,6 +52,7 @@ public class Dropdown: UIView, DropDownSelectText, UITextFieldDelegate {
             viewTextField.backgroundColor = .white
             textField.backgroundColor = .white
             textField.isUserInteractionEnabled = true
+            button.addTarget(self, action: #selector(dropdownOpen), for: .touchUpInside)
             let tap = UITapGestureRecognizer(target: self, action: #selector(dropdownOpen))
             textField.addGestureRecognizer(tap)
         } else {
@@ -129,7 +130,6 @@ public class Dropdown: UIView, DropDownSelectText, UITextFieldDelegate {
         } else {
             // Fallback on earlier versions
         }
-        button.addTarget(self, action: #selector(dropdownOpen), for: .touchUpInside)
         button.tintColor = .gray
     }
     

@@ -8,7 +8,7 @@ protocol ChartViewTextFieldCellDelegate: AnyObject {
     func textFieldCellDidSelect(_ cell: UITableViewCell)
 }
 
-public class ChartLineTableViewCell: UITableViewCell, ChartViewTextFieldCellDelegate {
+public class ChartLineTableViewCell: UITableViewCell, ChartViewTextFieldCellDelegate, UITextFieldDelegate {
     
     public var view = UIView()
     public var label = Label()
@@ -25,6 +25,7 @@ public class ChartLineTableViewCell: UITableViewCell, ChartViewTextFieldCellDele
     
     var index = Int()
     var newLineId = String()
+    var textFieldIndexPath = IndexPath()
     var saveDelegate: saveChartFieldValue? = nil
     
     var cellTapGestureRecognizer: UITapGestureRecognizer?
@@ -249,11 +250,11 @@ public class ChartLineTableViewCell: UITableViewCell, ChartViewTextFieldCellDele
     }
     
     // Re-enable the collectionView cell's gesture recognizer
-    func textFieldDidEndEditing(_ textField: UITextField) {
+    public func textFieldDidEndEditing(_ textField: UITextField) {
         cellTapGestureRecognizer?.isEnabled = true
     }
     
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+    public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
     }
@@ -316,73 +317,86 @@ extension ChartLineTableViewCell: UITableViewDelegate, UITableViewDataSource {
         }
         
         let tableCell = pointsTableView.cellForRow(at: indexPath) as? PointsTableViewCell
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-            let addPointButtonIndexPath = addPointButtonIndexPath
-            
-            // Check if addPointButtonIndexPath is within the valid range of arrays
-            if addPointButtonIndexPath >= 0 && addPointButtonIndexPath < yCoordinates[self.index].count {
-                if let verticalTextFieldText = tableCell?.verticalValueTF.text,
-                   let verticalValue = NumberFormatter().number(from: verticalTextFieldText)?.doubleValue {
-                    var yPointsData = yCoordinates[self.index][addPointButtonIndexPath]
-                    yPointsData[indexPath.row] = CGFloat(verticalValue)
-                    yCoordinates[self.index][addPointButtonIndexPath] = yPointsData
-                }
+        textFieldIndexPath = indexPath
+        tableCell?.labelTF.delegate = self
+        tableCell?.verticalValueTF.delegate = self
+        tableCell?.horizontalValueTF.delegate = self
+    }
+    
+    public func textFieldDidBeginEditing(_ textField: UITextField) {
+        textField.layer.borderWidth = 2
+        textField.layer.borderColor = UIColor.darkGray.cgColor
+    }
+    
+    public func textFieldDidEndEditing(_ textField: UITextField, reason: UITextField.DidEndEditingReason) {
+        textField.layer.borderWidth = 1
+        textField.layer.borderColor = UIColor(hexString: "#D1D1D6")?.cgColor
+        let tableCell = pointsTableView.cellForRow(at: textFieldIndexPath) as? PointsTableViewCell
+        let addPointButtonIndexPath = addPointButtonIndexPath
+        
+        // Check if addPointButtonIndexPath is within the valid range of arrays
+        if addPointButtonIndexPath >= 0 && addPointButtonIndexPath < yCoordinates[self.index].count {
+            if let verticalTextFieldText = tableCell?.verticalValueTF.text,
+               let verticalValue = NumberFormatter().number(from: verticalTextFieldText)?.doubleValue {
+                var yPointsData = yCoordinates[self.index][addPointButtonIndexPath]
+                yPointsData[textFieldIndexPath.row] = CGFloat(verticalValue)
+                yCoordinates[self.index][addPointButtonIndexPath] = yPointsData
             }
-            if addPointButtonIndexPath >= 0 && addPointButtonIndexPath < xCoordinates[self.index].count {
-                if let horizontalTextFieldText = tableCell?.horizontalValueTF.text,
-                   let horizontalValue = NumberFormatter().number(from: horizontalTextFieldText)?.doubleValue {
-                    var xPointsData = xCoordinates[self.index][addPointButtonIndexPath]
-                    xPointsData[indexPath.row] = CGFloat(horizontalValue)
-                    xCoordinates[self.index][addPointButtonIndexPath] = xPointsData
-                }
+        }
+        if addPointButtonIndexPath >= 0 && addPointButtonIndexPath < xCoordinates[self.index].count {
+            if let horizontalTextFieldText = tableCell?.horizontalValueTF.text,
+               let horizontalValue = NumberFormatter().number(from: horizontalTextFieldText)?.doubleValue {
+                var xPointsData = xCoordinates[self.index][addPointButtonIndexPath]
+                xPointsData[textFieldIndexPath.row] = CGFloat(horizontalValue)
+                xCoordinates[self.index][addPointButtonIndexPath] = xPointsData
             }
-            if addPointButtonIndexPath >= 0 && addPointButtonIndexPath < graphLabelData[self.index].count {
-                if let labelTextFieldText = tableCell?.labelTF.text {
-                    var graphTextData = graphLabelData[self.index][addPointButtonIndexPath]
-                    graphTextData[indexPath.row] = labelTextFieldText
-                    graphLabelData[self.index][addPointButtonIndexPath] = graphTextData
-                }
+        }
+        if addPointButtonIndexPath >= 0 && addPointButtonIndexPath < graphLabelData[self.index].count {
+            if let labelTextFieldText = tableCell?.labelTF.text {
+                var graphTextData = graphLabelData[self.index][addPointButtonIndexPath]
+                graphTextData[textFieldIndexPath.row] = labelTextFieldText
+                graphLabelData[self.index][addPointButtonIndexPath] = graphTextData
             }
-            self.lineGraph.setNeedsDisplay()
-            
-            let updatedValueElement = Point(
-                id: chartPointsId[self.index][addPointButtonIndexPath][indexPath.row],
-                label: tableCell?.labelTF.text ?? "",
-                y: CGFloat(Int(tableCell?.verticalValueTF.text ?? "") ?? 0),
-                x: CGFloat(Int(tableCell?.horizontalValueTF.text ?? "") ?? 0)
-            )
-            
-            chartValueElement[self.index][addPointButtonIndexPath].points?[indexPath.row] = updatedValueElement
-            
-            // Update updated value in the joyDoc
-            let value = joyDocFieldData[self.index].value
-            switch value {
+        }
+        self.lineGraph.setNeedsDisplay()
+        
+        let updatedValueElement = Point(
+            id: chartPointsId[self.index][addPointButtonIndexPath][textFieldIndexPath.row],
+            label: tableCell?.labelTF.text ?? "",
+            y: CGFloat(Int(tableCell?.verticalValueTF.text ?? "") ?? 0),
+            x: CGFloat(Int(tableCell?.horizontalValueTF.text ?? "") ?? 0)
+        )
+        
+        chartValueElement[self.index][addPointButtonIndexPath].points?[textFieldIndexPath.row] = updatedValueElement
+        
+        // Update updated value in the joyDoc
+        let value = joyDocFieldData[self.index].value
+        switch value {
+        case .string: break
+        case .integer: break
+        case .valueElementArray:
+            joyDocFieldData[self.index].value = ValueUnion.valueElementArray(chartValueElement[self.index])
+        case .array(_): break
+        case .none:
+            joyDocFieldData[self.index].value = ValueUnion.valueElementArray(chartValueElement[self.index])
+        case .some(.null): break
+        }
+        
+        if let index = joyDocStruct?.fields?.firstIndex(where: {$0.id == joyDocFieldData[self.index].id}) {
+            let modelValue = joyDocStruct?.fields?[index].value
+            switch modelValue {
             case .string: break
             case .integer: break
             case .valueElementArray:
-                joyDocFieldData[self.index].value = ValueUnion.valueElementArray(chartValueElement[self.index])
+                joyDocStruct?.fields?[index].value = ValueUnion.valueElementArray(chartValueElement[self.index])
             case .array(_): break
             case .none:
-                joyDocFieldData[self.index].value = ValueUnion.valueElementArray(chartValueElement[self.index])
+                joyDocStruct?.fields?[index].value = ValueUnion.valueElementArray(chartValueElement[self.index])
             case .some(.null): break
             }
-            
-            if let index = joyDocStruct?.fields?.firstIndex(where: {$0.id == joyDocFieldData[self.index].id}) {
-                let modelValue = joyDocStruct?.fields?[index].value
-                switch modelValue {
-                case .string: break
-                case .integer: break
-                case .valueElementArray:
-                    joyDocStruct?.fields?[index].value = ValueUnion.valueElementArray(chartValueElement[self.index])
-                case .array(_): break
-                case .none:
-                    joyDocStruct?.fields?[index].value = ValueUnion.valueElementArray(chartValueElement[self.index])
-                case .some(.null): break
-                }
-            }
-            
-            self.saveDelegate?.handleLineData(rowId: chartPointsId[self.index][addPointButtonIndexPath][indexPath.row], line: self.index, indexPath: indexPath.row, newYValue: Int(tableCell?.verticalValueTF.text ?? "") ?? 0, newXValue: Int(tableCell?.horizontalValueTF.text ?? "") ?? 0, newLabelValue: tableCell?.labelTF.text ?? "")
         }
+        
+        self.saveDelegate?.handleLineData(rowId: chartPointsId[self.index][addPointButtonIndexPath][textFieldIndexPath.row], line: self.index, indexPath: textFieldIndexPath.row, newYValue: Int(tableCell?.verticalValueTF.text ?? "") ?? 0, newXValue: Int(tableCell?.horizontalValueTF.text ?? "") ?? 0, newLabelValue: tableCell?.labelTF.text ?? "")
     }
     
     func reloadAddLineTableView() {}
