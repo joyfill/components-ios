@@ -69,19 +69,39 @@ public class Label: UILabel {
             updateTitleLabelFont()
         }
     }
+    
+    @IBInspectable
+    open var isTextUnderlined: Bool = false {
+        didSet {
+            updateTitleLabelFont()
+        }
+    }
 
     private func updateTitleLabelFont() {
-        var fontTraits = UIFontDescriptor.SymbolicTraits()
+        var traits: UIFontDescriptor.SymbolicTraits = []
         
         if isTextBold {
-            fontTraits.insert(.traitBold)
+            traits.insert(.traitBold)
         }
         if isTextItalic {
-            fontTraits.insert(.traitItalic)
+            traits.insert(.traitItalic)
         }
         
-        let fontDescriptor = UIFont.systemFont(ofSize: fontSize).fontDescriptor.withSymbolicTraits(fontTraits)
-        font = UIFont(descriptor: fontDescriptor!, size: fontSize)
+        var fontDescriptor = UIFont.systemFont(ofSize: fontSize).fontDescriptor
+        fontDescriptor = fontDescriptor.withSymbolicTraits(traits) ?? fontDescriptor
+        font = UIFont(descriptor: fontDescriptor, size: fontSize)
+        
+        if isTextUnderlined {
+            updateUnderline()
+        }
+    }
+    
+    private func updateUnderline() {
+        guard let labelText = text else { return }
+        
+        let attributedString = NSMutableAttributedString(string: labelText)
+        attributedString.addAttribute(.underlineStyle, value: NSUnderlineStyle.single.rawValue, range: NSRange(location: 0, length: attributedString.length))
+        self.attributedText = attributedString
     }
     
     // MARK: Initializer

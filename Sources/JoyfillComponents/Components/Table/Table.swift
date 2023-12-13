@@ -57,6 +57,7 @@ open class Table: UIView, UIViewControllerTransitioningDelegate, tableUpdate {
     // Update rows count
     func tableCountNumberUpdate(no: Int, tableIndexNo: Int) {
         countLabel.labelText = "+\(no)"
+        collectionView.collectionView.reloadData()
     }
     
     // Update numberOfRows

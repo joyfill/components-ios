@@ -132,8 +132,8 @@ public class PointsTableViewCell: UITableViewCell {
     @objc private func textFieldDidTap(_ gesture: UITapGestureRecognizer) {
         activeTextField = verticalValueTF
         verticalValueTF.becomeFirstResponder()
-        cellTapGestureRecognizer?.isEnabled = false
         textFieldDelegate?.textFieldCellDidSelect(self)
+        cellTapGestureRecognizer?.isEnabled = false
         if verticalValueTF.text == "0" {
             verticalValueTF.text = ""
         }
@@ -143,8 +143,8 @@ public class PointsTableViewCell: UITableViewCell {
     @objc private func horizontalTextFieldDidTap(_ gesture: UITapGestureRecognizer) {
         activeTextField = horizontalValueTF
         horizontalValueTF.becomeFirstResponder()
-        cellTapGestureRecognizer?.isEnabled = false
         textFieldDelegate?.textFieldCellDidSelect(self)
+        cellTapGestureRecognizer?.isEnabled = false
         if horizontalValueTF.text == "0" {
             horizontalValueTF.text = ""
         }
@@ -154,8 +154,8 @@ public class PointsTableViewCell: UITableViewCell {
     @objc private func textFieldDidTapForLabel(_ gesture: UITapGestureRecognizer) {
         activeTextField = labelTF
         labelTF.becomeFirstResponder()
-        cellTapGestureRecognizer?.isEnabled = false
         textFieldDelegate?.textFieldCellDidSelect(self)
+        cellTapGestureRecognizer?.isEnabled = false
     }
     
     // Re-enable the collectionView cell's gesture recognizer

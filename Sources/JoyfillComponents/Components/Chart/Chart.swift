@@ -68,8 +68,10 @@ public class Chart: UIView, UIViewControllerTransitioningDelegate {
     
     public override func didMoveToWindow() {
         super.didMoveToWindow()
-        setupUI()
-        lineGraph.setNeedsDisplay()
+        if window != nil {
+            setupUI()
+            lineGraph.setNeedsDisplay()
+        }
     }
     
     func setupUI() {
@@ -189,9 +191,11 @@ public class Chart: UIView, UIViewControllerTransitioningDelegate {
         horizontalLabel.textAlignment = .center
         horizontalLabel.labelText = "Horizontal"
         
-        if xCoordinates[index].isEmpty != true {
-            for i in 0...yCoordinates[index].count - 1 {
-                lineGraph.addLine(yCoordinates[index][i], labels: graphLabelData[index][i])
+        if index <= xCoordinates.count {
+            if xCoordinates[index].isEmpty != true {
+                for i in 0...yCoordinates[index].count - 1 {
+                    lineGraph.addLine(yCoordinates[index][i], labels: graphLabelData[index][i])
+                }
             }
         }
         
