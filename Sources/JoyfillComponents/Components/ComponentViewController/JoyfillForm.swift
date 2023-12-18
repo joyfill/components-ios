@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 
 var cellHeight = [CGFloat]()
-public var updateImage = Bool()
+public var updateImage = [Bool]()
 public var imageIndexNo = Int()
 public var cellView = [UIView]()
 public var chartIndexPath = Int()
@@ -26,7 +26,7 @@ public protocol onChange {
 }
 
 public func onUploadAsync(imageUrl: String) {
-    updateImage = true
+    updateImage[imageIndexNo] = true
     uploadedImageCount[imageIndexNo] = [imageUrl]
     uploadedSingleImage[imageIndexNo] = [imageUrl]
     uploadedMultipleImage[imageIndexNo].append(imageUrl)
@@ -283,7 +283,7 @@ extension JoyfillForm: UITableViewDelegate, UITableViewDataSource, SaveTextField
         if image.selectedImage[i].count == 0 {
             tableView.rowHeight = uploadedMultipleImage[i].count != 0 ? 260 : 150
             
-            if uploadedMultipleImage[i].count != 0 && updateImage {
+            if uploadedMultipleImage[i].count != 0 && updateImage[i] {
                 image.selectedImage[i] = uploadedMultipleImage[i]
                 image.pickedSingleImg[i] = uploadedSingleImage[i]
                 updateUploadedImage(index: i, imageMultiValue: joyDocFieldData[i].multi ?? false)
@@ -295,7 +295,7 @@ extension JoyfillForm: UITableViewDelegate, UITableViewDataSource, SaveTextField
         } else {
             tableView.rowHeight = 260
             
-            if uploadedMultipleImage[i].count != 0 && updateImage {
+            if uploadedMultipleImage[i].count != 0 && updateImage[i] {
                 image.selectedImage[i].append(uploadedMultipleImage[i].last ?? "")
                 image.pickedSingleImg[i] = uploadedSingleImage[i]
                 updateUploadedImage(index: i, imageMultiValue: joyDocFieldData[i].multi ?? false)
@@ -362,7 +362,7 @@ extension JoyfillForm: UITableViewDelegate, UITableViewDataSource, SaveTextField
             case .some(.null): break
             }
         }
-        updateImage = false
+        updateImage[index] = false
     }
     
     //MARK: - Block Field
