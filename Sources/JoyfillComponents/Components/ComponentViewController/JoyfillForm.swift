@@ -133,6 +133,27 @@ public class JoyfillForm: UIView, SaveTableFieldValue, saveImageFieldValue, save
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(openPageNavigationModal))
         pageNavigationView.addGestureRecognizer(tapGesture)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    // Keyboard appear function
+    @objc func keyboardWillShow(_ notification: Notification) {
+        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
+            return
+        }
+        
+        let insets = UIEdgeInsets(top: 0, left: 0, bottom: keyboardFrame.height - 50, right: 0)
+        joyDoc.contentInset = insets
+        joyDoc.scrollIndicatorInsets = insets
+    }
+    
+    // Keyboard dismiss function
+    @objc func keyboardWillHide(_ notification: Notification) {
+        let insets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        joyDoc.contentInset = insets
+        joyDoc.scrollIndicatorInsets = insets
     }
     
     private func findViewController() -> UIViewController? {
