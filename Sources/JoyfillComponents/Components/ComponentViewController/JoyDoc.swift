@@ -400,6 +400,7 @@ func initializeVariablesWithEmptyValues() {
     cellView.append(UIView())
     graphLabelData.append([])
     tableCellsData.append([])
+    updateImage.append(false)
     chartLineTitle.append([""])
     tableFieldValue.append([])
     dropdownOptions.append([])
@@ -422,6 +423,7 @@ func DeinitializeVariables() {
     // Deinitialize arrays to protect memory leakage
     cellView.removeAll()
     cellHeight.removeAll()
+    updateImage.removeAll()
     yPointsData.removeAll()
     xPointsData.removeAll()
     optionsData.removeAll()
