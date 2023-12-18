@@ -146,7 +146,7 @@ extension CollectionViewTable: UICollectionViewDelegate, UICollectionViewDataSou
             if indexPath.section > 0 {
                 setImageValue(cell: cell, indexPath: indexPath)
             }
-            if cell.imageCountLabel.labelText == "  Dummy Text" {
+            if cell.imageCountLabel.labelText == "" {
                 cell.image.layer.opacity = 0.5
                 cell.imageCountLabel.isHidden = true
             } else {

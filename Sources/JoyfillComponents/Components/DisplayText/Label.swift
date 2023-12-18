@@ -184,6 +184,6 @@ public class Label: UILabel {
         borderColor = .gray
         borderCornerRadius = 5
         textColor = .black
-        labelText = "  Dummy Text"
+        labelText = ""
     }
 }

@@ -1035,7 +1035,7 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
     // MARK: CollectionView delegate method for cell selection at indexPath
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if tableDisplayMode != "readonly" {
-            if indexPath.item == 0 {
+            if indexPath.item == 0 && indexPath.section != 0 {
                 changeSelectionButtonState(indexPath: indexPath)
             }
             if indexPath.section != 0 {
@@ -1230,7 +1230,7 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
                 if indexPath.section > 0 {
                     setImageValue(cell: cell, indexPath: indexPath)
                 }
-                if cell.imageCountLabel.labelText == "  Dummy Text" {
+                if cell.imageCountLabel.labelText == "" {
                     cell.image.layer.opacity = 0.5
                     cell.imageCountLabel.isHidden = true
                 } else {
@@ -1244,7 +1244,10 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
                 
             } else {
                 if indexPath.section > 0 {
+                    cell.cellTextView.isUserInteractionEnabled = true
                     setCellTextValue(cell: cell, indexPath: indexPath)
+                } else {
+                    cell.cellTextView.isUserInteractionEnabled = false
                 }
                 cell.contentView.subviews.forEach { $0.removeFromSuperview() }
                 cell.setupSeparator()
