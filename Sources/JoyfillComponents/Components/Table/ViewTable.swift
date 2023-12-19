@@ -428,6 +428,11 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
     
     // Action for close button
     @objc func closeTapped() {
+        // Check if the collection view is currently scrolling
+        if collectionView.isDragging || collectionView.isTracking {
+            return
+        }
+        
         view.endEditing(false)
         tableColumnTitle[tableIndexNo].removeFirst(2)
         tableColumnType[tableIndexNo].removeFirst(2)
@@ -1263,9 +1268,8 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
             let tableColumnsData = optionsData[tableIndexNo][indexPath.row-2].options
             switch matchData.value {
             case .string(let string):
-                if let dropDownId = tableColumnsData?.first(where: {$0.id == string}) {
-                    cell.dropdownTextField.text = dropDownId.value
-                }
+                let dropDownId = tableColumnsData?.first(where: {$0.id == string})
+                cell.dropdownTextField.text = dropDownId?.value
             case .integer(_), .array(_), .valueElementArray(_), .null:
                 break
             }
