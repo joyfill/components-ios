@@ -34,14 +34,6 @@ public func onUploadAsync(imageUrl: String) {
     joyDoc.reloadData()
 }
 
-public func onUploadAsync(imageUrl: String) {
-    updateImage[imageIndexNo] = true
-    uploadedImageCount[imageIndexNo] = [imageUrl]
-    uploadedSingleImage[imageIndexNo] = [imageUrl]
-    uploadedMultipleImage[imageIndexNo].append(imageUrl)
-    joyDoc.reloadData()
-}
-
 public class JoyfillForm: UIView, SaveTableFieldValue, saveImageFieldValue, saveSignatureFieldValue, SavePageNavigationChange {
 
     public var pageNavigationView = UIView()
