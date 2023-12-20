@@ -109,6 +109,10 @@ extension JoyDocViewController: JoyDocViewModelDelegate {
         print("blur: ", blurAndFocusParams)
     }
     
+    func handleImageUploadAsync(images: [String]) {
+        print(">>>>>>>> images: ", images)
+    }
+    
     /* 
         MARK: - Functions to access and fetch image from gallery.
         Keep in mind that you do not have to use image picker you could provide a pre set list of images or don't handle it at all. We are just showing an exampel but once joyfillFormImageUpload is called you can do what you want with that action

@@ -191,6 +191,7 @@ public class Chart: UIView, UIViewControllerTransitioningDelegate {
         horizontalLabel.textAlignment = .center
         horizontalLabel.labelText = "Horizontal"
         
+        // Check if coordinates are greater than or equal to chart indexPath, then pass coordinates to the graph
         if index <= xCoordinates.count {
             if xCoordinates[index].isEmpty != true {
                 for i in 0...yCoordinates[index].count - 1 {

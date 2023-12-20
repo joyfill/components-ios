@@ -106,6 +106,10 @@ class ViewController: UIViewController, onChange, UIImagePickerControllerDelegat
         print(">>>>>>>> handleBlur: ", blurAndFocusParams)
     }
     
+    func handleImageUploadAsync(images: [String]) {
+        print(">>>>>>>> images: ", images)
+    }
+    
     // MARK: - Functions to access and fetch image from gallery.
     func openImageGallery() {
         if UIImagePickerController.isSourceTypeAvailable(UIImagePickerController.SourceType.photoLibrary){

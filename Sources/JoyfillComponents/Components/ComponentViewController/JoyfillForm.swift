@@ -20,9 +20,10 @@ public var uploadedMultipleImage = [[String]]()
 public var joyfillFormImageUpload: (() -> Void)?
 
 public protocol onChange {
-    func handleOnChange(docChangelog: [String: Any], doc: [String: Any])
-    func handleOnFocus(blurAndFocusParams: [String: Any])
+    func handleImageUploadAsync(images: [String])
     func handleOnBlur(blurAndFocusParams: [String: Any])
+    func handleOnFocus(blurAndFocusParams: [String: Any])
+    func handleOnChange(docChangelog: [String: Any], doc: [String: Any])
 }
 
 public func onUploadAsync(imageUrl: String) {
@@ -258,12 +259,13 @@ extension JoyfillForm: UITableViewDelegate, UITableViewDataSource, SaveTextField
         image.saveDelegate = self
         image.fieldDelegate = self
         image.uploadButton.tag = i
-        image.selectedImage = uploadedMultipleImage
-        image.pickedSingleImg = uploadedSingleImage
+        image.onChangeDelegate = saveDelegate
+        image.singleImage = uploadedSingleImage
+        image.multipleImages = uploadedMultipleImage
         
+        image.singleImage[i].removeAll()
         uploadedImageCount[i].removeAll()
-        image.selectedImage[i].removeAll()
-        image.pickedSingleImg[i].removeAll()
+        image.multipleImages[i].removeAll()
         
         // Image value based on indexPath from JoyDoc
         switch value {
@@ -272,23 +274,23 @@ extension JoyfillForm: UITableViewDelegate, UITableViewDataSource, SaveTextField
         case .valueElementArray(let valueElements):
             for k in 0..<valueElements.count {
                 uploadedImageCount[i] = [valueElements[k].url ?? ""]
-                image.pickedSingleImg[i] = [valueElements[k].url ?? ""]
-                image.selectedImage[i].append(valueElements[k].url ?? "")
+                image.singleImage[i] = [valueElements[k].url ?? ""]
+                image.multipleImages[i].append(valueElements[k].url ?? "")
             }
         case .array(_): break
         case .none: break
         case .some(.null): break
         }
         
-        if image.selectedImage[i].count == 0 {
+        if image.multipleImages[i].count == 0 {
             tableView.rowHeight = uploadedMultipleImage[i].count != 0 ? 260 : 150
             
             if uploadedMultipleImage[i].count != 0 && updateImage[i] {
-                image.selectedImage[i] = uploadedMultipleImage[i]
-                image.pickedSingleImg[i] = uploadedSingleImage[i]
-                updateUploadedImage(index: i, imageMultiValue: joyDocFieldData[i].multi ?? false)
+                image.singleImage[i] = uploadedSingleImage[i]
+                image.multipleImages[i] = uploadedMultipleImage[i]
+                updateUploadedImage(index: i, imageMultiValue: joyDocFieldData[i].multi ?? false, imageView: image)
                 
-                let objectToSend = joyDocFieldData[i].multi ?? true ? image.selectedImage[i] : image.pickedSingleImg[i]
+                let objectToSend = joyDocFieldData[i].multi ?? true ? image.multipleImages[i] : image.singleImage[i]
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "reloadTable"), object: objectToSend, userInfo: nil)
                 image.saveDelegate?.handleUpload(indexPath: i)
             }
@@ -296,11 +298,11 @@ extension JoyfillForm: UITableViewDelegate, UITableViewDataSource, SaveTextField
             tableView.rowHeight = 260
             
             if uploadedMultipleImage[i].count != 0 && updateImage[i] {
-                image.selectedImage[i].append(uploadedMultipleImage[i].last ?? "")
-                image.pickedSingleImg[i] = uploadedSingleImage[i]
-                updateUploadedImage(index: i, imageMultiValue: joyDocFieldData[i].multi ?? false)
+                image.singleImage[i] = uploadedSingleImage[i]
+                image.multipleImages[i].append(uploadedMultipleImage[i].last ?? "")
+                updateUploadedImage(index: i, imageMultiValue: joyDocFieldData[i].multi ?? false, imageView: image)
                 
-                let objectToSend = joyDocFieldData[i].multi ?? true ? image.selectedImage[i] : image.pickedSingleImg[i]
+                let objectToSend = joyDocFieldData[i].multi ?? true ? image.multipleImages[i] : image.singleImage[i]
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "reloadTable"), object: objectToSend, userInfo: nil)
                 image.saveDelegate?.handleUpload(indexPath: i)
             }
@@ -326,7 +328,7 @@ extension JoyfillForm: UITableViewDelegate, UITableViewDataSource, SaveTextField
         }
     }
     // Update updated value in the joyDoc
-    func updateUploadedImage(index: Int, imageMultiValue: Bool) {
+    func updateUploadedImage(index: Int, imageMultiValue: Bool, imageView: Image) {
         let value = joyDocFieldData[index].value
         switch value {
         case .string(_): break
@@ -361,6 +363,12 @@ extension JoyfillForm: UITableViewDelegate, UITableViewDataSource, SaveTextField
             case .none: break
             case .some(.null): break
             }
+        }
+        
+        if joyDocFieldData[index].multi == true {
+            saveDelegate?.handleImageUploadAsync(images: imageView.multipleImages[index])
+        } else {
+            saveDelegate?.handleImageUploadAsync(images: imageView.singleImage[index])
         }
         updateImage[index] = false
     }
