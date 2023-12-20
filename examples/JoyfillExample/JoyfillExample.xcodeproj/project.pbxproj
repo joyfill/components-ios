@@ -457,7 +457,7 @@
 			repositoryURL = "https://github.com/joyfill/components-ios.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 0.2.0;
+				minimumVersion = 0.2.3;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

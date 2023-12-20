@@ -11,7 +11,7 @@ class DocumentsViewController: UIViewController {
     private lazy var cv: UICollectionView = {
         
         let layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
-        layout.itemSize = .init(width: UIScreen.main.bounds.width, height: 150)
+        layout.itemSize = .init(width: UIScreen.main.bounds.width, height: 130)
         
         let vw = UICollectionView(frame: .zero, collectionViewLayout: layout)
         vw.register(DocumentCellView.self, forCellWithReuseIdentifier: "DocumentCellView")
@@ -29,7 +29,6 @@ class DocumentsViewController: UIViewController {
         setup()
         vm.delegate = self
         vm.getDocuments()
-        print("Go get documents....")
     
     }
 
@@ -51,14 +50,11 @@ extension DocumentsViewController: UICollectionViewDataSource {
         
         return cell
     }
-
 }
 
 extension DocumentsViewController: DocumentsViewModelDelegate {
     
     func didFinish() {
-        print("Documents retrieved: ", vm.documents)
-        print("Got documents now reload...")
         cv.reloadData()
     }
     
@@ -66,15 +62,22 @@ extension DocumentsViewController: DocumentsViewModelDelegate {
         print(error)
     }
     
+    
 }
 
 extension DocumentsViewController: DocumentCollectionViewCellDelegate {
     
-    func didTapSubscribe() {
+    func didTapView(item: Document) {
         
-        let vc = SFSafariViewController(url: .init(string: "https://www.youtube.com/@tundsdev")!)
+        let vc = JoyDocViewController()
+        vc.selectedDocumentIdentifier = item.identifier
+        vc.selectedDocumentName = item.name
+        navigationController?.pushViewController(vc, animated: true)
+        
+        /* For changing to modal sheet
         vc.modalPresentationStyle = .formSheet
         self.present(vc, animated: true)
+        */
     }
 }
 

@@ -11,7 +11,7 @@ class ViewController: UIViewController, onChange, UIImagePickerControllerDelegat
     var apiUrl = "https://api-joy.joyfill.io"
     var identifier = ""
     var userAccessToken = ""
-    var mode = "<Replace_me (Readonly/Fill)>"
+    var mode = "fill"
     
     lazy var saveButton: UIButton = {
         let button = UIButton()

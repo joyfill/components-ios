@@ -68,7 +68,6 @@ class JoyDocViewModel: ObservableObject {
         } catch {
             print("Error serializing JSON: \(error)")
         }
-
     }
         
     /* Async alternative to loading JoyDoc JSON
