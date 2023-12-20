@@ -1,5 +1,7 @@
 
 import Foundation
+import Alamofire
+import SwiftyJSON
 
 protocol DocumentsViewModelDelegate: AnyObject {
     func didFinish()
@@ -17,27 +19,25 @@ class DocumentsViewModel {
     func getDocuments() {
         
         Task { [weak self] in
-                
-            do {
-                
-                let url = URL(string: "https://reqres.in/api/users")!
-                let (data, _) = try await URLSession.shared.data(from: url)
-                
-                let decoder = JSONDecoder()
-                decoder.keyDecodingStrategy = .convertFromSnakeCase // REMOVE ME WE DONT USE SNAKE CASING IN JOYFILL....
-                print("data: ", data)
-                let documentsRes = try decoder.decode(DocumentsResponse.self, from: data)
-                self?.documents = documentsRes.data
-                self?.delegate?.didFinish()
-                
-            } catch {
-                
-                self?.delegate?.didFail(error)
-                print(error)
-                
-            }
-            
-        }
+
+            let url = "\(Constants.baseURL)?limit=25&page=1&type=document&stage=published"
+            print("Go get documents from \(url)")
         
+            let headers: HTTPHeaders = [
+                "Authorization": "Bearer \(Constants.userAccessToken)"
+            ]
+        
+            let response = AF.request(url, method: .get, headers: headers).serializingDecodable(DocumentListResponse.self)
+        
+            switch await response.result {
+            case .success(let res):
+                self?.documents = res.data
+                self?.delegate?.didFinish()
+                print("Success! Retrieved \(res.data.count) docs.")
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+         
+        }
     }
 }

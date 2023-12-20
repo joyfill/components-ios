@@ -5,13 +5,13 @@ import UIKit
 class DocumentView: UIView {
     
     // MARK: - Components
-    private lazy var subscribeBtn: UIButton = {
+    private lazy var viewBtn: UIButton = {
         
         var config = UIButton.Configuration.filled()
-        config.title = "Subscribe".uppercased()
-        config.baseBackgroundColor = UIColor.red
-        config.baseForegroundColor = UIColor.white
-        config.buttonSize = .large
+        config.title = "View"
+        config.baseBackgroundColor = .systemBlue.withAlphaComponent(0.08)
+        config.baseForegroundColor = .systemBlue
+        config.buttonSize = .medium
         config.cornerStyle = .medium
         
         let btn = UIButton(configuration: config)
@@ -23,18 +23,28 @@ class DocumentView: UIView {
     private lazy var nameLbl: UILabel = {
         
         let lbl = UILabel()
-        lbl.text = "Billy Bob"
-        lbl.font = .systemFont(ofSize: 18, weight: .bold)
+        lbl.text = ""
+        lbl.font = .systemFont(ofSize: 16, weight: .semibold)
         lbl.translatesAutoresizingMaskIntoConstraints = false
         return lbl
         
     }()
     
-    private lazy var emailLbl: UILabel = {
+    private lazy var idLbl: UILabel = {
         
         let lbl = UILabel()
-        lbl.text = "bill.bill@s.com"
-        lbl.font = .systemFont(ofSize: 15, weight: .regular)
+        lbl.text = ""
+        lbl.font = .systemFont(ofSize: 14, weight: .regular)
+        lbl.translatesAutoresizingMaskIntoConstraints = false
+        return lbl
+        
+    }()
+    
+    private lazy var createdOnLbl: UILabel = {
+        
+        let lbl = UILabel()
+        lbl.text = ""
+        lbl.font = .systemFont(ofSize: 14, weight: .regular)
         lbl.translatesAutoresizingMaskIntoConstraints = false
         return lbl
         
@@ -63,9 +73,10 @@ class DocumentView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func set(name: String, email: String) {
-        nameLbl.text = name
-        emailLbl.text = email
+    func set(name: String, id: String, createdOn: String) {
+        nameLbl.text = "\(name)"
+        createdOnLbl.text = "Created: \(createdOn)"
+        idLbl.text = "Identifier: \(id.suffix(8))"
     }
     
 }
@@ -82,8 +93,9 @@ private extension DocumentView {
         self.addSubview(documentStackVw)
         
         documentStackVw.addArrangedSubview(nameLbl)
-        documentStackVw.addArrangedSubview(emailLbl)
-        documentStackVw.addArrangedSubview(subscribeBtn)
+        documentStackVw.addArrangedSubview(createdOnLbl)
+        documentStackVw.addArrangedSubview(idLbl)
+        documentStackVw.addArrangedSubview(viewBtn)
         
         NSLayoutConstraint.activate([
             documentStackVw.topAnchor.constraint(equalTo: self.topAnchor, constant: 8),
@@ -92,14 +104,14 @@ private extension DocumentView {
             documentStackVw.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -8),
         ])
         
-        subscribeBtn.addTarget(self,
-                               action: #selector(didTapSubscribe),
+        viewBtn.addTarget(self,
+                               action: #selector(didTapView),
                                for: .touchUpInside)
         
     }
     
     // @objc only required for legacy btn target methods
-    @objc func didTapSubscribe(sender: UIButton) {
+    @objc func didTapView(sender: UIButton) {
         completion()
     }
 

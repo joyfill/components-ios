@@ -2,7 +2,7 @@
 import UIKit
 
 protocol DocumentCollectionViewCellDelegate: AnyObject {
-    func didTapSubscribe()
+    func didTapView(item: Document)
 }
 
 class DocumentCellView: UICollectionViewCell {
@@ -13,11 +13,17 @@ class DocumentCellView: UICollectionViewCell {
     var item: Document? {
         didSet {
             
-            guard let firstName = item?.firstName,
-                  let lastName = item?.lastName,
-                  let email = item?.email else { return }
+            guard let name = item?.name,
+                  let id = item?.identifier,
+                  let createdOn = item?.createdOn else { return }
             
-            vw?.set(name: "\(firstName) \(lastName)", email: email)
+            // Quick reformat from milliseconds Int date to Swift Date then back to formatted string
+            let createdOnSeconds: Double = TimeInterval(createdOn / 1000)
+            let createdOnDate = Date(timeIntervalSince1970: createdOnSeconds)
+            let createdOnFormatted = DateFormatter()
+            createdOnFormatted.dateFormat = "MMM d, yy h:mma"
+            
+            vw?.set(name: name, id: id, createdOn: createdOnFormatted.string(from: createdOnDate))
         }
     }
     
@@ -39,7 +45,7 @@ private extension DocumentCellView {
         guard vw == nil else { return }
     
         vw = DocumentView { [weak self] in
-            self?.delegate?.didTapSubscribe()
+            self?.delegate?.didTapView(item: self!.item!)
         }
         
         contentView.addSubview(vw!)

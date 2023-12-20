@@ -13,10 +13,16 @@
 		3F00A1A02B30A5E600B505C3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3F00A19F2B30A5E600B505C3 /* Assets.xcassets */; };
 		3F00A1A32B30A5E600B505C3 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3F00A1A12B30A5E600B505C3 /* LaunchScreen.storyboard */; };
 		3F00A1AB2B30B7F300B505C3 /* DocumentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F00A1AA2B30B7F300B505C3 /* DocumentView.swift */; };
-		3F00A1AD2B30BB7200B505C3 /* DocumentModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F00A1AC2B30BB7200B505C3 /* DocumentModel.swift */; };
+		3F00A1AD2B30BB7200B505C3 /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F00A1AC2B30BB7200B505C3 /* Document.swift */; };
 		3F00A1AF2B30BBE400B505C3 /* DocumentsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F00A1AE2B30BBE400B505C3 /* DocumentsViewModel.swift */; };
 		3F00A1B12B30C1AE00B505C3 /* JoyDocViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F00A1B02B30C1AE00B505C3 /* JoyDocViewController.swift */; };
 		3F00A1B52B30CEDD00B505C3 /* DocumentCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F00A1B42B30CEDD00B505C3 /* DocumentCellView.swift */; };
+		3FDB45F12B321C66003FF937 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 3FDB45F02B321C66003FF937 /* Alamofire */; };
+		3FDB45F42B321C96003FF937 /* JoyfillComponents in Frameworks */ = {isa = PBXBuildFile; productRef = 3FDB45F32B321C96003FF937 /* JoyfillComponents */; };
+		3FDB45F72B321CB7003FF937 /* SwiftyJSON in Frameworks */ = {isa = PBXBuildFile; productRef = 3FDB45F62B321CB7003FF937 /* SwiftyJSON */; };
+		3FDB45FF2B321D42003FF937 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FDB45FE2B321D42003FF937 /* Constants.swift */; };
+		3FDB46032B324AE6003FF937 /* JoyDocViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FDB46022B324AE6003FF937 /* JoyDocViewModel.swift */; };
+		3FDB46082B328AF7003FF937 /* Toast in Frameworks */ = {isa = PBXBuildFile; productRef = 3FDB46072B328AF7003FF937 /* Toast */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,10 +34,12 @@
 		3F00A1A22B30A5E600B505C3 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		3F00A1A42B30A5E600B505C3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3F00A1AA2B30B7F300B505C3 /* DocumentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentView.swift; sourceTree = "<group>"; };
-		3F00A1AC2B30BB7200B505C3 /* DocumentModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentModel.swift; sourceTree = "<group>"; };
+		3F00A1AC2B30BB7200B505C3 /* Document.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Document.swift; sourceTree = "<group>"; };
 		3F00A1AE2B30BBE400B505C3 /* DocumentsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentsViewModel.swift; sourceTree = "<group>"; };
 		3F00A1B02B30C1AE00B505C3 /* JoyDocViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyDocViewController.swift; sourceTree = "<group>"; };
 		3F00A1B42B30CEDD00B505C3 /* DocumentCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentCellView.swift; sourceTree = "<group>"; };
+		3FDB45FE2B321D42003FF937 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		3FDB46022B324AE6003FF937 /* JoyDocViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyDocViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -39,6 +47,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3FDB46082B328AF7003FF937 /* Toast in Frameworks */,
+				3FDB45F72B321CB7003FF937 /* SwiftyJSON in Frameworks */,
+				3FDB45F42B321C96003FF937 /* JoyfillComponents in Frameworks */,
+				3FDB45F12B321C66003FF937 /* Alamofire in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -64,19 +76,45 @@
 		3F00A1952B30A5E500B505C3 /* JoyfillExampleUIKit */ = {
 			isa = PBXGroup;
 			children = (
-				3F00A1962B30A5E500B505C3 /* AppDelegate.swift */,
-				3F00A1982B30A5E500B505C3 /* SceneDelegate.swift */,
-				3F00A1B42B30CEDD00B505C3 /* DocumentCellView.swift */,
-				3F00A1AA2B30B7F300B505C3 /* DocumentView.swift */,
+				3FDB45FD2B321D28003FF937 /* Core */,
+				3FDB45FC2B321CEB003FF937 /* Views */,
+				3FDB45FB2B321CE5003FF937 /* Models */,
 				3F00A19A2B30A5E500B505C3 /* DocumentsViewController.swift */,
 				3F00A1B02B30C1AE00B505C3 /* JoyDocViewController.swift */,
+				3FDB45FE2B321D42003FF937 /* Constants.swift */,
 				3F00A19F2B30A5E600B505C3 /* Assets.xcassets */,
 				3F00A1A12B30A5E600B505C3 /* LaunchScreen.storyboard */,
 				3F00A1A42B30A5E600B505C3 /* Info.plist */,
-				3F00A1AC2B30BB7200B505C3 /* DocumentModel.swift */,
-				3F00A1AE2B30BBE400B505C3 /* DocumentsViewModel.swift */,
 			);
 			path = JoyfillExampleUIKit;
+			sourceTree = "<group>";
+		};
+		3FDB45FB2B321CE5003FF937 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				3F00A1AC2B30BB7200B505C3 /* Document.swift */,
+				3F00A1AE2B30BBE400B505C3 /* DocumentsViewModel.swift */,
+				3FDB46022B324AE6003FF937 /* JoyDocViewModel.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		3FDB45FC2B321CEB003FF937 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				3F00A1B42B30CEDD00B505C3 /* DocumentCellView.swift */,
+				3F00A1AA2B30B7F300B505C3 /* DocumentView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		3FDB45FD2B321D28003FF937 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				3F00A1962B30A5E500B505C3 /* AppDelegate.swift */,
+				3F00A1982B30A5E500B505C3 /* SceneDelegate.swift */,
+			);
+			path = Core;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -95,6 +133,12 @@
 			dependencies = (
 			);
 			name = JoyfillExampleUIKit;
+			packageProductDependencies = (
+				3FDB45F02B321C66003FF937 /* Alamofire */,
+				3FDB45F32B321C96003FF937 /* JoyfillComponents */,
+				3FDB45F62B321CB7003FF937 /* SwiftyJSON */,
+				3FDB46072B328AF7003FF937 /* Toast */,
+			);
 			productName = JoyfillExampleUIKit;
 			productReference = 3F00A1932B30A5E500B505C3 /* JoyfillExampleUIKit.app */;
 			productType = "com.apple.product-type.application";
@@ -123,6 +167,12 @@
 				Base,
 			);
 			mainGroup = 3F00A18A2B30A5E500B505C3;
+			packageReferences = (
+				3FDB45EF2B321C66003FF937 /* XCRemoteSwiftPackageReference "Alamofire" */,
+				3FDB45F22B321C96003FF937 /* XCRemoteSwiftPackageReference "components-ios" */,
+				3FDB45F52B321CB7003FF937 /* XCRemoteSwiftPackageReference "SwiftyJSON" */,
+				3FDB46062B328AF7003FF937 /* XCRemoteSwiftPackageReference "toast-swift" */,
+			);
 			productRefGroup = 3F00A1942B30A5E500B505C3 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -151,12 +201,14 @@
 			files = (
 				3F00A19B2B30A5E500B505C3 /* DocumentsViewController.swift in Sources */,
 				3F00A1972B30A5E500B505C3 /* AppDelegate.swift in Sources */,
-				3F00A1AD2B30BB7200B505C3 /* DocumentModel.swift in Sources */,
+				3F00A1AD2B30BB7200B505C3 /* Document.swift in Sources */,
 				3F00A1992B30A5E500B505C3 /* SceneDelegate.swift in Sources */,
+				3FDB46032B324AE6003FF937 /* JoyDocViewModel.swift in Sources */,
 				3F00A1B52B30CEDD00B505C3 /* DocumentCellView.swift in Sources */,
 				3F00A1B12B30C1AE00B505C3 /* JoyDocViewController.swift in Sources */,
 				3F00A1AB2B30B7F300B505C3 /* DocumentView.swift in Sources */,
 				3F00A1AF2B30BBE400B505C3 /* DocumentsViewModel.swift in Sources */,
+				3FDB45FF2B321D42003FF937 /* Constants.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -369,6 +421,64 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		3FDB45EF2B321C66003FF937 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.8.1;
+			};
+		};
+		3FDB45F22B321C96003FF937 /* XCRemoteSwiftPackageReference "components-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/joyfill/components-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.2.3;
+			};
+		};
+		3FDB45F52B321CB7003FF937 /* XCRemoteSwiftPackageReference "SwiftyJSON" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SwiftyJSON/SwiftyJSON.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.1;
+			};
+		};
+		3FDB46062B328AF7003FF937 /* XCRemoteSwiftPackageReference "toast-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/BastiaanJansen/toast-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.1.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		3FDB45F02B321C66003FF937 /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3FDB45EF2B321C66003FF937 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
+		};
+		3FDB45F32B321C96003FF937 /* JoyfillComponents */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3FDB45F22B321C96003FF937 /* XCRemoteSwiftPackageReference "components-ios" */;
+			productName = JoyfillComponents;
+		};
+		3FDB45F62B321CB7003FF937 /* SwiftyJSON */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3FDB45F52B321CB7003FF937 /* XCRemoteSwiftPackageReference "SwiftyJSON" */;
+			productName = SwiftyJSON;
+		};
+		3FDB46072B328AF7003FF937 /* Toast */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3FDB46062B328AF7003FF937 /* XCRemoteSwiftPackageReference "toast-swift" */;
+			productName = Toast;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 3F00A18B2B30A5E500B505C3 /* Project object */;
 }
