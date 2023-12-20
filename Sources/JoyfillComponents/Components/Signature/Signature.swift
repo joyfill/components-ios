@@ -27,6 +27,7 @@ open class Signature: UIView {
     var index = Int()
     var saveDelegate: saveSignatureFieldValue? = nil
     var fieldDelegate: SaveTextFieldValue? = nil
+    var updateSignature: UpdateSignature? = nil
     
     // Sets corner radius of signature view
     @IBInspectable
@@ -112,8 +113,8 @@ open class Signature: UIView {
             textField.heightAnchor.constraint(equalToConstant: 40),
             
             clrButton.topAnchor.constraint(equalTo: signatureView.bottomAnchor, constant: 9),
+            clrButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 9),
             clrButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -9),
-            clrButton.widthAnchor.constraint(equalToConstant: 105),
             clrButton.heightAnchor.constraint(equalToConstant: 40),
             
             saveView.topAnchor.constraint(equalTo: textField.bottomAnchor, constant: 28),
@@ -134,6 +135,7 @@ open class Signature: UIView {
             infomText.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -9),
         ])
         
+        textField.isHidden = true
         signatureView.lineWidth = 3
         signatureView.layer.borderWidth = 1
         signatureView.layer.cornerRadius = 8
@@ -204,6 +206,7 @@ open class Signature: UIView {
             signedImage[index] =  "data:image/jpeg;base64,\(base64String)"
             signValueUpdate(base64: "data:image/jpeg;base64,\(base64String)")
             saveDelegate?.handleSignatureUpload(sign: "data:image/jpeg;base64,\(base64String)", signer: signer, index: index)
+            updateSignature?.updateSignature(sign: "data:image/jpeg;base64,\(base64String)")
         }
     }
     

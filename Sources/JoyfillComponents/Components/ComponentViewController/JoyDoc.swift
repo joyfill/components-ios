@@ -7,16 +7,9 @@ public var pageIndex: Int = 0
 public var componentType = [String]()
 public var componentsYValueForMobileView = [Int]()
 
-// Variable to save block field custom style values
-public var blockTextSize = [Int]()
-public var richTextValue = [String]()
-public var blockTextColor = [String]()
-public var blockTextStyle = [String]()
-public var blockTextWeight = [String]()
-public var blockTextAlignment = [String]()
-
 public var columnId = [String]()
 public var componentId = [String]()
+public var richTextValue = [String]()
 public var tableRowOrder = [[String]]()
 public var tableColumnType = [[String]]()
 public var tableColumnTitle = [[String]]()
@@ -134,6 +127,7 @@ enum ValueUnion: Codable {
     case valueElementArray([ValueElement])
     case null
     
+    
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         if let x = try? container.decode(Int.self) {
@@ -153,7 +147,7 @@ enum ValueUnion: Codable {
             return
         }
         if container.decodeNil() {
-            self = .string("")
+            self = .null
             return
         }
         throw DecodingError.typeMismatch(ValueUnion.self, DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Wrong type for ValueUnion"))
@@ -250,11 +244,17 @@ struct FieldPosition: Codable {
     let primaryDisplayOnly: Bool?
     let format: String?
     let column: String?
+    let backgroundColor: String?
+    let borderColor: String?
+    let textDecoration: String?
+    let borderWidth: Int?
+    let borderRadius: Int?
     
     enum CodingKeys: String, CodingKey {
         case field, displayType, width, height, x, y
         case id = "_id"
         case type, targetValue, fontSize, fontColor, fontStyle, fontWeight, textAlign, primaryDisplayOnly, format, column
+        case backgroundColor, borderColor, textDecoration, borderWidth, borderRadius
     }
 }
 
@@ -280,6 +280,7 @@ extension JoyDoc {
             
             // It will prevent tasks to perform on main thread
             DispatchQueue.main.async {
+                pageIndex = 0
                 fetchDataFromJoyDoc()
                 
                 joyDoc.delegate = viewForDataSource as? UITableViewDelegate
@@ -296,7 +297,6 @@ extension JoyDoc {
 // MARK: - Function to get data from API
 func fetchDataFromJoyDoc() {
     DeinitializeVariables()
-    
     joyDocId = joyDocStruct?.id ?? ""
     joyDocFileId = joyDocStruct?.files?[0].id ?? ""
     joyDocIdentifier = joyDocStruct?.identifier ?? ""
@@ -366,19 +366,6 @@ func fetchDataFromJoyDoc() {
             joyDocFieldData.append(field)
             initializeVariablesWithEmptyValues()
         }
-        if componentType[i] == FieldTypes.block {
-            blockTextSize.append(joyDocFieldPositionData[i].fontSize ?? 18)
-            blockTextStyle.append(joyDocFieldPositionData[i].fontStyle ?? "")
-            blockTextWeight.append(joyDocFieldPositionData[i].fontWeight ?? "")
-            blockTextColor.append(joyDocFieldPositionData[i].fontColor ?? "#000000")
-            blockTextAlignment.append(joyDocFieldPositionData[i].textAlign ?? "left")
-        } else {
-            blockTextSize.append(0)
-            blockTextStyle.append("")
-            blockTextWeight.append("")
-            blockTextColor.append("")
-            blockTextAlignment.append("")
-        }
     }
 }
 
@@ -413,6 +400,7 @@ func initializeVariablesWithEmptyValues() {
     cellView.append(UIView())
     graphLabelData.append([])
     tableCellsData.append([])
+    updateImage.append(false)
     chartLineTitle.append([""])
     tableFieldValue.append([])
     dropdownOptions.append([])
@@ -435,6 +423,7 @@ func DeinitializeVariables() {
     // Deinitialize arrays to protect memory leakage
     cellView.removeAll()
     cellHeight.removeAll()
+    updateImage.removeAll()
     yPointsData.removeAll()
     xPointsData.removeAll()
     optionsData.removeAll()
@@ -459,9 +448,12 @@ func DeinitializeVariables() {
     joyDocPageOrderId.removeAll()
     chartValueElement.removeAll()
     tableColumnOrderId.removeAll()
+    uploadedImageCount.removeAll()
     multiSelectOptions.removeAll()
     multiSelectOptionId.removeAll()
+    uploadedSingleImage.removeAll()
     chartLineDescription.removeAll()
+    uploadedMultipleImage.removeAll()
     joyDocFieldPositionData.removeAll()
     componentTableViewCellHeight.removeAll()
     componentsYValueForMobileView.removeAll()

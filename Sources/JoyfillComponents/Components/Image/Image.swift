@@ -24,9 +24,10 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
 
     public var index = Int()
     public var imageMultiValue = Bool()
+    var onChangeDelegate: onChange? = nil
+    public var singleImage = [[String]]()
     public var imageDisplayMode = String()
-    public var selectedImage = [[String]]()
-    public var pickedSingleImg = [[String]]()
+    public var multipleImages = [[String]]()
     weak var delegate: MultipleImageViewDelegate?
     var saveDelegate: saveImageFieldValue? = nil
     var fieldDelegate: SaveTextFieldValue? = nil
@@ -178,7 +179,7 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
     }
     
     public func checkImageCount() {
-        if selectedImage[index].count == 0 {
+        if multipleImages[index].count == 0 {
             imageField.isHidden = true
             uploadButton.isHidden = false
             
@@ -196,11 +197,11 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
     
     public func checkForMulti() {
         if imageMultiValue {
-            imageField.load(urlString: selectedImage[index].first ?? "")
-            imageCountLabel.labelText = "+\(selectedImage[index].count)"
+            imageField.load(urlString: multipleImages[index].first ?? "")
+            imageCountLabel.labelText = "+\(multipleImages[index].count)"
         } else {
-            imageField.load(urlString: pickedSingleImg[index].first ?? "")
-            imageCountLabel.labelText = "+\(pickedSingleImg[index].count)"
+            imageField.load(urlString: singleImage[index].first ?? "")
+            imageCountLabel.labelText = "+\(singleImage[index].count)"
         }
     }
     
@@ -211,12 +212,13 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
             let newViewController = MultipleImageView()
             newViewController.index = index
             newViewController.delegate = self
+            newViewController.singleImage = singleImage
             newViewController.saveDelegate = saveDelegate
             newViewController.fieldDelegate = fieldDelegate
-            newViewController.selectedImage = selectedImage
+            newViewController.multipleImages = multipleImages
             newViewController.imageMultiValue = imageMultiValue
-            newViewController.pickedSingleImg = pickedSingleImg
             newViewController.imageDisplayMode = imageDisplayMode
+            newViewController.onChangeDelegate = onChangeDelegate
             newViewController.modalTransitionStyle = .crossDissolve
             parentViewController.view.addSubview(newViewController.view)
             newViewController.view.frame = parentViewController.view.bounds
@@ -238,8 +240,8 @@ extension Image: MultipleImageViewDelegate {
     }
     
     func removeAllImages() {
-        selectedImage[index].removeAll()
-        pickedSingleImg[index].removeAll()
+        singleImage[index].removeAll()
+        multipleImages[index].removeAll()
         uploadedImageCount[index].removeAll()
         uploadedSingleImage[index].removeAll()
         uploadedMultipleImage[index].removeAll()

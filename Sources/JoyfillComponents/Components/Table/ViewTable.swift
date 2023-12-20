@@ -428,6 +428,11 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
     
     // Action for close button
     @objc func closeTapped() {
+        // Check if the collection view is currently scrolling
+        if collectionView.isDragging || collectionView.isTracking {
+            return
+        }
+        
         view.endEditing(false)
         tableColumnTitle[tableIndexNo].removeFirst(2)
         tableColumnType[tableIndexNo].removeFirst(2)
@@ -1035,7 +1040,7 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
     // MARK: CollectionView delegate method for cell selection at indexPath
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if tableDisplayMode != "readonly" {
-            if indexPath.item == 0 {
+            if indexPath.item == 0 && indexPath.section != 0 {
                 changeSelectionButtonState(indexPath: indexPath)
             }
             if indexPath.section != 0 {
@@ -1225,9 +1230,29 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
                 cell.contentView.subviews.forEach { $0.removeFromSuperview() }
                 cell.setupSeparator()
                 cell.setDropdownInTableColumn()
+                
+            } else if tableColumnType[tableIndexNo][indexPath.row] == FieldTypes.image {
+                if indexPath.section > 0 {
+                    setImageValue(cell: cell, indexPath: indexPath)
+                }
+                if cell.imageCountLabel.labelText == "" {
+                    cell.image.layer.opacity = 0.5
+                    cell.imageCountLabel.isHidden = true
+                } else {
+                    cell.image.layer.opacity = 1.0
+                    cell.imageCountLabel.isHidden = false
+                }
+                
+                cell.contentView.subviews.forEach { $0.removeFromSuperview() }
+                cell.setupSeparator()
+                cell.setImageFieldInTableColumn()
+                
             } else {
                 if indexPath.section > 0 {
+                    cell.cellTextView.isUserInteractionEnabled = true
                     setCellTextValue(cell: cell, indexPath: indexPath)
+                } else {
+                    cell.cellTextView.isUserInteractionEnabled = false
                 }
                 cell.contentView.subviews.forEach { $0.removeFromSuperview() }
                 cell.setupSeparator()
@@ -1241,12 +1266,10 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
         let cellData = tableFieldValue[tableIndexNo][indexPath.section-1].cells ?? [:]
         if let matchData = cellData.first(where: {$0.key == tableColumnOrderId[tableIndexNo][indexPath.row-2]}) {
             let tableColumnsData = optionsData[tableIndexNo][indexPath.row-2].options
-            
             switch matchData.value {
             case .string(let string):
-                if let dropDownId = tableColumnsData?.first(where: {$0.id == string}) {
-                    cell.dropdownTextField.text = dropDownId.value
-                }
+                let dropDownId = tableColumnsData?.first(where: {$0.id == string})
+                cell.dropdownTextField.text = dropDownId?.value
             case .integer(_), .array(_), .valueElementArray(_), .null:
                 break
             }
@@ -1260,12 +1283,27 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
     func setCellTextValue(cell: CollectionViewCell, indexPath: IndexPath) {
         let cellData = tableFieldValue[tableIndexNo][indexPath.section-1].cells ?? [:]
         if let matchData = cellData.first(where: {$0.key == tableColumnOrderId[tableIndexNo][indexPath.row-2]}) {
-            
             switch matchData.value {
             case .string(let string):
                 cell.cellTextView.text = string
             case .integer(_), .array(_), .valueElementArray(_), .null:
                 break
+            }
+            
+        } else {
+            cell.cellTextView.text = ""
+        }
+    }
+    
+    // Function to set image value after matching column id
+    func setImageValue(cell: CollectionViewCell, indexPath: IndexPath) {
+        let cellData = tableFieldValue[tableIndexNo][indexPath.section-1].cells ?? [:]
+        if let matchData = cellData.first(where: {$0.key == tableColumnOrderId[tableIndexNo][indexPath.row-2]}) {
+            switch matchData.value {
+            case .string(_), .integer(_), .array(_), .null:
+                break
+            case .valueElementArray(let valueElement):
+                cell.imageCountLabel.labelText = "+\(valueElement.count)"
             }
             
         } else {
@@ -1331,8 +1369,8 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
         
         if text != "" {
             var dropDownSelectId = String()
-            var cells = [String: Any]()
             var valueUnionCells = [String: ValueUnion]()
+            var cells = [String: Any]()
             
             if let option = optionsData[tableIndexNo][indexPathRow-2].options?.first(where: {$0.value == text}) {
                 dropDownSelectId = option.id ?? ""
@@ -1348,13 +1386,6 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
             let columnIdentifier = optionsData[tableIndexNo][indexPathRow-2].identifier ?? ""
             let dict = tableFieldValue[tableIndexNo][indexPathSection-1].cells
             let cellValues = dict?.mapValues { unWrapValueUnionValues(value: $0) }
-            for (key, value) in cellValues ?? [:] {
-                if key == optionsData[tableIndexNo][indexPathRow-2].id {
-                    cells[key] = dropDownSelectId
-                } else {
-                    cells[key] = value
-                }
-            }
             for (key, value) in dict ?? [:] {
                 if key == optionsData[tableIndexNo][indexPathRow-2].id {
                     valueUnionCells[key] = .string(dropDownSelectId)
@@ -1362,6 +1393,7 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
                     valueUnionCells[key] = value
                 }
             }
+          
             if var valueElement = tableFieldValue[tableIndexNo][indexPathSection - 1] as? ValueElement {
                 valueElement = ValueElement(
                     id: valueElement.id,
@@ -1376,6 +1408,13 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
                 )
                 if (tableFieldValue[tableIndexNo].first(where: {$0.id == valueElement.id}) != nil) {
                     tableFieldValue[tableIndexNo][indexPathSection - 1] = valueElement
+                }
+                for (key, value) in cellValues ?? [:] {
+                    if key == optionsData[tableIndexNo][indexPathRow-2].id {
+                        cells[key] = dropDownSelectId
+                    } else {
+                        cells[key] = value
+                    }
                 }
                 
                 tableValueUpdate()
@@ -1426,8 +1465,19 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
             if (tableFieldValue[tableIndexNo].first(where: {$0.id == valueElement.id}) != nil) {
                 tableFieldValue[tableIndexNo][indexSection - 1] = valueElement
             }
-            
             tableValueUpdate()
+            do {
+                let jsonData = try JSONSerialization.data(withJSONObject: cells.mapValues { $0.self }, options: .prettyPrinted)
+
+                // Convert JSON data to a String
+                if let jsonString = String(data: jsonData, encoding: .utf8) {
+                    print(jsonString)
+                } else {
+                    print("Failed to convert JSON data to String.")
+                }
+            } catch {
+                print("Error converting cells dictionary to JSON: \(error)")
+            }
             let row = ["_id":  tableFieldValue[tableIndexNo][indexSection - 1].id ?? "",
                        "deleted": false,
                        "cells": cells

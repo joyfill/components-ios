@@ -146,55 +146,57 @@ open class LineChart: UIView {
     }
     
     override open func draw(_ rect: CGRect) {
-        if xCoordinates[index].isEmpty != true {
-            if removeAll {
-                let context = UIGraphicsGetCurrentContext()
-                context?.clear(rect)
-                return
-            }
-            
-            self.drawingHeight = self.bounds.height - (2 * y.axis.inset)
-            self.drawingWidth = self.bounds.width - (2 * x.axis.inset)
-            
-            // remove all labels
-            for view: AnyObject in self.subviews {
-                view.removeFromSuperview()
-            }
-            
-            // remove all lines on device rotation
-            for lineLayer in lineLayerStore {
-                lineLayer.removeFromSuperlayer()
-            }
-            lineLayerStore.removeAll()
-            
-            // remove all dots on device rotation
-            for dotsData in dotsDataStore {
-                for dot in dotsData {
-                    dot.removeFromSuperlayer()
+        if index <= xCoordinates.count {
+            if xCoordinates[index].isEmpty != true {
+                if removeAll {
+                    let context = UIGraphicsGetCurrentContext()
+                    context?.clear(rect)
+                    return
                 }
-            }
-            dotsDataStore.removeAll()
-            
-            // draw grid
-            if x.grid.visible && y.grid.visible { drawGrid() }
-            
-            // draw axes
-            if x.axis.visible && y.axis.visible { drawAxes() }
-            
-            // draw labels
-            if x.labels.visible { drawXLabels() }
-            if y.labels.visible { drawYLabels() }
-            
-            // draw lines
-            for (lineIndex, _) in yCoordinates[index].enumerated() {
                 
-                drawLine(lineIndex)
+                self.drawingHeight = self.bounds.height - (2 * y.axis.inset)
+                self.drawingWidth = self.bounds.width - (2 * x.axis.inset)
                 
-                // draw dots
-                if dots.visible { drawDataDots(lineIndex) }
+                // remove all labels
+                for view: AnyObject in self.subviews {
+                    view.removeFromSuperview()
+                }
                 
-                // draw area under line chart
-                // if area { drawAreaBeneathLineChart(lineIndex) }
+                // remove all lines on device rotation
+                for lineLayer in lineLayerStore {
+                    lineLayer.removeFromSuperlayer()
+                }
+                lineLayerStore.removeAll()
+                
+                // remove all dots on device rotation
+                for dotsData in dotsDataStore {
+                    for dot in dotsData {
+                        dot.removeFromSuperlayer()
+                    }
+                }
+                dotsDataStore.removeAll()
+                
+                // draw grid
+                if x.grid.visible && y.grid.visible { drawGrid() }
+                
+                // draw axes
+                if x.axis.visible && y.axis.visible { drawAxes() }
+                
+                // draw labels
+                if x.labels.visible { drawXLabels() }
+                if y.labels.visible { drawYLabels() }
+                
+                // draw lines
+                for (lineIndex, _) in yCoordinates[index].enumerated() {
+                    
+                    drawLine(lineIndex)
+                    
+                    // draw dots
+                    if dots.visible { drawDataDots(lineIndex) }
+                    
+                    // draw area under line chart
+                    // if area { drawAreaBeneathLineChart(lineIndex) }
+                }
             }
         }
     }

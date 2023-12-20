@@ -22,7 +22,6 @@ public class CollectionViewTable: UIView {
         cv.dataSource = self
         cv.register(CollectionViewCell.self, forCellWithReuseIdentifier: "Cell")
         cv.backgroundColor = .clear
-        layout.stickyRowsCount = 1
         return cv
     }()
     
@@ -48,11 +47,6 @@ public class CollectionViewTable: UIView {
             layer.cornerRadius = cornerRadius
             layer.masksToBounds = true
         }
-    }
-    
-    open override func didMoveToWindow() {
-        super.didMoveToWindow()
-        collectionView.reloadData()
     }
     
     // MARK: - Initializer
@@ -147,6 +141,23 @@ extension CollectionViewTable: UICollectionViewDelegate, UICollectionViewDataSou
             cell.contentView.subviews.forEach { $0.removeFromSuperview() }
             cell.setupSeparator()
             cell.setDropdownInTableColumn()
+            
+        } else if tableColumnType[tableIndexNo][indexPath.row] == FieldTypes.image {
+            if indexPath.section > 0 {
+                setImageValue(cell: cell, indexPath: indexPath)
+            }
+            if cell.imageCountLabel.labelText == "" {
+                cell.image.layer.opacity = 0.5
+                cell.imageCountLabel.isHidden = true
+            } else {
+                cell.image.layer.opacity = 1.0
+                cell.imageCountLabel.isHidden = false
+            }
+            
+            cell.contentView.subviews.forEach { $0.removeFromSuperview() }
+            cell.setupSeparator()
+            cell.setImageFieldInTableColumn()
+            
         } else {
             if indexPath.section > 0 {
                 setCellTextValue(cell: cell, indexPath: indexPath)
@@ -187,6 +198,22 @@ extension CollectionViewTable: UICollectionViewDelegate, UICollectionViewDataSou
             case .integer(_), .array(_), .valueElementArray(_), .null:
                 break
             }
+        } else {
+            cell.cellTextView.text = ""
+        }
+    }
+    
+    // Function to set image value after matching column id
+    func setImageValue(cell: CollectionViewCell, indexPath: IndexPath) {
+        let cellData = tableFieldValue[tableIndexNo][indexPath.section-1].cells ?? [:]
+        if let matchData = cellData.first(where: {$0.key == tableColumnOrderId[tableIndexNo][indexPath.row]}) {
+            switch matchData.value {
+            case .string(_), .integer(_), .array(_), .null:
+                break
+            case .valueElementArray(let valueElement):
+                cell.imageCountLabel.labelText = "+\(valueElement.count)"
+            }
+            
         } else {
             cell.cellTextView.text = ""
         }

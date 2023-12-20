@@ -202,7 +202,6 @@ public class TextField: UITextField, UITextFieldDelegate {
             }
         }
     }
-    
 
     private func initTextField() {
         setUpOutlineSublayer()

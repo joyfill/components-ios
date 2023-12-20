@@ -262,7 +262,6 @@ class PageNavigationViewController: UIViewController {
             pagesTitleLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
         } else {
             titleLabel.isHidden = false
-            deletePageView.isHidden = false
             duplicatePageView.isHidden = false
             
             // PagesTitleLabel Constraints

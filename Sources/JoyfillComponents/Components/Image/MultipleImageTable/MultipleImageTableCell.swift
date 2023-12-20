@@ -8,7 +8,7 @@ public class MultipleImageTableCell: UITableViewCell {
     public var imageIndexPath = Int()
     
     public var index = Int()
-    public var selectedImage = [[String]]()
+    public var multipleImages = [[String]]()
     
     var isSelectedCell: Bool = false {
         didSet {

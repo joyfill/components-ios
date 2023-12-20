@@ -5,7 +5,11 @@ protocol saveSignatureFieldValue {
     func handleSignatureUpload(sign: Any, signer: String, index: Int)
 }
 
-open class SignatureView : UIView {
+protocol UpdateSignature {
+    func updateSignature(sign: String)
+}
+
+open class SignatureView : UIView, UpdateSignature {
     
     public var titleLabel = Label()
     public var imageView = UIView()
@@ -32,21 +36,16 @@ open class SignatureView : UIView {
         setupUI()
     }
     
-    open override func didMoveToWindow() {
-        super.didMoveToWindow()
-        if signatureDisplayModes == "readonly" {
-            signViewBt.isHidden = true
-        } else {
-            signViewBt.isHidden = false
-        }
-    }
-    
     public func tooltipVisible(bool: Bool) {
         if bool {
             toolTipIconButton.isHidden = false
         } else {
             toolTipIconButton.isHidden = true
         }
+    }
+    
+    func updateSignature(sign: String) {
+        imageSignature.load(urlString: signedImage[index])
     }
     
     func setupUI() {
@@ -133,6 +132,12 @@ open class SignatureView : UIView {
         signLbBt.isTextBold = true
         signLbBt.labelText = "Sign"
         signLbBt.textAlignment = .center
+        
+        if signatureDisplayModes == "readonly" {
+            signViewBt.isHidden = true
+        } else {
+            signViewBt.isHidden = false
+        }
     }
     
     @objc func tooltipButtonTapped(_ sender: UIButton) {
@@ -151,8 +156,10 @@ open class SignatureView : UIView {
                 fieldDelegate?.handleFocus(index: index)
                 newViewController.saveDelegate = self.saveDelegate
                 newViewController.fieldDelegate = self.fieldDelegate
+                newViewController.signatureView.updateSignature = self
                 newViewController.modalPresentationStyle = .fullScreen
                 newViewController.modalTransitionStyle = .crossDissolve
+                newViewController.signatureView.topLabel.labelText = self.titleLabel.labelText
                 viewController.present(newViewController, animated: true, completion: nil)
                 break
             }

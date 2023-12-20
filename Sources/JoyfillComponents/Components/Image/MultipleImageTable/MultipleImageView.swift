@@ -22,9 +22,10 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
     
     public var index = Int()
     public var imageMultiValue = Bool()
+    var onChangeDelegate: onChange? = nil
+    public var singleImage = [[String]]()
     public var imageDisplayMode = String()
-    public var selectedImage = [[String]]()
-    public var pickedSingleImg = [[String]]()
+    public var multipleImages = [[String]]()
     public var selectedIndexPath: Set<Int> = []
     var saveDelegate: saveImageFieldValue? = nil
     var fieldDelegate: SaveTextFieldValue? = nil
@@ -194,22 +195,22 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
     // MARK: ImageTableView
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if imageMultiValue {
-            return selectedImage[index].count
+            return multipleImages[index].count
         } else {
-            return pickedSingleImg[index].count
+            return singleImage[index].count
         }
     }
     
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MultipleImageTableCell", for: indexPath) as! MultipleImageTableCell
         cell.contentView.backgroundColor = .clear
-        cell.selectedImage = selectedImage
+        cell.multipleImages = multipleImages
         cell.index = index
         
         if imageMultiValue {
-            cell.cellImageField.load(urlString: selectedImage[index][indexPath.row])
+            cell.cellImageField.load(urlString: multipleImages[index][indexPath.row])
         } else {
-            cell.cellImageField.load(urlString: pickedSingleImg[index][indexPath.row])
+            cell.cellImageField.load(urlString: singleImage[index][indexPath.row])
         }
         
         tableView.rowHeight = 280
@@ -264,7 +265,6 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         if imageDisplayMode != "readonly" {
             if selectedIndexPath.count == 0 {
                 deleteView.isHidden = true
-                uploadButton.isHidden = true
             } else {
                 deleteView.isHidden = false
             }
@@ -275,9 +275,9 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
     @objc func reloadTable(_ notification: Notification) {
         if let uploadedMultipleImage = notification.object as? [String] {
             if imageMultiValue {
-                selectedImage[index] = uploadedMultipleImage
+                multipleImages[index] = uploadedMultipleImage
             } else {
-                pickedSingleImg[index] = uploadedMultipleImage
+                singleImage[index] = uploadedMultipleImage
             }
             imageTableView.reloadData()
         }
@@ -290,7 +290,7 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         view.removeFromSuperview()
         removeFromParent()
         
-        if selectedImage[index].count == 0 {
+        if multipleImages[index].count == 0 {
             delegate?.removeAllImages()
         } else {
             delegate?.imagesUpdated()
@@ -304,10 +304,12 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         // Delete the selected cells from the data array
         for selectedIndex in sortedIndices {
             if imageMultiValue {
-                selectedImage[index].remove(at: selectedIndex)
+                multipleImages[index].remove(at: selectedIndex)
+                onChangeDelegate?.handleImageUploadAsync(images: multipleImages[index])
             } else {
-                selectedImage[index].removeAll()
-                pickedSingleImg[index].removeAll()
+                singleImage[index].removeAll()
+                multipleImages[index].removeAll()
+                onChangeDelegate?.handleImageUploadAsync(images: singleImage[index])
             }
             delegate?.imagesDeleted(selectedIndex: selectedIndex)
         }
@@ -319,7 +321,7 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         imageTableView.reloadData()
         imageTableView.endUpdates()
         
-        if selectedImage[index].count == 0 {
+        if multipleImages[index].count == 0 {
             deleteView.isHidden = true
         } else {
             deleteView.isHidden = false

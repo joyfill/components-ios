@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 
 var cellHeight = [CGFloat]()
-public var updateImage = Bool()
+public var updateImage = [Bool]()
 public var imageIndexNo = Int()
 public var cellView = [UIView]()
 public var chartIndexPath = Int()
@@ -20,9 +20,18 @@ public var uploadedMultipleImage = [[String]]()
 public var joyfillFormImageUpload: (() -> Void)?
 
 public protocol onChange {
-    func handleOnChange(docChangelog: [String: Any], doc: [String: Any])
-    func handleOnFocus(blurAndFocusParams: [String: Any])
+    func handleImageUploadAsync(images: [String])
     func handleOnBlur(blurAndFocusParams: [String: Any])
+    func handleOnFocus(blurAndFocusParams: [String: Any])
+    func handleOnChange(docChangelog: [String: Any], doc: [String: Any])
+}
+
+public func onUploadAsync(imageUrl: String) {
+    updateImage[imageIndexNo] = true
+    uploadedImageCount[imageIndexNo] = [imageUrl]
+    uploadedSingleImage[imageIndexNo] = [imageUrl]
+    uploadedMultipleImage[imageIndexNo].append(imageUrl)
+    joyDoc.reloadData()
 }
 
 public class JoyfillForm: UIView, SaveTableFieldValue, saveImageFieldValue, saveSignatureFieldValue, SavePageNavigationChange {
@@ -33,9 +42,6 @@ public class JoyfillForm: UIView, SaveTableFieldValue, saveImageFieldValue, save
 
     public var mode = String()
     var joyFillStruct: JoyDoc?
-    var imageIndexPath = Int()
-    var tableHeight = CGFloat()
-    var shortTextHeight = CGFloat()
     var changelogs = [[String: Any]]()
     public var saveDelegate: onChange? = nil
     var dropdownOptionSubArray: [String] = []
@@ -128,6 +134,27 @@ public class JoyfillForm: UIView, SaveTableFieldValue, saveImageFieldValue, save
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(openPageNavigationModal))
         pageNavigationView.addGestureRecognizer(tapGesture)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    // Keyboard appear function
+    @objc func keyboardWillShow(_ notification: Notification) {
+        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
+            return
+        }
+        
+        let insets = UIEdgeInsets(top: 0, left: 0, bottom: keyboardFrame.height - 50, right: 0)
+        joyDoc.contentInset = insets
+        joyDoc.scrollIndicatorInsets = insets
+    }
+    
+    // Keyboard dismiss function
+    @objc func keyboardWillHide(_ notification: Notification) {
+        let insets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        joyDoc.contentInset = insets
+        joyDoc.scrollIndicatorInsets = insets
     }
     
     private func findViewController() -> UIViewController? {
@@ -150,6 +177,9 @@ public class JoyfillForm: UIView, SaveTableFieldValue, saveImageFieldValue, save
         let vc = PageNavigationViewController()
         vc.saveDelegate = self
         vc.pageNavigationDisplayMode = mode
+        uploadedImageCount[imageIndexNo].removeAll()
+        uploadedSingleImage[imageIndexNo].removeAll()
+        uploadedMultipleImage[imageIndexNo].removeAll()
         vc.modalPresentationStyle = .overCurrentContext
         viewController.present(vc, animated: false)
     }
@@ -210,20 +240,12 @@ extension JoyfillForm: UITableViewDelegate, UITableViewDataSource, SaveTextField
     public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         let fieldType = joyDocFieldData[indexPath.row].type
         switch fieldType {
-        case FieldTypes.image:
-            if uploadedImageCount[indexPath.row].count == 0 {
-                if uploadedMultipleImage[indexPath.row].count == 0 {
-                    cellHeight.insert(150, at: indexPath.row)
-                } else {
-                    cellHeight.insert(270, at: indexPath.row)
-                }
-            } else {
-                cellHeight.insert(270, at: indexPath.row)
-            }
-        case FieldTypes.text, FieldTypes.multiSelect, FieldTypes.dropdown, FieldTypes.textarea, FieldTypes.date, FieldTypes.signature, FieldTypes.number, FieldTypes.chart, FieldTypes.table, FieldTypes.block:
+        case FieldTypes.text, FieldTypes.dropdown, FieldTypes.textarea, FieldTypes.date, FieldTypes.signature, FieldTypes.number, FieldTypes.chart, FieldTypes.table, FieldTypes.block, FieldTypes.image:
             cellHeight.insert(componentTableViewCellHeight[indexPath.row] + 10, at: indexPath.row)
         case FieldTypes.richText:
             cellHeight.insert(componentTableViewCellHeight[indexPath.row], at: indexPath.row)
+        case FieldTypes.multiSelect:
+            cellHeight.insert(componentTableViewCellHeight[indexPath.row] + 30, at: indexPath.row)
         default:
             break
         }
@@ -237,12 +259,13 @@ extension JoyfillForm: UITableViewDelegate, UITableViewDataSource, SaveTextField
         image.saveDelegate = self
         image.fieldDelegate = self
         image.uploadButton.tag = i
-        image.selectedImage = uploadedMultipleImage
-        image.pickedSingleImg = uploadedSingleImage
+        image.onChangeDelegate = saveDelegate
+        image.singleImage = uploadedSingleImage
+        image.multipleImages = uploadedMultipleImage
         
+        image.singleImage[i].removeAll()
         uploadedImageCount[i].removeAll()
-        image.selectedImage[i].removeAll()
-        image.pickedSingleImg[i].removeAll()
+        image.multipleImages[i].removeAll()
         
         // Image value based on indexPath from JoyDoc
         switch value {
@@ -251,35 +274,35 @@ extension JoyfillForm: UITableViewDelegate, UITableViewDataSource, SaveTextField
         case .valueElementArray(let valueElements):
             for k in 0..<valueElements.count {
                 uploadedImageCount[i] = [valueElements[k].url ?? ""]
-                image.pickedSingleImg[i] = [valueElements[k].url ?? ""]
-                image.selectedImage[i].append(valueElements[k].url ?? "")
+                image.singleImage[i] = [valueElements[k].url ?? ""]
+                image.multipleImages[i].append(valueElements[k].url ?? "")
             }
         case .array(_): break
         case .none: break
         case .some(.null): break
         }
         
-        if image.selectedImage[i].count == 0 {
+        if image.multipleImages[i].count == 0 {
             tableView.rowHeight = uploadedMultipleImage[i].count != 0 ? 260 : 150
             
-            if uploadedMultipleImage[i].count != 0 && updateImage {
-                image.selectedImage[i] = uploadedMultipleImage[i]
-                image.pickedSingleImg[i] = uploadedSingleImage[i]
-                updateUploadedImage(index: i, imageMultiValue: joyDocFieldData[i].multi ?? false)
+            if uploadedMultipleImage[i].count != 0 && updateImage[i] {
+                image.singleImage[i] = uploadedSingleImage[i]
+                image.multipleImages[i] = uploadedMultipleImage[i]
+                updateUploadedImage(index: i, imageMultiValue: joyDocFieldData[i].multi ?? false, imageView: image)
                 
-                let objectToSend = joyDocFieldData[i].multi ?? true ? image.selectedImage[i] : image.pickedSingleImg[i]
+                let objectToSend = joyDocFieldData[i].multi ?? true ? image.multipleImages[i] : image.singleImage[i]
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "reloadTable"), object: objectToSend, userInfo: nil)
                 image.saveDelegate?.handleUpload(indexPath: i)
             }
         } else {
             tableView.rowHeight = 260
             
-            if uploadedMultipleImage[i].count != 0 && updateImage {
-                image.selectedImage[i].append(uploadedMultipleImage[i].last ?? "")
-                image.pickedSingleImg[i] = uploadedSingleImage[i]
-                updateUploadedImage(index: i, imageMultiValue: joyDocFieldData[i].multi ?? false)
+            if uploadedMultipleImage[i].count != 0 && updateImage[i] {
+                image.singleImage[i] = uploadedSingleImage[i]
+                image.multipleImages[i].append(uploadedMultipleImage[i].last ?? "")
+                updateUploadedImage(index: i, imageMultiValue: joyDocFieldData[i].multi ?? false, imageView: image)
                 
-                let objectToSend = joyDocFieldData[i].multi ?? true ? image.selectedImage[i] : image.pickedSingleImg[i]
+                let objectToSend = joyDocFieldData[i].multi ?? true ? image.multipleImages[i] : image.singleImage[i]
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "reloadTable"), object: objectToSend, userInfo: nil)
                 image.saveDelegate?.handleUpload(indexPath: i)
             }
@@ -294,6 +317,7 @@ extension JoyfillForm: UITableViewDelegate, UITableViewDataSource, SaveTextField
         image.allowMultipleImages(value: joyDocFieldData[i].multi ?? false)
         image.uploadButton.addTarget(self, action: #selector(uploadButtonTapped), for: .touchUpInside)
         image.frame = CGRect(x: 10, y: 5, width: tableView.bounds.width - 20, height: tableView.rowHeight)
+        componentTableViewCellHeight[i] = tableView.rowHeight
         cellView.insert(image, at: i)
     }
     @objc public func uploadButtonTapped(sender: UIButton) {
@@ -304,7 +328,7 @@ extension JoyfillForm: UITableViewDelegate, UITableViewDataSource, SaveTextField
         }
     }
     // Update updated value in the joyDoc
-    func updateUploadedImage(index: Int, imageMultiValue: Bool) {
+    func updateUploadedImage(index: Int, imageMultiValue: Bool, imageView: Image) {
         let value = joyDocFieldData[index].value
         switch value {
         case .string(_): break
@@ -340,23 +364,35 @@ extension JoyfillForm: UITableViewDelegate, UITableViewDataSource, SaveTextField
             case .some(.null): break
             }
         }
-        updateImage = false
+        
+        if joyDocFieldData[index].multi == true {
+            saveDelegate?.handleImageUploadAsync(images: imageView.multipleImages[index])
+        } else {
+            saveDelegate?.handleImageUploadAsync(images: imageView.singleImage[index])
+        }
+        updateImage[index] = false
     }
     
     //MARK: - Block Field
     func configureBlockFieldCell(tableView: UITableView, i: Int, value: ValueUnion?) {
-        let displayText = Label()
-        displayText.numberOfLines = 0
-        displayText.fontSize = CGFloat(blockTextSize[i])
-        displayText.textColor = UIColor(hexString: blockTextColor[i])
-        displayText.isTextBold = blockTextWeight[i] == "bold" ? true : false
-        displayText.isTextItalic = blockTextStyle[i] == "italic" ? true : false
-        displayText.textAlignment = blockTextAlignment[i].textAlignmentFromStringValue()
+        let displayText = DisplayText()
+        displayText.label.numberOfLines = 0
+        displayText.label.fontSize = CGFloat(joyDocFieldPositionData[i].fontSize ?? 18)
+        displayText.view.layer.borderWidth = CGFloat(joyDocFieldPositionData[i].borderWidth ?? 0)
+        displayText.view.layer.cornerRadius = CGFloat(joyDocFieldPositionData[i].borderRadius ?? 0)
+        displayText.indexPath(index: i, borderWidth: CGFloat(joyDocFieldPositionData[i].borderWidth ?? 0))
+        displayText.label.textColor = UIColor(hexString: joyDocFieldPositionData[i].fontColor ?? "#000000")
+        displayText.label.isTextBold = joyDocFieldPositionData[i].fontWeight ?? "" == "bold" ? true : false
+        displayText.label.isTextItalic = joyDocFieldPositionData[i].fontStyle ?? "" == "italic" ? true : false
+        displayText.view.layer.borderColor = UIColor(hexString: joyDocFieldPositionData[i].borderColor ?? "")?.cgColor
+        displayText.view.backgroundColor = UIColor(hexString: joyDocFieldPositionData[i].backgroundColor ?? "#FFFFFF")
+        displayText.label.textAlignment = (joyDocFieldPositionData[i].textAlign ?? "left").textAlignmentFromStringValue()
+        displayText.label.isTextUnderlined = joyDocFieldPositionData[i].textDecoration ?? "" == "underline" ? true : false
         
         // Block value based on indexPath from JoyDoc
         switch value {
         case .string(let string):
-            displayText.labelText = string
+            displayText.label.labelText = string
         case .integer(_): break
         case .valueElementArray(_): break
         case .array(_): break
@@ -364,8 +400,10 @@ extension JoyfillForm: UITableViewDelegate, UITableViewDataSource, SaveTextField
         case .some(.null): break
         }
         
-        let height = (displayText.labelText?.height(withConstrainedWidth: tableView.bounds.width - 40, font: displayText.font))
-        tableView.rowHeight = height ?? 0 + 10
+        let displayTextViewWidth = CGFloat(60 + (2 * (joyDocFieldPositionData[i].borderWidth ?? 0)))
+        let displayTextViewHeight = CGFloat(30 + (2 * (joyDocFieldPositionData[i].borderWidth ?? 0)))
+        let textHeight = (displayText.label.labelText?.height(withConstrainedWidth: tableView.bounds.width - displayTextViewWidth, font: displayText.label.font))
+        tableView.rowHeight = displayTextViewHeight + (textHeight ?? 0)
         componentTableViewCellHeight[i] = tableView.rowHeight
         
         displayText.frame = CGRect(x: 20, y: 5, width: tableView.bounds.width - 40, height: tableView.rowHeight)
@@ -604,29 +642,35 @@ extension JoyfillForm: UITableViewDelegate, UITableViewDataSource, SaveTextField
             let text = multiSelectOptions[i][count]
             let font = UIFont.systemFont(ofSize: 16)
             let width = tableView.frame.width - 50
-            if multiselectOptionSubArray.count == 1 {
-                optionsHeight = heightForText(text , font: font, width: width) + 50
-            } else {
-                optionsHeight = heightForText(text , font: font, width: width) + 32
-            }
+            optionsHeight = heightForText(text , font: font, width: width) + 35
+            multipleChoice.tableViewCellHeight.append(optionsHeight)
             totalHeight += optionsHeight
         }
         
         multipleChoice.titleLabel.labelText = joyDocFieldData[i].title
-        let height = (joyDocFieldData[i].title?.height(withConstrainedWidth: tableView.bounds.width - 40, font: multipleChoice.titleLabel.font))
-        tableView.rowHeight = totalHeight + (height ?? 0)
-        componentTableViewCellHeight[i] = tableView.rowHeight
+        if joyDocFieldData[i].title == "" {
+            tableView.rowHeight = totalHeight
+            componentTableViewCellHeight[i] = tableView.rowHeight
+        } else {
+            let height = (joyDocFieldData[i].title?.height(withConstrainedWidth: tableView.bounds.width - 40, font: multipleChoice.titleLabel.font))
+            tableView.rowHeight = totalHeight + (height ?? 0)
+            componentTableViewCellHeight[i] = tableView.rowHeight
+        }
         
-        multipleChoice.frame = CGRect(x: 20, y: 5, width: tableView.bounds.width - 40, height: tableView.rowHeight)
+        multipleChoice.frame = CGRect(x: 20, y: 5, width: tableView.bounds.width - 40, height: tableView.rowHeight + 22)
         cellView.insert(multipleChoice, at: i)
     }
     
     //MARK: - Signature Field
     func configureSignatureFieldCell(tableView: UITableView, i: Int, value: ValueUnion?) {
+        signatureDisplayModes = mode
+        let sign = SignatureView()
+        
         // Signature value based on indexPath from JoyDoc
         switch value {
         case .string(let string):
             signedImage.insert(string, at: i)
+            sign.imageSignature.load(urlString: string)
         case .integer(_): break
         case .valueElementArray(_): break
         case .array(_): break
@@ -634,8 +678,6 @@ extension JoyfillForm: UITableViewDelegate, UITableViewDataSource, SaveTextField
         case .some(.null): break
         }
         
-        signatureDisplayModes = mode
-        let sign = SignatureView()
         sign.index = i
         sign.saveDelegate = self
         sign.fieldDelegate = self
@@ -718,9 +760,15 @@ extension JoyfillForm: UITableViewDelegate, UITableViewDataSource, SaveTextField
         table.tooltipVisible(bool: joyDocFieldData[i].tipVisible ?? false)
         
         table.titleLabel.labelText = joyDocFieldData[i].title
-        let height = (joyDocFieldData[i].title?.height(withConstrainedWidth: tableView.bounds.width - 140, font: table.titleLabel.font))
-        tableView.rowHeight = 210 + (height ?? 0)
-        componentTableViewCellHeight[i] = tableView.rowHeight
+        if joyDocFieldData[i].title == "" {
+            tableView.rowHeight = 222
+            componentTableViewCellHeight[i] = tableView.rowHeight
+        } else {
+            let height = (joyDocFieldData[i].title?.height(withConstrainedWidth: tableView.bounds.width - 40, font: table.titleLabel.font))
+            tableView.rowHeight = 222 + (height ?? 0)
+            componentTableViewCellHeight[i] = tableView.rowHeight
+        }
+        
         table.frame = CGRect(x: 10, y: 5, width: tableView.bounds.width - 20, height: tableView.rowHeight)
         cellView.insert(table, at: i)
     }
