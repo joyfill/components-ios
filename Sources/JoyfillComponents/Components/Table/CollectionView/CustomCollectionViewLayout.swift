@@ -71,19 +71,15 @@ class TwoWayScrollingCollectionViewLayout: UICollectionViewFlowLayout {
             for col in 0..<columnsCount(in: row) {
                 let indexPath = IndexPath(row: row, column: col)
                 
-                if let cachedAttributes = attributesCache[indexPath] {
-                    // Use cached attributes if available
-                    rowAttrs.append(cachedAttributes)
-                } else {
-                    let itemSize = size(forRow: row, column: col)
-                    let attributes = UICollectionViewLayoutAttributes(forCellWith: indexPath)
-                    attributes.frame = CGRect(x: xOffset, y: yOffset, width: itemSize.width, height: itemSize.height).integral
-                    
-                    rowAttrs.append(attributes)
-                    
-                    // Cache the attributes for reuse
-                    attributesCache[indexPath] = attributes
-                }
+                let itemSize = size(forRow: row, column: col)
+                let attributes = UICollectionViewLayoutAttributes(forCellWith: indexPath)
+                attributes.frame = CGRect(x: xOffset, y: yOffset, width: itemSize.width, height: itemSize.height).integral
+                
+                rowAttrs.append(attributes)
+                
+                // Cache the attributes for reuse
+                attributesCache[indexPath] = attributes
+                
                 
                 xOffset += rowAttrs.last?.frame.width ?? 0.0
             }

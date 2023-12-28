@@ -137,7 +137,7 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
             // PerformanceGraphBar Constraint
-            performanceGraphBar.topAnchor.constraint(equalTo: contentView.topAnchor ,constant: 60),
+            performanceGraphBar.topAnchor.constraint(equalTo: contentView.topAnchor ,constant: 10),
             performanceGraphBar.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             performanceGraphBar.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             performanceGraphBar.heightAnchor.constraint(equalToConstant: 39),
@@ -243,6 +243,7 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
             verticalMinTextField.trailingAnchor.constraint(equalTo: verticalMaxTextField.leadingAnchor, constant: -7),
             verticalMinTextField.bottomAnchor.constraint(equalTo: verticalYView.bottomAnchor, constant: -10),
             verticalMinTextField.widthAnchor.constraint(equalToConstant: 76),
+            verticalMinTextField.topLabel.heightAnchor.constraint(equalToConstant: 18),
             
             // VerticalMaxTextField Constraint
             verticalMaxTextField.topAnchor.constraint(equalTo: verticalYView.topAnchor, constant: 10),
@@ -250,6 +251,7 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
             verticalMaxTextField.trailingAnchor.constraint(equalTo: verticalYView.trailingAnchor, constant: -13),
             verticalMaxTextField.bottomAnchor.constraint(equalTo: verticalYView.bottomAnchor, constant: -10),
             verticalMaxTextField.widthAnchor.constraint(equalToConstant: 76),
+            verticalMaxTextField.topLabel.heightAnchor.constraint(equalToConstant: 18),
             
             // GPMTextField Constraint
             GPMTextField.topAnchor.constraint(equalTo: horizontalXView.topAnchor, constant: 10),
@@ -263,6 +265,7 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
             horizontalMinTextField.trailingAnchor.constraint(equalTo: horizontalMaxTextField.leadingAnchor, constant: -7),
             horizontalMinTextField.bottomAnchor.constraint(equalTo: horizontalXView.bottomAnchor, constant: -10),
             horizontalMinTextField.widthAnchor.constraint(equalToConstant: 76),
+            horizontalMinTextField.topLabel.heightAnchor.constraint(equalToConstant: 18),
             
             // HorizontalMaxTextField Constraint
             horizontalMaxTextField.topAnchor.constraint(equalTo: horizontalXView.topAnchor, constant: 10),
@@ -270,6 +273,7 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
             horizontalMaxTextField.trailingAnchor.constraint(equalTo: horizontalXView.trailingAnchor, constant: -13),
             horizontalMaxTextField.bottomAnchor.constraint(equalTo: horizontalXView.bottomAnchor, constant: -10),
             horizontalMaxTextField.widthAnchor.constraint(equalToConstant: 76),
+            horizontalMaxTextField.topLabel.heightAnchor.constraint(equalToConstant: 18),
             
             // ChartLineLabel Constraint
             chartLineLabel.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: 20),
@@ -387,23 +391,29 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
         chartLineLabel.font = UIFont.boldSystemFont(ofSize: 14)
         
         // Vertical Y view textField and label properties
-        PSITextField.textField.text = "PSI"
+        PSITextField.tooltipVisible(bool: false)
         PSITextField.topLabel.labelText = "Vertical (Y)"
         PSITextField.textField.backgroundColor = .white
         verticalMaxTextField.topLabel.labelText = "Max"
         verticalMinTextField.topLabel.labelText = "Min"
+        verticalMaxTextField.tooltipVisible(bool: false)
+        verticalMinTextField.tooltipVisible(bool: false)
         verticalMaxTextField.textField.backgroundColor = .white
         verticalMinTextField.textField.backgroundColor = .white
+        PSITextField.textField.text = joyDocFieldData[index].yTitle
         PSITextField.textField.font = UIFont.systemFont(ofSize: 14)
         
         // Horizontal X view textField and label properties
-        GPMTextField.textField.text = "GPMs"
+        GPMTextField.tooltipVisible(bool: false)
         GPMTextField.textField.backgroundColor = .white
         horizontalMaxTextField.topLabel.labelText = "Max"
         horizontalMinTextField.topLabel.labelText = "Min"
         GPMTextField.topLabel.labelText = "Horizontal (X)"
+        horizontalMaxTextField.tooltipVisible(bool: false)
+        horizontalMinTextField.tooltipVisible(bool: false)
         horizontalMaxTextField.textField.backgroundColor = .white
         horizontalMinTextField.textField.backgroundColor = .white
+        GPMTextField.textField.text = joyDocFieldData[index].xTitle
         GPMTextField.textField.font = UIFont.systemFont(ofSize: 14)
         
         // TextField delegate
@@ -414,10 +424,10 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
         horizontalMinTextField.textField.delegate = self
         horizontalMaxTextField.textField.delegate = self
         
-        verticalMinTextField.textField.text = "0"
-        verticalMaxTextField.textField.text = "100"
-        horizontalMinTextField.textField.text = "0"
-        horizontalMaxTextField.textField.text = "100"
+        verticalMinTextField.textField.text = "\(joyDocFieldData[index].yMin ?? 0)"
+        verticalMaxTextField.textField.text = "\(joyDocFieldData[index].yMax ?? 0)"
+        horizontalMinTextField.textField.text = "\(joyDocFieldData[index].xMin ?? 0)"
+        horizontalMaxTextField.textField.text = "\(joyDocFieldData[index].xMax ?? 0)"
         verticalMinTextField.textField.keyboardType = .numberPad
         verticalMaxTextField.textField.keyboardType = .numberPad
         horizontalMinTextField.textField.keyboardType = .numberPad
@@ -510,6 +520,13 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
         self.verticalYView.isHidden = !isHidden
         self.horizontalXView.isHidden = !isHidden
         self.showHideButton.title = isHidden ? "Hide" : "Show"
+        
+        if isHidden {
+            isTextFieldSelected = true
+        } else {
+            isTextFieldSelected = false
+        }
+        
         if #available(iOS 13.0, *) {
             let imageName = isHidden ? "chevron.up" : "chevron.down"
             self.showHideButtonImage.image = UIImage(systemName: imageName)
@@ -601,34 +618,6 @@ public class ChartView: UIViewController, UITextFieldDelegate, ChartViewTextFiel
         chartPointsId[index].append([pointId])
         chartValueElement[index].append(newValueElement)
     }
-    
-    // TextField delegate method called when editing stops to update max and min value of horizontal and vertical axis
-    public func textFieldDidEndEditing(_ textField: UITextField) {
-        verticalLabel.labelText = PSITextField.textField.text
-        horizontalLabel.labelText = GPMTextField.textField.text
-        lineGraph.yMin = Int(verticalMinTextField.textField.text ?? "") ?? 0
-        lineGraph.yMax = Int(verticalMaxTextField.textField.text ?? "") ?? 0
-        lineGraph.xMin = Int(horizontalMinTextField.textField.text ?? "") ?? 0
-        lineGraph.xMax = Int(horizontalMaxTextField.textField.text ?? "") ?? 0
-        
-        // Update updated value in the joyDoc
-        joyDocFieldData[index].yMax = Int(horizontalMaxTextField.textField.text ?? "") ?? 0
-        joyDocFieldData[index].yMin = Int(verticalMinTextField.textField.text ?? "") ?? 0
-        joyDocFieldData[index].xMax = Int(horizontalMaxTextField.textField.text ?? "") ?? 0
-        joyDocFieldData[index].xMin = Int(horizontalMinTextField.textField.text ?? "") ?? 0
-        if let index = joyDocStruct?.fields?.firstIndex(where: {$0.id == joyDocFieldData[index].id}) {
-            joyDocStruct?.fields?[index].yMax = Int(horizontalMaxTextField.textField.text ?? "") ?? 0
-            joyDocStruct?.fields?[index].yMin = Int(verticalMinTextField.textField.text ?? "") ?? 0
-            joyDocStruct?.fields?[index].xMax = Int(horizontalMaxTextField.textField.text ?? "") ?? 0
-            joyDocStruct?.fields?[index].xMin = Int(horizontalMinTextField.textField.text ?? "") ?? 0
-        }
-        
-        self.saveDelegate?.handleYMinCoordinates(line: index, newValue: Int(verticalMinTextField.textField.text ?? "") ?? 0)
-        self.saveDelegate?.handleYMaxCoordinates(line: index, newValue: Int(verticalMaxTextField.textField.text ?? "") ?? 0)
-        self.saveDelegate?.handleXMinCoordinates(line: index, newValue: Int(horizontalMinTextField.textField.text ?? "") ?? 0)
-        self.saveDelegate?.handleXMaxCoordinates(line: index, newValue: Int(horizontalMaxTextField.textField.text ?? "") ?? 0)
-        lineGraph.setNeedsDisplay()
-    }
 }
 
 // MARK: TableView extention with tableView delegate methods
@@ -695,6 +684,7 @@ extension ChartView: UITableViewDelegate, UITableViewDataSource {
         tableCell?.typeTitleTextField.textField.delegate = self
     }
     
+    // TextField delegate method called when editing stops to update max and min value of horizontal and vertical axis
     public func textFieldDidEndEditing(_ textField: UITextField, reason: UITextField.DidEndEditingReason) {
         let tableCell = addLineTableView.cellForRow(at: IndexPath(row: addPointButtonIndexPath, section: 0)) as? ChartLineTableViewCell
         isTextFieldSelected = false
@@ -702,6 +692,31 @@ extension ChartView: UITableViewDelegate, UITableViewDataSource {
         textField.layer.borderColor = UIColor(hexString: "#D1D1D6")?.cgColor
         chartLineTitle[index][addPointButtonIndexPath] = tableCell?.typeTitleTextField.textField.text ?? ""
         chartLineDescription[index][addPointButtonIndexPath] = tableCell?.typeDescriptionTextField.text ?? ""
+        
+        verticalLabel.labelText = PSITextField.textField.text
+        horizontalLabel.labelText = GPMTextField.textField.text
+        lineGraph.yMin = Int(verticalMinTextField.textField.text ?? "") ?? 0
+        lineGraph.yMax = Int(verticalMaxTextField.textField.text ?? "") ?? 0
+        lineGraph.xMin = Int(horizontalMinTextField.textField.text ?? "") ?? 0
+        lineGraph.xMax = Int(horizontalMaxTextField.textField.text ?? "") ?? 0
+        
+        // Update updated value in the joyDoc
+        joyDocFieldData[index].yMax = Int(verticalMaxTextField.textField.text ?? "") ?? 0
+        joyDocFieldData[index].yMin = Int(verticalMinTextField.textField.text ?? "") ?? 0
+        joyDocFieldData[index].xMax = Int(horizontalMaxTextField.textField.text ?? "") ?? 0
+        joyDocFieldData[index].xMin = Int(horizontalMinTextField.textField.text ?? "") ?? 0
+        if let index = joyDocStruct?.fields?.firstIndex(where: {$0.id == joyDocFieldData[index].id}) {
+            joyDocStruct?.fields?[index].yMax = Int(horizontalMaxTextField.textField.text ?? "") ?? 0
+            joyDocStruct?.fields?[index].yMin = Int(verticalMinTextField.textField.text ?? "") ?? 0
+            joyDocStruct?.fields?[index].xMax = Int(horizontalMaxTextField.textField.text ?? "") ?? 0
+            joyDocStruct?.fields?[index].xMin = Int(horizontalMinTextField.textField.text ?? "") ?? 0
+        }
+        
+        self.saveDelegate?.handleYMinCoordinates(line: index, newValue: Int(verticalMinTextField.textField.text ?? "") ?? 0)
+        self.saveDelegate?.handleYMaxCoordinates(line: index, newValue: Int(verticalMaxTextField.textField.text ?? "") ?? 0)
+        self.saveDelegate?.handleXMinCoordinates(line: index, newValue: Int(horizontalMinTextField.textField.text ?? "") ?? 0)
+        self.saveDelegate?.handleXMaxCoordinates(line: index, newValue: Int(horizontalMaxTextField.textField.text ?? "") ?? 0)
+        lineGraph.setNeedsDisplay()
     }
     
     public func textFieldDidBeginEditing(_ textField: UITextField) {

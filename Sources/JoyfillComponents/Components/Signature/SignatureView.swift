@@ -151,6 +151,7 @@ open class SignatureView : UIView, UpdateSignature {
         while parentResponder != nil {
             parentResponder = parentResponder?.next
             if let viewController = parentResponder as? UIViewController {
+                viewController.modalPresentationStyle = .fullScreen
                 let newViewController = SignatureViewController()
                 newViewController.index = index
                 fieldDelegate?.handleFocus(index: index)
@@ -158,7 +159,6 @@ open class SignatureView : UIView, UpdateSignature {
                 newViewController.fieldDelegate = self.fieldDelegate
                 newViewController.signatureView.updateSignature = self
                 newViewController.modalPresentationStyle = .fullScreen
-                newViewController.modalTransitionStyle = .crossDissolve
                 newViewController.signatureView.topLabel.labelText = self.titleLabel.labelText
                 viewController.present(newViewController, animated: true, completion: nil)
                 break

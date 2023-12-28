@@ -98,7 +98,7 @@ open class Signature: UIView {
             topLabel.heightAnchor.constraint(equalToConstant: 30),
             
             closeButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 4),
-            closeButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 9),
+            closeButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -4),
             closeButton.heightAnchor.constraint(equalToConstant: 30),
             closeButton.widthAnchor.constraint(equalToConstant: 50),
             
@@ -115,6 +115,7 @@ open class Signature: UIView {
             clrButton.topAnchor.constraint(equalTo: signatureView.bottomAnchor, constant: 9),
             clrButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 9),
             clrButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -9),
+//            clrButton.widthAnchor.constraint(equalToConstant: 105),
             clrButton.heightAnchor.constraint(equalToConstant: 40),
             
             saveView.topAnchor.constraint(equalTo: textField.bottomAnchor, constant: 28),

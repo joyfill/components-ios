@@ -183,13 +183,13 @@ public class Chart: UIView, UIViewControllerTransitioningDelegate {
         
         verticalLabel.fontSize = 12
         verticalLabel.numberOfLines = 0
-        verticalLabel.labelText = "Vertical"
+        verticalLabel.labelText = joyDocFieldData[index].yTitle
         verticalLabel.textAlignment = .center
         verticalLabel.transform = CGAffineTransformMakeRotation(-(.pi/2))
         
         horizontalLabel.fontSize = 12
         horizontalLabel.textAlignment = .center
-        horizontalLabel.labelText = "Horizontal"
+        horizontalLabel.labelText = joyDocFieldData[index].xTitle
         
         // Check if coordinates are greater than or equal to chart indexPath, then pass coordinates to the graph
         if index <= xCoordinates.count {
@@ -200,10 +200,10 @@ public class Chart: UIView, UIViewControllerTransitioningDelegate {
             }
         }
         
-        lineGraph.yMin = 0
-        lineGraph.yMax = 100
-        lineGraph.xMin = 0
-        lineGraph.xMax = 100
+        lineGraph.yMin = joyDocFieldData[index].yMin ?? 0
+        lineGraph.yMax = joyDocFieldData[index].yMax ?? 0
+        lineGraph.xMin = joyDocFieldData[index].xMin ?? 0
+        lineGraph.xMax = joyDocFieldData[index].xMax ?? 0
         
         toolTipIconButton.setImage(UIImage(named: "tooltipIcon", in: .module, compatibleWith: nil), for: .normal)
         toolTipIconButton.addTarget(self, action: #selector(tooltipButtonTapped), for: .touchUpInside)
@@ -216,6 +216,7 @@ public class Chart: UIView, UIViewControllerTransitioningDelegate {
         while parentResponder != nil {
             parentResponder = parentResponder?.next
             if let viewController = parentResponder as? UIViewController {
+                viewController.modalPresentationStyle = .fullScreen
                 let newViewController = ChartView()
                 newViewController.index = self.index
                 newViewController.lineGraph.index = self.index
@@ -223,7 +224,6 @@ public class Chart: UIView, UIViewControllerTransitioningDelegate {
                 newViewController.fieldDelegate = self.fieldDelegate
                 newViewController.transitioningDelegate = self
                 newViewController.modalPresentationStyle = .fullScreen
-                newViewController.modalTransitionStyle = .crossDissolve
                 newViewController.labelTitle = titleLabel.labelText ?? ""
                 viewController.present(newViewController, animated: true, completion: nil)
                 break

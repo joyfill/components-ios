@@ -183,6 +183,7 @@ public class ChartLineTableViewCell: UITableViewCell, ChartViewTextFieldCellDele
         label.font = UIFont.systemFont(ofSize: 14)
         
         // textFields Properties
+        typeTitleTextField.tooltipVisible(bool: false)
         typeDescriptionTextField.backgroundColor = .white
         typeTitleTextField.textField.backgroundColor = .white
         typeTitleTextField.textField.placeholder = "Type title"

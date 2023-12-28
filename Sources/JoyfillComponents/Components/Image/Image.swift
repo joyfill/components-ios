@@ -209,6 +209,7 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
     @objc func imageCountTapped() {
         fieldDelegate?.handleFocus(index: index)
         if let parentViewController = parentViewController {
+            parentViewController.modalPresentationStyle = .fullScreen
             let newViewController = MultipleImageView()
             newViewController.index = index
             newViewController.delegate = self
@@ -219,7 +220,7 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
             newViewController.imageMultiValue = imageMultiValue
             newViewController.imageDisplayMode = imageDisplayMode
             newViewController.onChangeDelegate = onChangeDelegate
-            newViewController.modalTransitionStyle = .crossDissolve
+            newViewController.modalPresentationStyle = .fullScreen
             parentViewController.view.addSubview(newViewController.view)
             newViewController.view.frame = parentViewController.view.bounds
             parentViewController.addChild(newViewController)
