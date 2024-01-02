@@ -91,9 +91,7 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
         collectionView.dataSource = self
         collectionView.register(CollectionViewCell.self, forCellWithReuseIdentifier: "Cell")
         collectionView.backgroundColor = .clear
-        
         setupUI()
-        
         collectionView.reloadData()
     }
     
@@ -534,7 +532,6 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
     // Function to unwrap JoyfillComponents.ValueElement
     func unWrapValueElementValues(element: JoyfillComponents.ValueElement) -> [String: Any] {
         var unwrappedElement: [String: Any] = [:]
-        
         unwrappedElement["id"] = element.id
         unwrappedElement["url"] = element.url
         unwrappedElement["fileName"] = element.fileName
@@ -544,7 +541,6 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
         unwrappedElement["description"] = element.description
         unwrappedElement["points"] = element.points
         unwrappedElement["cells"] = element.cells?.mapValues { unWrapValueUnionValues(value: $0) }
-        
         return unwrappedElement
     }
     
@@ -1153,8 +1149,6 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
             return CGSize(width: cellWidth, height: textHeight)
         }
     }
-    
-    
     
     func setCellWidth() {
         if tableColumnOrderId[tableIndexNo].count == 1 {

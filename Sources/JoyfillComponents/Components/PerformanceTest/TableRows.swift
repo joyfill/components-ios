@@ -49,3 +49,4 @@ public class TableRow : UIView {
         collectionView.collectionView.layer.borderColor = UIColor(hexString: "#C0C1C6")?.cgColor
     }
 }
+

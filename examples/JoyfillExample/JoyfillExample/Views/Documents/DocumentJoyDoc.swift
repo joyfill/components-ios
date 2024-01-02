@@ -29,6 +29,10 @@ class ViewController: UIViewController, onChange, UIImagePickerControllerDelegat
         
         // Retrieve the joydoc JSON from the Joyfill API (optional). Any JoyDoc spec'd
         // JSON will work with our Form below.
+        
+        if let navigationController = navigationController {
+            joyfillNavigationController = navigationController
+        }
         JoyDocModel.fetchJoyDoc(identifier: identifier, userAccessToken: userAccessToken, completion: { joyDocJSON in
             
             print("Loaded view completion ", joyDocJSON)

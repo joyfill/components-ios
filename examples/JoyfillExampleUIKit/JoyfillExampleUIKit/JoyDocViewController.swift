@@ -28,15 +28,15 @@ class JoyDocViewController: UIViewController, onChange, UIImagePickerControllerD
     
     // MARK: - Lifecycles
     override func viewDidLoad() {
-        
         super.viewDidLoad()
-                
+        
+        if let navigationController = navigationController {
+            joyfillNavigationController = navigationController
+        }
         setup()
         vm.delegate = self
         vm.fetchJoyDoc(identifier: selectedDocumentIdentifier)
-        
     }
-    
 }
 
 // MARK: - Composition (Joyfill)
