@@ -296,7 +296,6 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         } else {
             delegate?.imagesUpdated()
         }
-        joyfillNavigationController.setNavigationBarHidden(false, animated: false)
     }
     
     // Action for delete button
