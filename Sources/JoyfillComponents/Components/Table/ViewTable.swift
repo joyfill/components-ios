@@ -81,7 +81,7 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
         view.backgroundColor = .white
         view.hideKeyboardOnTapAnyView()
         moreButton.isHidden = true
-
+        
         collectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.showsVerticalScrollIndicator = false
@@ -534,7 +534,7 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
     // Function to unwrap JoyfillComponents.ValueElement
     func unWrapValueElementValues(element: JoyfillComponents.ValueElement) -> [String: Any] {
         var unwrappedElement: [String: Any] = [:]
-
+        
         unwrappedElement["id"] = element.id
         unwrappedElement["url"] = element.url
         unwrappedElement["fileName"] = element.fileName
@@ -544,7 +544,7 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
         unwrappedElement["description"] = element.description
         unwrappedElement["points"] = element.points
         unwrappedElement["cells"] = element.cells?.mapValues { unWrapValueUnionValues(value: $0) }
-
+        
         return unwrappedElement
     }
     
@@ -1153,7 +1153,7 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
             return CGSize(width: cellWidth, height: textHeight)
         }
     }
-  
+    
     
     
     func setCellWidth() {
@@ -1399,7 +1399,7 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
                     valueUnionCells[key] = value
                 }
             }
-          
+            
             if var valueElement = tableFieldValue[tableIndexNo][indexPathSection - 1] as? ValueElement {
                 valueElement = ValueElement(
                     id: valueElement.id,
@@ -1475,7 +1475,7 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
             collectionView.reloadItems(at: [IndexPath(row: indexRow, section: indexSection - 1)])
             do {
                 let jsonData = try JSONSerialization.data(withJSONObject: cells.mapValues { $0.self }, options: .prettyPrinted)
-
+                
                 // Convert JSON data to a String
                 if let jsonString = String(data: jsonData, encoding: .utf8) {
                     print(jsonString)
@@ -1489,12 +1489,11 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
                        "deleted": false,
                        "cells": cells
             ] as [String: Any]
-        
+            
             saveDelegate?.handleTextCellChangeValue(row: row, rowId: rowId, isEditingEnd: true, index: index)
             saveDelegate?.handleTableOnBlur(rowId: rowId, columnId: columnId, columnIdentifier: columnIdentifier, index: index)
         }
     }
-    
     
     func handleTextCellSetValue(cellValue: String, indexRow: Int, indexSection: Int) {
         let rowId = tableRowOrder[tableIndexNo][indexSection-1]
@@ -1541,7 +1540,7 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
                        "deleted": false,
                        "cells": cells
             ] as [String: Any]
-          
+            
             saveDelegate?.handleTextCellChangeValue(row: row, rowId: rowId, isEditingEnd: true, index: index)
             saveDelegate?.handleTableOnBlur(rowId: rowId, columnId: columnId, columnIdentifier: columnIdentifier, index: index)
         }

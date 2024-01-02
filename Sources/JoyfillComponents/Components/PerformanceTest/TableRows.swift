@@ -3,7 +3,7 @@ import UIKit
 
 public class TableRow : UIView {
     
-    public var countView = UIView()
+    public var view = UIView()
     public var collectionView = CollectionViewTable()
     
     // MARK: Initializer
@@ -23,18 +23,18 @@ public class TableRow : UIView {
     }
     
     func setupView() {
-        addSubview(countView)
+        addSubview(view)
         addSubview(collectionView)
         
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-        countView.translatesAutoresizingMaskIntoConstraints = false
+        view.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             // CountView Constraint
-            countView.topAnchor.constraint(equalTo: topAnchor),
-            countView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
-            countView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8),
-            countView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -8),
+            view.topAnchor.constraint(equalTo: topAnchor),
+            view.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
+            view.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8),
+            view.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -8),
             
             collectionView.topAnchor.constraint(equalTo: topAnchor, constant: 15),
             collectionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15),
@@ -49,4 +49,3 @@ public class TableRow : UIView {
         collectionView.collectionView.layer.borderColor = UIColor(hexString: "#C0C1C6")?.cgColor
     }
 }
-
