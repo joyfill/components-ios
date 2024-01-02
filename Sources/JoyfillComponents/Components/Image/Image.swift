@@ -9,6 +9,7 @@ protocol saveImageFieldValue {
     func handleDelete(indexPath: Int)
 }
 
+public var isChildViewPresented = Bool()
 open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     public var uploadButton = Button()
@@ -51,6 +52,13 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
     open override func didMoveToWindow() {
         super.didMoveToWindow()
         checkImageCount()
+    }
+    
+    open override func didMoveToSuperview() {
+        super.didMoveToSuperview()
+        if !isChildViewPresented {
+            joyfillNavigationController.setNavigationBarHidden(false, animated: false)
+        }
     }
     
     public func imageDisplayModes(mode : String) {
@@ -207,6 +215,7 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
     
     // Action function for imageCountButton
     @objc func imageCountTapped() {
+        isChildViewPresented = true
         fieldDelegate?.handleFocus(index: index)
         if let parentViewController = parentViewController {
             parentViewController.modalPresentationStyle = .fullScreen
@@ -225,6 +234,7 @@ open class Image: UIView, UIViewControllerTransitioningDelegate, UIImagePickerCo
             newViewController.view.frame = parentViewController.view.bounds
             parentViewController.addChild(newViewController)
             newViewController.didMove(toParent: parentViewController)
+            joyfillNavigationController.setNavigationBarHidden(true, animated: false)
         }
     }
 }

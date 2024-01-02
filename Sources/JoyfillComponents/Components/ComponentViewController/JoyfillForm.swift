@@ -66,7 +66,6 @@ public class JoyfillForm: UIView, SaveTableFieldValue, saveImageFieldValue, save
         super.init(frame: .zero)
         setupUI()
         hideKeyboardOnTapAnyView()
-        joyfillNavigationController.setNavigationBarHidden(false, animated: false)
     }
     
     public func setupUI() {

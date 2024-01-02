@@ -39,7 +39,6 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         imageTableView.allowsMultipleSelection = true
         imageTableView.showsVerticalScrollIndicator = false
         imageTableView.showsHorizontalScrollIndicator = false
-        joyfillNavigationController.setNavigationBarHidden(true, animated: false)
         imageTableView.register(MultipleImageTableCell.self, forCellReuseIdentifier: "MultipleImageTableCell")
         if #available(iOS 13.0, *) {
             view.overrideUserInterfaceStyle = .light
@@ -296,6 +295,7 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         } else {
             delegate?.imagesUpdated()
         }
+        isChildViewPresented = false
     }
     
     // Action for delete button

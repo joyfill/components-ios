@@ -146,11 +146,7 @@ extension JoyDocViewController: JoyDocViewModelDelegate {
     func convertImageToDataURI(uri: UIImage) {
         if let imageData = uri.jpegData(compressionQuality: 1.0) {
             let base64String = imageData.base64EncodedString()
-            updateImage = true
-            uploadedImageCount[imageIndexNo] = ["data:image/jpeg;base64,\(base64String)"]
-            uploadedSingleImage[imageIndexNo] = ["data:image/jpeg;base64,\(base64String)"]
-            uploadedMultipleImage[imageIndexNo].append("data:image/jpeg;base64,\(base64String)")
-            joyDoc.reloadData()
+            onUploadAsync(imageUrl: "data:image/jpeg;base64,\(base64String)")
         }
     }
     
