@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/joyfill/components-ios.git",
       "state" : {
-        "revision" : "a79dd3e5348b5f231af7f8af2453524f5a86398c",
-        "version" : "0.2.3"
+        "revision" : "cd01d7df6d3b366ceac73069285ede0fd6196cb5",
+        "version" : "0.2.4"
       }
     },
     {

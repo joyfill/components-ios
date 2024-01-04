@@ -110,7 +110,7 @@ extension JoyDocViewController: JoyDocViewModelDelegate {
     }
     
     func handleImageUploadAsync(images: [String]) {
-        print(">>>>>>>> images: ", images)
+        print("images: ", images)
     }
     
     /* 
@@ -172,12 +172,6 @@ private extension JoyDocViewController {
         view.overrideUserInterfaceStyle = .light
                 
         view.addSubview(saveBtn)
-//        NSLayoutConstraint.activate([
-//            saveBtn.topAnchor.constraint(equalTo: view.topAnchor, constant: 5),
-//            saveBtn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 50),
-//            saveBtn.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: -50),
-//            saveBtn.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10)
-//        ])
         
         saveBtn.addTarget(self,
                           action: #selector(didSave),
