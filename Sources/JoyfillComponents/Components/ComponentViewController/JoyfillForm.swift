@@ -18,6 +18,7 @@ public var uploadedImageCount = [[String]]()
 public var uploadedSingleImage = [[String]]()
 public var uploadedMultipleImage = [[String]]()
 public var joyfillFormImageUpload: (() -> Void)?
+public var joyfillNavigationController = UINavigationController()
 
 public protocol onChange {
     func handleImageUploadAsync(images: [String])

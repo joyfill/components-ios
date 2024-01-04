@@ -92,6 +92,7 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
         collectionView.register(CollectionViewCell.self, forCellWithReuseIdentifier: "Cell")
         collectionView.backgroundColor = .clear
         setupUI()
+        collectionView.reloadData()
     }
     
     func updateFieldBorder(borderColor: UIColor, borderWidth: CGFloat) {
@@ -531,7 +532,6 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
     // Function to unwrap JoyfillComponents.ValueElement
     func unWrapValueElementValues(element: JoyfillComponents.ValueElement) -> [String: Any] {
         var unwrappedElement: [String: Any] = [:]
-
         unwrappedElement["id"] = element.id
         unwrappedElement["url"] = element.url
         unwrappedElement["fileName"] = element.fileName
@@ -541,7 +541,6 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
         unwrappedElement["description"] = element.description
         unwrappedElement["points"] = element.points
         unwrappedElement["cells"] = element.cells?.mapValues { unWrapValueUnionValues(value: $0) }
-
         return unwrappedElement
     }
     
@@ -900,6 +899,7 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
         if numberOfRows != 1 {
             numberOfRows -= 1
             updateRowNumber()
+            dropDownSelectedValue = ""
             tableFieldValue[tableIndexNo].remove(at: (cellSelectedIndexPath?.section ?? 0) - 1)
             tableCellsData[tableIndexNo].remove(at: (cellSelectedIndexPath?.section ?? 0) - 1)
             collectionView.deleteSections(IndexSet(integer: cellSelectedIndexPath?.section ?? 0))
@@ -1393,7 +1393,7 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
                     valueUnionCells[key] = value
                 }
             }
-          
+            
             if var valueElement = tableFieldValue[tableIndexNo][indexPathSection - 1] as? ValueElement {
                 valueElement = ValueElement(
                     id: valueElement.id,
@@ -1466,9 +1466,10 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
                 tableFieldValue[tableIndexNo][indexSection - 1] = valueElement
             }
             tableValueUpdate()
+            collectionView.reloadItems(at: [IndexPath(row: indexRow, section: indexSection - 1)])
             do {
                 let jsonData = try JSONSerialization.data(withJSONObject: cells.mapValues { $0.self }, options: .prettyPrinted)
-
+                
                 // Convert JSON data to a String
                 if let jsonString = String(data: jsonData, encoding: .utf8) {
                     print(jsonString)
@@ -1482,6 +1483,7 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
                        "deleted": false,
                        "cells": cells
             ] as [String: Any]
+            
             saveDelegate?.handleTextCellChangeValue(row: row, rowId: rowId, isEditingEnd: true, index: index)
             saveDelegate?.handleTableOnBlur(rowId: rowId, columnId: columnId, columnIdentifier: columnIdentifier, index: index)
         }
@@ -1527,10 +1529,12 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
             }
             
             tableValueUpdate()
+            collectionView.reloadItems(at: [IndexPath(row: indexRow, section: indexSection - 1)])
             let row = ["_id":  tableFieldValue[tableIndexNo][indexSection - 1].id ?? "",
                        "deleted": false,
                        "cells": cells
             ] as [String: Any]
+            
             saveDelegate?.handleTextCellChangeValue(row: row, rowId: rowId, isEditingEnd: true, index: index)
             saveDelegate?.handleTableOnBlur(rowId: rowId, columnId: columnId, columnIdentifier: columnIdentifier, index: index)
         }
@@ -1556,7 +1560,21 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
             case .string: break
             case .integer: break
             case .valueElementArray:
+                tableCellsData[tableIndexNo].removeAll()
                 joyDocStruct?.fields?[index].value = ValueUnion.valueElementArray(tableFieldValue[tableIndexNo])
+                
+                for k in 0..<tableFieldValue[tableIndexNo].count {
+                    if let cells = tableFieldValue[tableIndexNo][k].cells {
+                        let valuesArray: [String] = cells.compactMap { key, valueUnion in
+                            if case .string(let stringValue) = valueUnion {
+                                return stringValue
+                            } else {
+                                return nil
+                            }
+                        }
+                        tableCellsData[tableIndexNo].append(valuesArray)
+                    }
+                }
             case .array(_): break
             case .none:
                 joyDocStruct?.fields?[index].value = ValueUnion.valueElementArray(tableFieldValue[tableIndexNo])

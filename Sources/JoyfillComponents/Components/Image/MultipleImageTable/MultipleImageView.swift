@@ -34,12 +34,12 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
     public override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        imageTableView.register(MultipleImageTableCell.self, forCellReuseIdentifier: "MultipleImageTableCell")
-        imageTableView.showsVerticalScrollIndicator = false
-        imageTableView.showsHorizontalScrollIndicator = false
         imageTableView.delegate = self
         imageTableView.dataSource = self
         imageTableView.allowsMultipleSelection = true
+        imageTableView.showsVerticalScrollIndicator = false
+        imageTableView.showsHorizontalScrollIndicator = false
+        imageTableView.register(MultipleImageTableCell.self, forCellReuseIdentifier: "MultipleImageTableCell")
         if #available(iOS 13.0, *) {
             view.overrideUserInterfaceStyle = .light
         }
@@ -295,6 +295,7 @@ public class MultipleImageView: UIViewController, UIImagePickerControllerDelegat
         } else {
             delegate?.imagesUpdated()
         }
+        isChildViewPresented = false
     }
     
     // Action for delete button
