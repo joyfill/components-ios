@@ -16,6 +16,7 @@ enum RPickerType {
     var saveDelegate: SaveTextFieldValue? = nil
     public static let sharedInstance = RPicker()
     var dateTimeDelegate: UpdateDateTimeFieldBorderOnBlur? = nil
+    var apiSelectDate = String()
     
     /**
      Show UIDatePicker with various constraints.
@@ -122,7 +123,6 @@ enum RPickerType {
         if let cc = UIWindow.currentController {
             if RPicker.sharedInstance.isPresented == false {
                 RPicker.sharedInstance.isPresented = true
-                
                 let vc = RPickerController(title: title, cancelText: cancelText, doneText: doneText, datePickerMode: datePickerMode, selectedDate: selectedDate, minDate: minDate, maxDate: maxDate, dataArray: dataArray, selectedIndex: selectedIndex, type: type, style: style)
                 
                 vc.index = RPicker.sharedInstance.index
@@ -255,7 +255,7 @@ class RPickerController: UIViewController {
                     height = height + pickerHeight
                 } else {
                     if datePicker.datePickerMode == .dateAndTime {
-                        height = height + 450
+                       height = height + 460
                     } else if datePicker.datePickerMode == .date {
                         height = height + 386
                     } else if datePicker.datePickerMode == .time {
@@ -275,7 +275,7 @@ class RPickerController: UIViewController {
         }
         
         self.view.addSubview(stackView)
-        stackView.pinConstraints(view, left: 0, right: 0, bottom: 0, height: height)
+        stackView.pinConstraints(view, left: 0, right: 0, bottom: -5, height: height)
         
         if #available(iOS 12.0, *) {
             if traitCollection.userInterfaceStyle == .dark {
@@ -332,7 +332,7 @@ class RPickerController: UIViewController {
         let sv = UIStackView()
         sv.axis = NSLayoutConstraint.Axis.vertical
         sv.distribution = UIStackView.Distribution.fill
-        sv.alignment = UIStackView.Alignment.center
+        sv.alignment = UIStackView.Alignment.fill
         sv.spacing = 0.0
         return sv
     }()

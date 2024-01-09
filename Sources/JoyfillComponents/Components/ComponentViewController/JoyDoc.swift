@@ -172,11 +172,11 @@ enum ValueUnion: Codable {
 
 // MARK: - ValueElement
 struct ValueElement: Codable {
-    let id: String?
+    var id: String?
     var url: String?
-    let fileName, filePath: String?
-    let deleted: Bool?
-    let title, description: String?
+    var fileName, filePath: String?
+    var deleted: Bool?
+    var title, description: String?
     var points: [Point]?
     var cells: [String: ValueUnion]?
     
@@ -249,12 +249,13 @@ struct FieldPosition: Codable {
     let textDecoration: String?
     let borderWidth: Int?
     let borderRadius: Int?
+    let targetValueDisplayType: String?
     
     enum CodingKeys: String, CodingKey {
         case field, displayType, width, height, x, y
         case id = "_id"
         case type, targetValue, fontSize, fontColor, fontStyle, fontWeight, textAlign, primaryDisplayOnly, format, column
-        case backgroundColor, borderColor, textDecoration, borderWidth, borderRadius
+        case backgroundColor, borderColor, textDecoration, borderWidth, borderRadius, targetValueDisplayType
     }
 }
 
@@ -318,7 +319,8 @@ func fetchDataFromJoyDoc() {
             for j in 0..<fieldCount {
                 // Get y value of all components
                 let displayType = joyDocStruct?.files?[0].pages?[indx].fieldPositions?[j].displayType
-                if displayType == "original" || displayType == "inputGroup" || displayType == "horizontal" {
+                let targetdisplayType = joyDocStruct?.files?[0].pages?[indx].fieldPositions?[j].targetValueDisplayType
+                if displayType == "original" || displayType == "inputGroup" || displayType == "horizontal" || targetdisplayType == "original" {
                     let yFieldValue = joyDocStruct?.files?[0].pages?[indx].fieldPositions?[j].y ?? 0.0
                     componentsYValueForMobileView.append(Int(yFieldValue))
                     componentType.append(joyDocStruct?.files?[0].pages?[indx].fieldPositions?[j].type ?? "")

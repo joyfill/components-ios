@@ -188,6 +188,7 @@ public class JoyfillForm: UIView, SaveTableFieldValue, saveImageFieldValue, save
 
 // MARK: Setup tableView
 extension JoyfillForm: UITableViewDelegate, UITableViewDataSource, SaveTextFieldValue, saveChartFieldValue {
+  
     // MARK: TableView delegate method for number of rows in section
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return componentType.count
@@ -781,6 +782,8 @@ extension JoyfillForm: UITableViewDelegate, UITableViewDataSource, SaveTextField
         chartPointsId[i].removeAll()
         graphLabelData[i].removeAll()
         chartValueElement[i].removeAll()
+        chartLineTitle[i].removeAll()
+        chartLineDescription[i].removeAll()
         
         // Chart value based on indexPath from JoyDoc
         switch value {
@@ -1073,14 +1076,24 @@ extension JoyfillForm: UITableViewDelegate, UITableViewDataSource, SaveTextField
         var transformedDataArray = [[String: Any]]()
         
         for i in 0..<chartValueElement[line].count {
-            var singleElementData = [
-                "_id": chartValueElement[line][i].id ?? "",
-                "deleted": chartValueElement[line][i].deleted ?? false,
-                "title": chartValueElement[line][i].title ?? "",
-                "description": chartValueElement[line][i].description ?? "",
-                "points": [[String: Any]]()
-            ] as [String : Any]
-            
+            var singleElementData: [String: Any]
+            if chartLineTitle.indices.contains(line) && chartLineTitle[line].indices.contains(i) || chartLineDescription.indices.contains(line) && chartLineDescription[line].indices.contains(i){
+                singleElementData = [
+                    "_id": chartValueElement[line][i].id ?? "",
+                    "deleted": chartValueElement[line][i].deleted ?? false,
+                    "title": chartLineTitle[line][i],
+                    "description": chartLineDescription[line][i],
+                    "points": [[String: Any]]()
+                ] as [String : Any]
+            } else {
+                singleElementData = [
+                    "_id": chartValueElement[line][i].id ?? "",
+                    "deleted": chartValueElement[line][i].deleted ?? false,
+                    "title": chartValueElement[line][i].title ?? "",
+                    "description": chartValueElement[line][i].description ?? "",
+                    "points": [[String: Any]]()
+                ] as [String : Any]
+            }
             if let points = chartValueElement[line][i].points {
                 var pointsData: [[String: Any]] = []
                 for point in points {
@@ -1103,6 +1116,51 @@ extension JoyfillForm: UITableViewDelegate, UITableViewDataSource, SaveTextField
                 }
                 singleElementData["points"] = pointsData
             }
+            transformedDataArray.append(singleElementData)
+        }
+        elementData = ["value": transformedDataArray]
+        onChangeFunctionCall(line: line, elementData: elementData)
+    }
+    
+    func handleLineTitleDescription(line: Int) {
+        var elementData = [String: Any]()
+        var transformedDataArray = [[String: Any]]()
+        
+        for i in 0..<chartValueElement[line].count {
+            var singleElementData: [String: Any]
+            if chartLineTitle.indices.contains(line) && chartLineTitle[line].indices.contains(i) || chartLineDescription.indices.contains(line) && chartLineDescription[line].indices.contains(i){
+                singleElementData = [
+                    "_id": chartValueElement[line][i].id ?? "",
+                    "deleted": chartValueElement[line][i].deleted ?? false,
+                    "title": chartLineTitle[line][i],
+                    "description": chartLineDescription[line][i],
+                    "points": [[String: Any]]()
+                ] as [String : Any]
+            } else {
+                singleElementData = [
+                    "_id": chartValueElement[line][i].id ?? "",
+                    "deleted": chartValueElement[line][i].deleted ?? false,
+                    "title": chartValueElement[line][i].title ?? "",
+                    "description": chartValueElement[line][i].description ?? "",
+                    "points": [[String: Any]]()
+                ] as [String : Any]
+            }
+            
+            if let points = chartValueElement[line][i].points {
+                var pointsData: [[String: Any]] = []
+                for point in points {
+                    var pointData: [String: Any] = [
+                        "_id": point.id ?? ""
+                    ]
+                    pointData["y"] = point.y ?? 0
+                    pointData["x"] = point.x ?? 0
+                    pointData["label"] = point.label ?? ""
+                    
+                    pointsData.append(pointData)
+                }
+                singleElementData["points"] = pointsData
+            }
+
             transformedDataArray.append(singleElementData)
         }
         elementData = ["value": transformedDataArray]
@@ -1162,14 +1220,24 @@ extension JoyfillForm: UITableViewDelegate, UITableViewDataSource, SaveTextField
         
         for i in 0..<chartValueElement[line].count {
             let element = chartValueElement[line]
-            var singleElementData: [String: Any] = [
-                "_id": element[i].id ?? "",
-                "deleted": element[i].deleted ?? false,
-                "title": element[i].title ?? "",
-                "description": element[i].description ?? "",
-                "points": [[String: Any]]()
-            ]
-            
+            var singleElementData: [String: Any]
+            if chartLineTitle.indices.contains(line) && chartLineTitle[line].indices.contains(i) || chartLineDescription.indices.contains(line) && chartLineDescription[line].indices.contains(i){
+                singleElementData = [
+                    "_id": element[i].id ?? "",
+                    "deleted": element[i].deleted ?? false,
+                    "title": chartLineTitle[line][i],
+                    "description": chartLineDescription[line][i],
+                    "points": [[String: Any]]()
+                ]
+            } else {
+                singleElementData = [
+                    "_id": element[i].id ?? "",
+                    "deleted": element[i].deleted ?? false,
+                    "title": element[i].title ?? "",
+                    "description": element[i].description ?? "",
+                    "points": [[String: Any]]()
+                ]
+            }
             if let points = element[i].points {
                 var pointsData: [[String: Any]] = []
                 for point in points {

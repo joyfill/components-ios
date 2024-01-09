@@ -655,6 +655,7 @@ extension ChartView: UITableViewDelegate, UITableViewDataSource {
         updateLineGraphAndCell(cell, at: indexPath)
         cell.contentView.subviews.forEach { $0.removeFromSuperview() }
         cell.setupCell()
+        
         return cell
     }
     
@@ -690,9 +691,19 @@ extension ChartView: UITableViewDelegate, UITableViewDataSource {
         isTextFieldSelected = false
         textField.layer.borderWidth = 1
         textField.layer.borderColor = UIColor(hexString: "#D1D1D6")?.cgColor
-        chartLineTitle[index][addPointButtonIndexPath] = tableCell?.typeTitleTextField.textField.text ?? ""
-        chartLineDescription[index][addPointButtonIndexPath] = tableCell?.typeDescriptionTextField.text ?? ""
+        if chartLineTitle.indices.contains(index) && chartLineTitle[index].indices.contains(addPointButtonIndexPath){
+            chartLineTitle[index][addPointButtonIndexPath] = tableCell?.typeTitleTextField.textField.text ?? ""
+        } else {
+            chartLineTitle[index].append(tableCell?.typeTitleTextField.textField.text ?? "")
+        }
         
+        if chartLineDescription.indices.contains(index) && chartLineDescription[index].indices.contains(addPointButtonIndexPath){
+            chartLineDescription[index][addPointButtonIndexPath] = tableCell?.typeDescriptionTextField.text ?? ""
+        } else {
+            chartLineDescription[index].append(tableCell?.typeDescriptionTextField.text ?? "")
+        }
+        
+        self.chartValueUpdate(index: index, addPointButtonIndexPath: addPointButtonIndexPath)
         verticalLabel.labelText = PSITextField.textField.text
         horizontalLabel.labelText = GPMTextField.textField.text
         lineGraph.yMin = Int(verticalMinTextField.textField.text ?? "") ?? 0
@@ -711,12 +722,64 @@ extension ChartView: UITableViewDelegate, UITableViewDataSource {
             joyDocStruct?.fields?[index].xMax = Int(horizontalMaxTextField.textField.text ?? "") ?? 0
             joyDocStruct?.fields?[index].xMin = Int(horizontalMinTextField.textField.text ?? "") ?? 0
         }
+ 
         
+        self.saveDelegate?.handleLineTitleDescription(line: index)
         self.saveDelegate?.handleYMinCoordinates(line: index, newValue: Int(verticalMinTextField.textField.text ?? "") ?? 0)
         self.saveDelegate?.handleYMaxCoordinates(line: index, newValue: Int(verticalMaxTextField.textField.text ?? "") ?? 0)
         self.saveDelegate?.handleXMinCoordinates(line: index, newValue: Int(horizontalMinTextField.textField.text ?? "") ?? 0)
         self.saveDelegate?.handleXMaxCoordinates(line: index, newValue: Int(horizontalMaxTextField.textField.text ?? "") ?? 0)
         lineGraph.setNeedsDisplay()
+    }
+    
+    // Update updated value in the joyDoc
+    func chartValueUpdate(index:Int, addPointButtonIndexPath:Int) {
+        var element = ValueElement(
+            id: chartValueElement[self.index][addPointButtonIndexPath].id ?? "",
+            url: nil,
+            fileName: nil,
+            filePath: nil,
+            deleted: chartValueElement[self.index][addPointButtonIndexPath].deleted ?? false,
+            title: "",
+            description: "",
+            points: chartValueElement[self.index][addPointButtonIndexPath].points,
+            cells: nil
+        )
+        
+        if chartLineTitle.indices.contains(self.index) && chartLineTitle[self.index].indices.contains(addPointButtonIndexPath) || chartLineDescription.indices.contains(self.index) && chartLineDescription[self.index].indices.contains(addPointButtonIndexPath) {
+            element.title = chartLineTitle[self.index][addPointButtonIndexPath]
+            element.description = chartLineDescription[index][addPointButtonIndexPath]
+        } else {
+            element.title = chartValueElement[self.index][addPointButtonIndexPath].title ?? ""
+            element.description = chartValueElement[self.index][addPointButtonIndexPath].description ?? ""
+        }
+        
+        chartValueElement[self.index][addPointButtonIndexPath] = element
+    
+        let value = joyDocFieldData[self.index].value
+        switch value {
+        case .string: break
+        case .integer: break
+        case .valueElementArray:
+            joyDocFieldData[self.index].value = ValueUnion.valueElementArray(chartValueElement[self.index])
+        case .array(_): break
+        case .none:
+            joyDocFieldData[self.index].value = ValueUnion.valueElementArray(chartValueElement[self.index])
+        case .some(.null): break
+        }
+        
+        if let index = joyDocStruct?.fields?.firstIndex(where: {$0.id == joyDocFieldData[self.index].id}) {
+            let modelValue = joyDocStruct?.fields?[self.index].value
+            switch modelValue {
+            case .string: break
+            case .integer: break
+            case .valueElementArray:
+                joyDocStruct?.fields?[self.index].value = ValueUnion.valueElementArray(chartValueElement[self.index])
+            case .array(_): break
+            case .none: break
+            case .some(.null): break
+            }
+        }
     }
     
     public func textFieldDidBeginEditing(_ textField: UITextField) {
