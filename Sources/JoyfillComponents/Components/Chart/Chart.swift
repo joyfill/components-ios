@@ -22,6 +22,7 @@ protocol saveChartFieldValue {
     func handleYMinCoordinates(line: Int, newValue: Int)
     func handlePointCreate(rowId: String, line: Int, indexPath: Int)
     func handleLineData(rowId: String, line: Int, indexPath: Int, newYValue: Int, newXValue: Int, newLabelValue: String)
+    func handleLineTitleDescription(line: Int)
 }
 
 public class Chart: UIView, UIViewControllerTransitioningDelegate {
