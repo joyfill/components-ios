@@ -31,8 +31,6 @@ class JoyDocViewModel {
             AF.request(url, method: .get, headers: headers).validate().response { response in
                 switch response.result {
                 case .success(let value):
-                    print("testtttttttttt: ", value)
-//                    let json = JSON(value as Any)
                     self?.activeJoyDoc = value
                     self?.delegate?.didFinish()
                     print("Success! Retrieved json (joydoc).")
