@@ -189,8 +189,13 @@ public class ChartLineTableViewCell: UITableViewCell, ChartViewTextFieldCellDele
         typeTitleTextField.textField.placeholder = "Type title"
         typeDescriptionTextField.placeholder = "Type description"
         typeTitleTextField.topLabel.labelText = "Title & Description"
-        typeTitleTextField.textField.text = chartLineTitle[index][addPointButtonIndexPath]
-        typeDescriptionTextField.text = chartLineDescription[index][addPointButtonIndexPath]
+        if chartLineTitle.indices.contains(index) && chartLineTitle[index].indices.contains(addPointButtonIndexPath) {
+            typeTitleTextField.textField.text = chartLineTitle[index][addPointButtonIndexPath]
+        }
+        if chartLineDescription.indices.contains(index) && chartLineTitle[index].indices.contains(addPointButtonIndexPath) {
+            typeDescriptionTextField.text = chartLineDescription[index][addPointButtonIndexPath]
+        }
+  
         
         pointsLabel.labelText = "Points"
         pointsLabel.font = UIFont.boldSystemFont(ofSize: 14)

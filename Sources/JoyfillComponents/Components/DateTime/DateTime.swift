@@ -234,11 +234,10 @@ public class DateTime: UIView, UITextFieldDelegate, UpdateDateTimeFieldBorderOnB
     
     // Function to open datePicker
     @objc func openDatePicker() {
+        datePickerUI()
         RPicker.sharedInstance.index = self.index
         RPicker.sharedInstance.dateTimeDelegate = self
         RPicker.sharedInstance.saveDelegate = self.saveDelegate
-        
-        datePickerUI()
         saveDelegate?.handleFocus(index: index)
         dateTimeView.layer.borderWidth = 2
         dateTimeView.layer.borderColor = UIColor.darkGray.cgColor
@@ -246,29 +245,62 @@ public class DateTime: UIView, UITextFieldDelegate, UpdateDateTimeFieldBorderOnB
     
     public func datePickerUI () {
         if format == "MM/DD/YYYY" {
-            RPicker.selectDate(title: "Select Date", cancelText: "Cancel", datePickerMode: .date, style: .Inline, didSelectDate: {[weak self] (selectedDate) in
-                self?.selectedDate(date: selectedDate.dateString("MMMM d, yyyy"))
-                let timestampMilliseconds = dateToTimestampMilliseconds(date: selectedDate)
-                self?.dateTimeUpadte(timestampMilliseconds: timestampMilliseconds)
-                self?.saveDelegate?.handleFieldChange(text: timestampMilliseconds as Any, isEditingEnd: true, index: self?.index ?? 0)
-            })
-            
+            let dateTime = dateTimeField.text ?? ""
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "MMMM d, yyyy"
+            if let dateFromString = dateFormatter.date(from: dateTime) {
+                RPicker.selectDate(title: "Select Date", cancelText: "Cancel", datePickerMode: .date, selectedDate: dateFromString, style: .Inline, didSelectDate: {[weak self] (selectedDate) in
+                    self?.selectedDate(date: selectedDate.dateString("MMMM d, yyyy"))
+                    let timestampMilliseconds = dateToTimestampMilliseconds(date: selectedDate)
+                    self?.dateTimeUpadte(timestampMilliseconds: timestampMilliseconds)
+                    self?.saveDelegate?.handleFieldChange(text: timestampMilliseconds as Any, isEditingEnd: true, index: self?.index ?? 0)
+                })
+            }else {
+                dateTimeSelect(dateFormat: "MMMM d, yyyy", datePickerMode : .date)
+            }
         } else if format == "hh:mma" {
-            RPicker.selectDate(title: "Select Date", cancelText: "Cancel", datePickerMode: .time, style: .Wheel, didSelectDate: {[weak self] (selectedDate) in
-                self?.selectedDate(date: selectedDate.dateString("hh:mm a"))
-                let timestampMilliseconds = dateToTimestampMilliseconds(date: selectedDate)
-                self?.dateTimeUpadte(timestampMilliseconds: timestampMilliseconds)
-                self?.saveDelegate?.handleFieldChange(text: timestampMilliseconds as Any, isEditingEnd: true, index: self?.index ?? 0)
-            })
-            
+            let dateTime = dateTimeField.text ?? ""
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "hh:mm a"
+            if let dateFromString = dateFormatter.date(from: dateTime) {
+                RPicker.selectDate(title: "Select Date", cancelText: "Cancel", datePickerMode: .time, selectedDate: dateFromString, style: .Wheel, didSelectDate: {[weak self] (selectedDate) in
+                    self?.selectedDate(date: selectedDate.dateString("hh:mm a"))
+                    let timestampMilliseconds = dateToTimestampMilliseconds(date: selectedDate)
+                    self?.dateTimeUpadte(timestampMilliseconds: timestampMilliseconds)
+                    self?.saveDelegate?.handleFieldChange(text: timestampMilliseconds as Any, isEditingEnd: true, index: self?.index ?? 0)
+                })
+            }else {
+                RPicker.selectDate(title: "Select Date", cancelText: "Cancel", datePickerMode: .time, style: .Wheel, didSelectDate: {[weak self] (selectedDate) in
+                    self?.selectedDate(date: selectedDate.dateString("hh:mm a"))
+                    let timestampMilliseconds = dateToTimestampMilliseconds(date: selectedDate)
+                    self?.dateTimeUpadte(timestampMilliseconds: timestampMilliseconds)
+                    self?.saveDelegate?.handleFieldChange(text: timestampMilliseconds as Any, isEditingEnd: true, index: self?.index ?? 0)
+                })
+            }
         } else {
-            RPicker.selectDate(title: "Select Date", cancelText: "Cancel", datePickerMode: .dateAndTime, style: .Inline, didSelectDate: {[weak self] (selectedDate) in
-                self?.selectedDate(date: selectedDate.dateString("MMMM d, yyyy h:mm a"))
-                let timestampMilliseconds = dateToTimestampMilliseconds(date: selectedDate)
-                self?.dateTimeUpadte(timestampMilliseconds: timestampMilliseconds)
-                self?.saveDelegate?.handleFieldChange(text: timestampMilliseconds as Any, isEditingEnd: true, index: self?.index ?? 0)
-            })
+            let dateTime = dateTimeField.text ?? ""
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "MMMM d, yyyy h:mm a"
+            if let dateFromString = dateFormatter.date(from: dateTime) {
+                RPicker.selectDate(title: "Select Date", cancelText: "Cancel", datePickerMode: .dateAndTime, selectedDate: dateFromString, style: .Inline, didSelectDate: {[weak self] (selectedDate) in
+                    self?.selectedDate(date: selectedDate.dateString("MMMM d, yyyy h:mm a"))
+                    let timestampMilliseconds = dateToTimestampMilliseconds(date: selectedDate)
+                    self?.dateTimeUpadte(timestampMilliseconds: timestampMilliseconds)
+                    self?.saveDelegate?.handleFieldChange(text: timestampMilliseconds as Any, isEditingEnd: true, index: self?.index ?? 0)
+                })
+            } else {
+                dateTimeSelect(dateFormat: "MMMM d, yyyy h:mm a", datePickerMode : .dateAndTime)
+            }
         }
+    }
+    
+    func dateTimeSelect(dateFormat: String, datePickerMode:UIDatePicker.Mode = .date) {
+        RPicker.selectDate(title: "Select Date", cancelText: "Cancel", datePickerMode: datePickerMode, style: .Inline, didSelectDate: {[weak self] (selectedDate) in
+            self?.selectedDate(date: selectedDate.dateString(dateFormat))
+            let timestampMilliseconds = dateToTimestampMilliseconds(date: selectedDate)
+            self?.dateTimeUpadte(timestampMilliseconds: timestampMilliseconds)
+            self?.saveDelegate?.handleFieldChange(text: timestampMilliseconds as Any, isEditingEnd: true, index: self?.index ?? 0)
+        })
     }
     
     // Update updated value in the joyDoc
