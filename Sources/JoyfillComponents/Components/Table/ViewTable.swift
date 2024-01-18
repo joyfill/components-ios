@@ -777,6 +777,7 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
             updateCellSubviewBorder(at: 0)
             updateCellSubviewBorder(at: 1)
             updateSelectionButton()
+            tableValueUpdate()
             let itemCount = collectionView.numberOfItems(inSection: cellSelectedIndexPath?.section ?? 0)
             for itemIndex in 0..<itemCount {
                 let indexPath = IndexPath(item: itemIndex, section: cellSelectedIndexPath?.section ?? 0)
@@ -934,9 +935,10 @@ public class ViewTable: UIViewController, TextViewCellDelegate, DropDownSelectTe
             let deleteRowId = tableRowOrder[tableIndexNo][(cellSelectedIndexPath?.section ?? 0) - 1]
             tableRowOrder[tableIndexNo].remove(at: (cellSelectedIndexPath?.section ?? 0) - 1)
             saveDelegate?.handleDeleteRow(rowId: deleteRowId, rowIndex: (cellSelectedIndexPath?.section ?? 0) - 1, isEditingEnd: true, index: index)
+            tableValueUpdate()
         }
         selectedIndexPath = nil
-        reloadCollectionRowNumber()
+        collectionView.reloadData()
         updateSelectionButton()
         let numberOfItemsInSection = collectionView.numberOfItems(inSection: (cellSelectedIndexPath?.section ?? 0) - 1)
         for item in 0..<numberOfItemsInSection {
@@ -1409,6 +1411,8 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
                 if (tableFieldValue[tableIndexNo].first(where: {$0.id == valueElement.id}) != nil) {
                     tableFieldValue[tableIndexNo][indexPathSection - 1] = valueElement
                 }
+                
+                tableValueUpdate()
                 for (key, value) in cellValues ?? [:] {
                     if key == optionsData[tableIndexNo][indexPathRow-2].id {
                         cells[key] = dropDownSelectId
@@ -1417,7 +1421,6 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
                     }
                 }
                 
-                tableValueUpdate()
                 let row = ["_id":  tableFieldValue[tableIndexNo][indexPathSection - 1].id ?? "",
                            "deleted": false,
                            "cells": cells
@@ -1466,7 +1469,6 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
                 tableFieldValue[tableIndexNo][indexSection - 1] = valueElement
             }
             tableValueUpdate()
-            collectionView.reloadItems(at: [IndexPath(row: indexRow, section: indexSection - 1)])
             do {
                 let jsonData = try JSONSerialization.data(withJSONObject: cells.mapValues { $0.self }, options: .prettyPrinted)
                 
@@ -1529,7 +1531,6 @@ extension ViewTable: UICollectionViewDelegate, UICollectionViewDataSource, UICol
             }
             
             tableValueUpdate()
-            collectionView.reloadItems(at: [IndexPath(row: indexRow, section: indexSection - 1)])
             let row = ["_id":  tableFieldValue[tableIndexNo][indexSection - 1].id ?? "",
                        "deleted": false,
                        "cells": cells
